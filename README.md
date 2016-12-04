@@ -1,6 +1,6 @@
 # Software for Sonoff switch 
 
-**Requirements to implement: **
+**Requirements to implement:**
 * firmware update over the network
 * sonoff configuration by the browser 
 * possibility to connect sensor ds18b20 with automatic detection 
