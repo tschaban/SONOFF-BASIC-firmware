@@ -3,12 +3,12 @@
 **Work in progress - not ready for release**
 
 **Requirements to implement:**
-* firmware update over the network
-* sonoff configuration by the browser 
-* possibility to connect sensor ds18b20 with automatic detection 
-* relay controlled by MQTT messages
-* temperature published by MQTT broker
-* relay controlled manually by sonoff button
+* firmware update over the network - **not started**
+* sonoff configuration by the browser - **not started**
+* possibility to connect sensor ds18b20 with automatic detection - **in progress**
+* relay controlled by MQTT messages - **first functions implemented**
+* temperature published by MQTT broker - **not started**
+* relay controlled manually by sonoff button - **first functions implemented**
 
 
 **Resources**
