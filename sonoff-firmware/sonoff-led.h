@@ -1,1 +1,1 @@
-void blinkLED(int t=50);
+void blinkLED(int t=100);

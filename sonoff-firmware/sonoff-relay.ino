@@ -3,12 +3,16 @@
 void relayOn() {
   digitalWrite(RELAY, HIGH);
   publishRelayStateMessage();
+  Serial << "Relay set to ON" << endl;
+  blinkLED();
 }
 
 /* Set relay to OFF */
 void relayOff() {
   digitalWrite(RELAY, LOW);
   publishRelayStateMessage();
+  Serial << "Relay set to OFF" << endl;
+  blinkLED();
 }
 
 /* Toggle relay */

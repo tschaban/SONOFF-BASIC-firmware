@@ -12,8 +12,6 @@
 #include "sonoff-button.h"
 #include "sonoff-ds18b20.h"
 
-
-
 /* Variables */
 
 /* Timers */
@@ -44,7 +42,7 @@ void setup() {
 
   Serial << " Device ID: " << ID << endl;
 
- // sprintf(mqttTopic, "%s%i", MQTT_TOPIC, ID);
+  sprintf(mqttTopic, "%s%i", MQTT_TOPIC, ID);
 
   connectToWiFi();
   DS18B20.begin();
@@ -56,10 +54,13 @@ void setup() {
 /* Connect to WiFI */
 void connectToWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial << "Connecting to WiFi: " << WIFI_SSID;
   while (WiFi.status() != WL_CONNECTED) {
+    Serial << ".";
     blinkLED(CONNECTION_WAIT_TIME/2);
     delay(CONNECTION_WAIT_TIME/2);
   }
+  Serial << endl << "Connected" << endl;
 }
 
 void loop() {
