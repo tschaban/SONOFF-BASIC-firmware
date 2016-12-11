@@ -1,4 +1,6 @@
-# Software for Sonoff switch 
+# Software for Sonoff switch
+
+**Work in progress - not ready for release**
 
 **Requirements to implement:**
 * firmware update over the network
