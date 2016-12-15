@@ -58,7 +58,11 @@ void handleConfiguration() {
   String _wifi_password = server.arg("wifi_password");
 
   if (_wifi_ssid.length() > 0 && _wifi_password.length() > 0) {  
-    saveToEEPROM(_wifi_ssid,_wifi_password);
+    memory.saveWiFiSSID(_wifi_ssid);
+  }
+
+  if (_wifi_password.length() > 0) {  
+    memory.saveWiFiPassword(_wifi_password);
   }
   
   Serial << "Server: configuration" << endl;

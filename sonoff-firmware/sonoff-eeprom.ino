@@ -1,52 +1,53 @@
-/* Reading data from EEPROM */
-void readFromEEPROM() {
+#include "sonoff-eeprom.h"
+
+SonoffEEPROM::SonoffEEPROM() {
+  EEPROM.begin(512);
+}
+
+void SonoffEEPROM::read() {
   String wifi_ssid;
   String wifi_password;
-
   Serial << "Reading EEPROM" << endl;
-
   for (int i = 0; i < 32; ++i)
   {
     sonoffConfig.wifi_ssid[i] += EEPROM.read(i);
   }
-
   Serial << " - WIFI SSID: " << sonoffConfig.wifi_ssid << endl;
-
   for (int i = 32; i < 96; ++i)
   {
     sonoffConfig.wifi_password[i-32] += EEPROM.read(i);
   }
-
   Serial << " - WIFI Password: " << sonoffConfig.wifi_password << endl;
 }
 
-/* Saveing data to EPPROM */
-void saveToEEPROM(String ssid,String password) {
-  Serial << "Saving to EEPROM" << endl;
-  clearEEPROM();
-  for (int i = 0; i < ssid.length(); ++i)
+
+void SonoffEEPROM::saveWiFiSSID(String in) {
+  Serial << "Storing WiFi SSID" << endl;
+  write(0,32,in);   
+}
+
+void SonoffEEPROM::saveWiFiPassword(String in) {
+  Serial << "Storing WiFi Password" << endl;
+  write(32,64,in);  
+}
+
+void SonoffEEPROM::write(int address, int size, String in) {
+  clear(address,size);
+  Serial << " - saveing [0x" << address <<"]: ";
+  for (int i = 0; i < in.length(); ++i)
   {
-    EEPROM.write(i, ssid[i]);
-    Serial << ssid[i];
-  } 
-  Serial << endl;
-   
-  for (int i = 0; i < password.length(); ++i)
-  {
-    EEPROM.write(32+i, password[i]);
-    Serial << password[i];
+    EEPROM.write(address+i, in[i]);
+    Serial << in[i];
   }
-  Serial << endl;
   EEPROM.commit();
-  Serial << " - saved" << endl;
-  readFromEEPROM();
+  Serial << " [completed]" << endl;   
 }
 
 /* Clear EEPROM */
-void clearEEPROM() {
-  Serial << " - erasing EEPROM" << endl;  
-  for (int i = 0; i < 96; ++i) {
-    EEPROM.write(i, 0);
+void SonoffEEPROM::clear(int start, int size) {
+  Serial << " - erasing " << size << "B from EEPROM [0x" << start << "]" << endl;  
+  for (int i = 0; i < size; ++i) {
+    EEPROM.write(i+start, 0);
   }
   EEPROM.commit();
 }
