@@ -4,15 +4,12 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <EEPROM.h>
 
 #include "Streaming.h"
 //#include "sonoff-configuration.h"
-#include "sonoff-configuration-local.h"
-#include "sonoff-relay.h"
 #include "sonoff-led.h"
-#include "sonoff-button.h"
-#include "sonoff-ds18b20.h"
-#include "sonoff-webserver.h"
+#include "sonoff-configuration-local.h"
 
 /* Variables */
 
@@ -28,9 +25,13 @@ DallasTemperature DS18B20(&wireProtocol);
 
 ESP8266WebServer server(80);
 
+
+
 void setup() {
   Serial.begin(115200);
+  EEPROM.begin(512);
   delay(10);
+  
 
   client.setServer(MQTT_HOST, MQTT_PORT);
   client.setCallback(callbackMQTT);
@@ -45,6 +46,8 @@ void setup() {
   Serial << " Device ID: " << ID << endl;
 
   sprintf(mqttTopic, "%s%i", MQTT_TOPIC, ID);
+
+  readFromEEPROM();  
 
   connectToWiFi();
   DS18B20.begin();
