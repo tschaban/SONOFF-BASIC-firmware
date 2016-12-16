@@ -54,48 +54,38 @@ void handleRoot() {
 }
 
 void handleConfiguration() {
-  String _wifi_ssid = server.arg("wifi_ssid");
-  String _wifi_password = server.arg("wifi_password");
-
-  if (_wifi_ssid.length() > 0 && _wifi_password.length() > 0) {  
-    memory.saveWiFiSSID(_wifi_ssid);
-  }
-
-  if (_wifi_password.length() > 0) {  
-    memory.saveWiFiPassword(_wifi_password);
-  }
-  
+ 
   Serial << "Server: configuration" << endl;
   String page = 
 "<h4>WiFI configuration:</h4>"
-"<form action=\"/configure\"  method=\"post\">"
+"<form action=\"/save\"  method=\"post\">"
 "<table>"
     "<tr>"
         "<td class=\"header\">WiFi SSID<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += sonoffConfig.wifi_ssid; page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += memory.getWiFiSSID(); page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">WiFi Password<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"wifi_password\" length=64 value=\""; page += sonoffConfig.wifi_password; page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += memory.getWiFiPassword(); page += "\" /></td>"
     "</tr>"
 "</table>"
 "<h4>MQTT Broker configuration:</h4>"
 "<table>"
     "<tr>"
         "<td class=\"header\">Host<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += MQTT_HOST; page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += memory.getMQTTHost(); page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">Port<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += MQTT_PORT; page += "\"/></td>"
+        "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += memory.getMQTTPort(); page += "\"/></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">User</td>"
-        "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += MQTT_USER; page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += memory.getMQTTUser(); page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">Password</td>"
-        "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += MQTT_PASSWORD; page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += memory.getMQTTPassword(); page += "\" /></td>"
     "</tr>"
 "</table>"
 "<input class=\"submit\" type=\"submit\" />"
@@ -112,7 +102,47 @@ void handleUpdate() {
 }
 
 
+void handleSave() {
 
+  Serial << "Server: saveing data" << endl;
+  
+  String _wifi_ssid = server.arg("wifi_ssid");
+  String _wifi_password = server.arg("wifi_password");
+  String _mqtt_host = server.arg("mqtt_host");
+  String _mqtt_port = server.arg("mqtt_port");
+  String _mqtt_user = server.arg("mqtt_user");
+  String _mqtt_password = server.arg("mqtt_password");
+
+
+  if (_wifi_ssid.length() > 0) {  
+    memory.saveWiFiSSID(_wifi_ssid);
+  }
+
+  if (_wifi_password.length() > 0) {  
+    memory.saveWiFiPassword(_wifi_password);
+  }
+
+  if (_mqtt_host.length() > 0) {  
+    memory.saveMQTTHost(_mqtt_host);
+  }
+
+  if (_mqtt_port.length() > 0) {  
+    memory.saveMQTTPort(_mqtt_port);
+  }
+
+  if (_mqtt_user.length() > 0) {  
+    memory.saveMQTTUser(_mqtt_user);
+  }
+
+  if (_mqtt_password.length() > 0) {  
+    memory.saveMQTTPassword(_mqtt_password);
+  }    
+  String page =
+  "<h4>Information have been saved</h4>"; 
+
+  generatePage(page);
+  
+}
 
 void handleNotFound(){
   Serial << "Server: page not found" << endl;

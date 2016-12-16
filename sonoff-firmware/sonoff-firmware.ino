@@ -47,8 +47,6 @@ void setup() {
 
   sprintf(mqttTopic, "%s%i", MQTT_TOPIC, ID);
 
-  memory.read();
-
   connectToWiFi();
   DS18B20.begin();
   setSensorReadInterval(TEMP_INTERVAL);
@@ -57,11 +55,11 @@ void setup() {
   server.on("/", handleRoot);
   server.on("/configure", handleConfiguration);
   server.on("/update", handleUpdate);
+  server.on("/save", handleSave);
 
 
   server.onNotFound(handleNotFound);
   server.begin();
-
 }
 
 /* Connect to WiFI */
