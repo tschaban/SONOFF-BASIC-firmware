@@ -1,3 +1,10 @@
+/*
+ Sonoff: firmware
+ More info: https://github.com/tschaban/SONOFF-firmware
+ LICENCE: http://opensource.org/licenses/MIT
+ 2016-10-27 tschaban https://github.com/tschaban
+*/
+
 /* Publishing state of the Relay to MQTT Broker */
 void publishRelayStateMessage() {
   char  mqttString[50];
@@ -13,9 +20,9 @@ void publishRelayStateMessage() {
 void connectToMQTT() {
   char  mqttString[50];
   sprintf(mqttString,"Sonoff (ID: %i)",ID);
-  Serial << "Connecting to MQTT : " << MQTT_HOST << " ";
+  Serial << "Connecting to MQTT : " << sonoffConfig.mqtt_host << " ";
   while (!client.connected()) {
-    if (client.connect(mqttString, MQTT_USER, MQTT_PASSWORD)) {
+    if (client.connect(mqttString, sonoffConfig.mqtt_user, sonoffConfig.mqtt_password)) {
         Serial << endl << "Connected" << endl;
         sprintf(mqttString,"%s/cmd", mqttTopic);
         client.subscribe(mqttString);

@@ -1,4 +1,9 @@
-#include <DNSServer.h>
+/*
+ Sonoff: firmware
+ More info: https://github.com/tschaban/SONOFF-firmware
+ LICENCE: http://opensource.org/licenses/MIT
+ 2016-10-27 tschaban https://github.com/tschaban
+*/
 
 #include <DallasTemperature.h>
 #include <OneWire.h>
@@ -6,12 +11,11 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-
+#include <DNSServer.h>
 
 #include "Streaming.h"
-//#include "sonoff-configuration.h"
+#include "sonoff-configuration.h"
 #include "sonoff-led.h"
-#include "sonoff-configuration-local.h"
 #include "sonoff-eeprom.h"
 
 /* Variables */
@@ -53,41 +57,52 @@ void setup() {
   Serial << endl << "EEPROM" << endl;
   sonoffConfig = memory.getConfiguration();
 
-  
   Serial << endl << "Configuration: " << endl;
+  Serial << " - Switch mode: " << sonoffConfig.mode << endl;
   Serial << " - WiFi SSID: " << sonoffConfig.wifi_ssid << endl;
   Serial << " - WiFi Password: " << sonoffConfig.wifi_password << endl;
   Serial << " - MQTT Host: " << sonoffConfig.mqtt_host << endl;
   Serial << " - MQTT Port: " << sonoffConfig.mqtt_port << endl;
   Serial << " - MQTT User: " << sonoffConfig.mqtt_user << endl;
   Serial << " - MQTT Password: " << sonoffConfig.mqtt_password << endl;
+  Serial << " - MQTT Topic: " << sonoffConfig.mqtt_topic << ID << "/" << endl;
+  Serial << " - Temp correctin: " << sonoffConfig.temp_correction << endl;
+  Serial << " - Temp interval: " << sonoffConfig.temp_interval << endl;
 
-
-  // configurationMode.attach(2,runConfigurationMode);
-
+  buttonTimer.attach(0.05, button);
   
-  Serial << endl << "Configuring MQTT" << endl;
-  sprintf(mqttTopic, "%s%i", MQTT_TOPIC, ID);
-  client.setServer(MQTT_HOST, MQTT_PORT);
-  client.setCallback(callbackMQTT);
+  if (sonoffConfig.wifi_ssid[0]==(char) 0 || sonoffConfig.wifi_password[0]==(char) 0 || sonoffConfig.mqtt_host[0]==(char) 0) {
+    Serial << endl << "Missing configuration. Going to configuration mode." << endl;
+    memory.saveSwitchMode(1);
+    sonoffConfig.mode=1;
+  }
 
-  //connectToWiFi();
-
-  runConfigurationMode();
-  
+  if (sonoffConfig.mode==1) {
+    Serial << endl << "Entering configuration mode" << endl;
+    runConfigurationMode();
+  } else {
+    Serial << endl << "Entering switch mode" << endl;
+    runSwitchMode();  
+  }
 
   /* 
   DS18B20.begin(); 
   setSensorReadInterval(TEMP_INTERVAL);
   buttonTimer.attach(0.1, button);  
     */
+
+
+    
 }
+
+
+
 
 /* Connect to WiFI */
 void connectToWiFi() {
   WiFi.hostname(hostName);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial << endl << "Connecting to WiFi: " << WIFI_SSID;
+  WiFi.begin(sonoffConfig.wifi_ssid, sonoffConfig.wifi_password);
+  Serial << endl << "Connecting to WiFi: " << sonoffConfig.wifi_ssid;
   while (WiFi.status() != WL_CONNECTED) {
     Serial << ".";
     blinkLED(CONNECTION_WAIT_TIME / 2);
@@ -103,10 +118,15 @@ void connectToWiFi() {
 
 
 void loop() {
- // if (!client.connected()) {
- //   connectToMQTT();
- // }
- // client.loop();
-  dnsServer.processNextRequest();
-  server.handleClient();
+  if (sonoffConfig.mode==0) {
+    if (!client.connected()) {
+      connectToMQTT();
+     }
+    client.loop();
+  } else if (sonoffConfig.mode==1) {  
+    dnsServer.processNextRequest();
+    server.handleClient();
+  } else {
+    Serial << "Internal Application Error" << endl;
+  }  
 }

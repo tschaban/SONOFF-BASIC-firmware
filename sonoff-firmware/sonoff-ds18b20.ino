@@ -1,3 +1,7 @@
+float tempCorrection = sonoffConfig.temp_correction;
+float previousTemperature = 0;
+
+
 /* Pubish temperature to MQTT broker */
 void publishTemperature() {
   char  temperatureString[6];

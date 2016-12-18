@@ -1,3 +1,10 @@
+/*
+ Sonoff: firmware
+ More info: https://github.com/tschaban/SONOFF-firmware
+ LICENCE: http://opensource.org/licenses/MIT
+ 2016-10-27 tschaban https://github.com/tschaban
+*/
+
 const String PAGE_HEADER =
 "<!DOCTYPE html>"
 "<html lang=\"en\">"
@@ -31,6 +38,8 @@ const String PAGE_HEADER =
 "        <li><a href=\"/\">Home</a></li>"
 "        <li><a href=\"/configure\">Configuration</a></li>"
 "        <li><a href=\"/update\">Firmware</a></li>"
+"        <li><a href=\"/reboot\">Reboot</a></li>"
+"        <li><a href=\"/reset\">Reset to defaults</a></li>"
 "    </ul>"
 "    <hr />"
 "    <div class=\"content\">";
@@ -45,50 +54,6 @@ const String PAGE_FOOTER =
           
 void handleRoot() {
   Serial << "Server: root requested" << endl;
-
-
-  String _wifi_ssid = server.arg("wifi_ssid");
-  String _wifi_password = server.arg("wifi_password");
-  String _mqtt_host = server.arg("mqtt_host");
-  String _mqtt_port = server.arg("mqtt_port");
-  String _mqtt_user = server.arg("mqtt_user");
-  String _mqtt_password = server.arg("mqtt_password");
-
-  bool saveing = false;
-
-  if (_wifi_ssid.length() > 0) {  
-    memory.saveWiFiSSID(_wifi_ssid);
-    saveing = true;
-  }
-
-  if (_wifi_password.length() > 0) {  
-    memory.saveWiFiPassword(_wifi_password);
-    saveing = true;
-  }
-
-  if (_mqtt_host.length() > 0) {  
-    memory.saveMQTTHost(_mqtt_host);
-    saveing = true;
-  }
-
-  if (_mqtt_port.length() > 0) {  
-    memory.saveMQTTPort(_mqtt_port);
-    saveing = true;
-  }
-
-  if (_mqtt_user.length() > 0) {  
-    memory.saveMQTTUser(_mqtt_user);
-    saveing = true;
-  }
-
-  if (_mqtt_password.length() > 0) {  
-    memory.saveMQTTPassword(_mqtt_password);
-    saveing = true;
-  }
-
-  if (saveing) {
-    sonoffConfig = memory.getConfiguration();
-  }
   
   String page =
 "<h3>Device:</h3>"   
@@ -124,6 +89,17 @@ void handleRoot() {
 "<td class=\"header\">MQTT Password</td>"
 "<td>: "; page += sonoffConfig.mqtt_password; page += "</td>"
 "</tr>"         
+"</table>"
+"<h3>Temp.Sensor:</h3>"   
+"<table>"
+"<tr>"
+"<td class=\"header\">Correction</td>"
+"<td>: "; page += sonoffConfig.temp_correction; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">Interval</td>"
+"<td>: "; page += sonoffConfig.temp_interval; page += "sec.</td>"
+"</tr>" 
 "</table>";
 
   generatePage(page);
@@ -133,35 +109,46 @@ void handleConfiguration() {
  
   Serial << "Server: configuration" << endl;
   String page = 
+"<form action=\"/save\"  method=\"post\">"
 "<h3>WiFI configuration:</h3>"
-"<form action=\"/\"  method=\"post\">"
 "<table>"
     "<tr>"
         "<td class=\"header\">WiFi SSID<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += memory.getWiFiSSID(); page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += sonoffConfig.wifi_ssid; page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">WiFi Password<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += memory.getWiFiPassword(); page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += sonoffConfig.wifi_password; page += "\" /></td>"
     "</tr>"
 "</table>"
 "<h3>MQTT Broker configuration:</h3>"
 "<table>"
     "<tr>"
         "<td class=\"header\">Host<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += memory.getMQTTHost(); page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += sonoffConfig.mqtt_host; page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">Port<sup class=\"red\">*</sup></td>"
-        "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += memory.getMQTTPort(); page += "\"/></td>"
+        "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += sonoffConfig.mqtt_port; page += "\"/></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">User</td>"
-        "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += memory.getMQTTUser(); page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += sonoffConfig.mqtt_user; page += "\" /></td>"
     "</tr>"
     "<tr>"
         "<td class=\"header\">Password</td>"
-        "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += memory.getMQTTPassword(); page += "\" /></td>"
+        "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += sonoffConfig.mqtt_password; page += "\" /></td>"
+    "</tr>"
+"</table>"
+"<h3>Temperature sensor configuration:</h3>"
+"<table>"
+    "<tr>"
+        "<td class=\"header\">Correction</td>"
+        "<td>: <input type=\"text\" name=\"temp_correction\" length=5 value=\""; page += sonoffConfig.temp_correction; page += "\" /></td>"
+    "</tr>"
+    "<tr>"
+        "<td class=\"header\">Interval (in sec.)</td>"
+        "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\""; page += sonoffConfig.temp_interval; page += "\" /></td>"
     "</tr>"
 "</table>"
 "<input class=\"submit\" type=\"submit\" />"
@@ -178,16 +165,33 @@ void handleUpdate() {
 }
 
 
-void handleSave() {
 
-  Serial << "Server: saveing data" << endl;
-  
+void handleNotFound(){
+  Serial << "Server: page not found" << endl;
+  String page = "Page not found";
+  generatePage(page);
+}
+
+void handleReboot() {
+  Serial << "Server: rebooting device" << endl;
+  String page =
+  "<h4>Rebooting device in 3sec.</h4>"; 
+  generatePage(page);
+  toggleMode();
+}
+
+void handleSave() {
+  Serial << "Server: saving data" << endl;
+
   String _wifi_ssid = server.arg("wifi_ssid");
   String _wifi_password = server.arg("wifi_password");
   String _mqtt_host = server.arg("mqtt_host");
   String _mqtt_port = server.arg("mqtt_port");
   String _mqtt_user = server.arg("mqtt_user");
   String _mqtt_password = server.arg("mqtt_password");
+
+  String _temp_correction = server.arg("temp_correction");
+  String _temp_interval = server.arg("temp_interval");
 
   bool saveing = false;
 
@@ -207,7 +211,7 @@ void handleSave() {
   }
 
   if (_mqtt_port.length() > 0) {  
-    memory.saveMQTTPort(_mqtt_port);
+    memory.saveMQTTPort(_mqtt_port.toInt());
     saveing = true;
   }
 
@@ -219,20 +223,36 @@ void handleSave() {
   if (_mqtt_password.length() > 0) {  
     memory.saveMQTTPassword(_mqtt_password);
     saveing = true;
-  }    
-  String page =
-  "<h4>Information saved</h4>"; 
+  }
 
-  generatePage(page);
+  if (_temp_correction.length() > 0 ) {  
+    memory.saveTemperatureCorrection(_temp_correction.toFloat());
+    saveing = true;
+  }
+
+   if (_temp_interval.length() > 0) {  
+    memory.saveTemperatureInterval(_temp_interval.toInt());
+    saveing = true;
+  }
+
+  if (saveing) {
+    sonoffConfig = memory.getConfiguration();
+  }
   
-}
-
-void handleNotFound(){
-  Serial << "Server: page not found" << endl;
-  String page = "Page not found";
+  String page =
+  "<h3>Saveing data</h3>"
+  "- completed";
+     
   generatePage(page);
 }
 
+void handleReset() {
+  Serial << "Server: resetting device" << endl;
+  String page =
+  "<h4>Resetting device in 6sec.</h4>"; 
+  generatePage(page);
+  resetDevceMode();
+}
 
 void generatePage(String &page) {
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -241,28 +261,5 @@ void generatePage(String &page) {
   page = PAGE_HEADER + page + PAGE_FOOTER;
   server.send(200, "text/html", page);
   blinkLED();
-}
-
-
-void runConfigurationMode() {  
-  Serial << endl << "Starting configuration mode" << endl;
-  Serial << " - launching access point" << endl;
-  
-  IPAddress apIP(192, 168, 5, 1);
-  WiFi.mode(WIFI_AP);
-  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(hostName);
-  dnsServer.setTTL(300);
-  dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
-  dnsServer.start(53, "www.example.com", apIP);
-  
-  Serial << " - launching web server" << endl;
-  server.on("/", handleRoot);
-  server.on("/configure", handleConfiguration);
-  server.on("/update", handleUpdate);
-  server.on("/save", handleSave);
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial << " - ready " << endl << endl;   
 }
 
