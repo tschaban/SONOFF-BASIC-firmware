@@ -1,20 +1,20 @@
 # Software for Sonoff switch
 
-**Work in progress - not ready for productive devices, although core functions are working **
+**Work in progress - not ready for productive release yet, although core functions are working**
 
 **Status of implementation:**
 * firmware update over the network - **not started**
-* sonoff configuration by the browser - **done, partially tested, additional option might be added**
+* sonoff configuration by the browser - **done, partially tested, additional options might be added**
 * possibility to connect sensor ds18b20 with automatic detection - **in progress**
-* relay controlled by MQTT messages - **done, tested - be aware that format ot MQTT message may change**
-* temperature published by MQTT broker - **done, tested - be aware that format ot MQTT message may change**
+* relay controlled by MQTT messages - **done, tested - be aware that format of MQTT message may change**
+* temperature published by MQTT broker - **done, tested - be aware that format of MQTT message may change**
 * relay controlled manually by sonoff button - **done, unit tested**
 
 **Hints**
 * 1 short button press toggles the relay
 * 3-4 sec. button press toggles device mode: configuration mode or switch mode
 * if there is no WiFi and/or MQTT Broker configured device will go automatically to configuration mode
-* in order to access device configuration via browser: find SONOFF_xxxxxx WiFi network - connect to it (no password needed) and then open http://192.168.5.1 in your browser 
+* in order configure device via browser: find SONOFF_xxxxxx WiFi network - connect to it (no password needed) and then open http://192.168.5.1 in your browser 
 
 **What is possible to configure via browser at the moment**
 * WiFi access
@@ -38,7 +38,7 @@
 | /sonoff/*ID*/temperature | Outbound | Number | Sonoff switch sends temperature from DS18B20 sensor if it was changed between subsequent measures | 
 
 where 
-*  _ID_ is a value of particular switch ChipID - it could be set manually to whatever value in the configuration part of a sketch
+*  _ID_ is a value of particular switch ChipID - it could be set manually to whatever value in the configuration part of a sketch **Planning to implement set it up via browser as well**
 
 **Resources**
 * Project web page (in polish): [here](http://smart-house.adrian.czabanowski.com/projekt-firmware-do-sonoff/)
