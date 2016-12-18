@@ -21,6 +21,7 @@ class SonoffEEPROM
     void saveMQTTPort(String in);
     void saveMQTTUser(String in);
     void saveMQTTPassword(String in);
+    SONOFFCONFIG getConfiguration();
   private:
     void write(int address, int size, String in);
     String read(int address, int size);

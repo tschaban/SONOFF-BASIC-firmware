@@ -2,53 +2,129 @@ const String PAGE_HEADER =
 "<!DOCTYPE html>"
 "<html lang=\"en\">"
 "<head>"
-    "<meta charset=\"UTF-8\">"
-    "<title>Sonoff Configuration</title>"
-    "<style>"
-        "body{font-family:tahoma;font-size: 16px;}"
-        "footer{font-size: 12px;color:#aaaaaa;}"
-        "td{font-size: 14px;}"
-        "h2{color:#AA5F39;margin: 0px;}"
-        "h4{color:#123652;}"
-        "hr{height:1px;border: 0 none;background-color: #eee;}"
-        ".header{font-weight: bold;}"
-        ".submit{margin: 5px 0; padding: 2px 10px;}"
-        ".red{color:#FF0000;}"
-    "</style>"
+"    <meta charset=\"UTF-8\">"
+"    <meta name=\"viewport\" content=\"user-scalable = yes\">"
+"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+"    <title>Sonoff Configuration</title>"
+"    <style>"
+"        body {font-family: Tahoma;font-size: 14px}"
+"        a {color: #1E90FF;text-decoration: none;}"
+"        table {margin: 2px 0 15px 0;}"
+"        td {}"
+"        h1,h3 {color: #AA5F39;margin: 0px;}"
+"        hr {height: 1px;border: 0 none;background-color: #eee;}"
+"        ul {margin: 0;  padding: 0; list-style-type: none;}"
+"        li {display: inline; padding-right: 5px;}"
+"        footer {color: #aaaaaa; font-size: small;}"
+"        .container{width: 350px; margin: 10px auto; height: auto}"
+"        .content{margin: 5px 5px}"
+"        .header {font-weight: bold;}"
+"        .submit {margin: 5px 0; padding: 2px 10px; }"
+"        .red {color: #FF0000;}"
+"    </style>"
 "</head>"
 "<body>"
-"<h2>Sonoff switch</h2>"
-"<hr />";
+"<div class=\"container\">"
+"    <h1>Sonoff</h1>"
+"    <hr />"
+"    <ul>"
+"        <li><a href=\"/\">Home</a></li>"
+"        <li><a href=\"/configure\">Configuration</a></li>"
+"        <li><a href=\"/update\">Firmware</a></li>"
+"    </ul>"
+"    <hr />"
+"    <div class=\"content\">";
 
 const String PAGE_FOOTER =
 "<hr />"
-"<footer>Follow on <a href=\"https://github.com/tschaban/SONOFF-firmware/\" target=\"_blank\">GitHub</a></footer>"
+"<footer>Version: 0.1 beta</footer>"
+"</div>"
+"</div>"
 "</body>"
 "</html>";
-        
           
 void handleRoot() {
   Serial << "Server: root requested" << endl;
-  String page = 
+
+
+  String _wifi_ssid = server.arg("wifi_ssid");
+  String _wifi_password = server.arg("wifi_password");
+  String _mqtt_host = server.arg("mqtt_host");
+  String _mqtt_port = server.arg("mqtt_port");
+  String _mqtt_user = server.arg("mqtt_user");
+  String _mqtt_password = server.arg("mqtt_password");
+
+  bool saveing = false;
+
+  if (_wifi_ssid.length() > 0) {  
+    memory.saveWiFiSSID(_wifi_ssid);
+    saveing = true;
+  }
+
+  if (_wifi_password.length() > 0) {  
+    memory.saveWiFiPassword(_wifi_password);
+    saveing = true;
+  }
+
+  if (_mqtt_host.length() > 0) {  
+    memory.saveMQTTHost(_mqtt_host);
+    saveing = true;
+  }
+
+  if (_mqtt_port.length() > 0) {  
+    memory.saveMQTTPort(_mqtt_port);
+    saveing = true;
+  }
+
+  if (_mqtt_user.length() > 0) {  
+    memory.saveMQTTUser(_mqtt_user);
+    saveing = true;
+  }
+
+  if (_mqtt_password.length() > 0) {  
+    memory.saveMQTTPassword(_mqtt_password);
+    saveing = true;
+  }
+
+  if (saveing) {
+    sonoffConfig = memory.getConfiguration();
+  }
+  
+  String page =
+"<h3>Device:</h3>"   
 "<table>"
-    "<tr>"
-        "<td class=\"header\">Device ID</td>"
-        "<td>: "; page += ID; page += "</td>"
-    "</tr>"
-    "<tr>"
-        "<td class=\"header\">Connected to WiFI</td>"
-        "<td>: "; page += WIFI_SSID; page += "</td>"
-    "</tr>"
-    "<tr>"
-        "<td class=\"header\">Connected to MQTT</td>"
-        "<td>: "; page += MQTT_HOST; page += "</td>"
-    "</tr>"
+"<tr>"
+"<td class=\"header\">ID</td>"
+"<td>: "; page += ID; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">Name</td>"
+"<td>: "; page += hostName; page += "</td>"
+"</tr>" 
 "</table>"
-"<h4>Options:</h4>"
-"<ul>"
-    "<li><a href=\"/configure\">Change configuration</a></li>"
-    "<li><a href=\"/update\">Update firmware</a></li>"
-"</ul>";
+"<h3>Configuration:</h3>"   
+"<table>"      
+"<tr>"
+"<td class=\"header\">WiFi SSID</td>"
+"<td>: "; page += sonoffConfig.wifi_ssid; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">WiFi Password</td>"
+"<td>: "; page += sonoffConfig.wifi_password; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">MQTT Host</td>"
+"<td>: "; page += sonoffConfig.mqtt_host; page += ":";  page += sonoffConfig.mqtt_port; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">MQTT User</td>"
+"<td>: "; page += sonoffConfig.mqtt_user; page += "</td>"
+"</tr>"
+"<tr>"
+"<td class=\"header\">MQTT Password</td>"
+"<td>: "; page += sonoffConfig.mqtt_password; page += "</td>"
+"</tr>"         
+"</table>";
 
   generatePage(page);
 }
@@ -57,8 +133,8 @@ void handleConfiguration() {
  
   Serial << "Server: configuration" << endl;
   String page = 
-"<h4>WiFI configuration:</h4>"
-"<form action=\"/save\"  method=\"post\">"
+"<h3>WiFI configuration:</h3>"
+"<form action=\"/\"  method=\"post\">"
 "<table>"
     "<tr>"
         "<td class=\"header\">WiFi SSID<sup class=\"red\">*</sup></td>"
@@ -69,7 +145,7 @@ void handleConfiguration() {
         "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += memory.getWiFiPassword(); page += "\" /></td>"
     "</tr>"
 "</table>"
-"<h4>MQTT Broker configuration:</h4>"
+"<h3>MQTT Broker configuration:</h3>"
 "<table>"
     "<tr>"
         "<td class=\"header\">Host<sup class=\"red\">*</sup></td>"
@@ -113,32 +189,39 @@ void handleSave() {
   String _mqtt_user = server.arg("mqtt_user");
   String _mqtt_password = server.arg("mqtt_password");
 
+  bool saveing = false;
 
   if (_wifi_ssid.length() > 0) {  
     memory.saveWiFiSSID(_wifi_ssid);
+    saveing = true;
   }
 
   if (_wifi_password.length() > 0) {  
     memory.saveWiFiPassword(_wifi_password);
+    saveing = true;
   }
 
   if (_mqtt_host.length() > 0) {  
     memory.saveMQTTHost(_mqtt_host);
+    saveing = true;
   }
 
   if (_mqtt_port.length() > 0) {  
     memory.saveMQTTPort(_mqtt_port);
+    saveing = true;
   }
 
   if (_mqtt_user.length() > 0) {  
     memory.saveMQTTUser(_mqtt_user);
+    saveing = true;
   }
 
   if (_mqtt_password.length() > 0) {  
     memory.saveMQTTPassword(_mqtt_password);
+    saveing = true;
   }    
   String page =
-  "<h4>Information have been saved</h4>"; 
+  "<h4>Information saved</h4>"; 
 
   generatePage(page);
   
@@ -159,3 +242,27 @@ void generatePage(String &page) {
   server.send(200, "text/html", page);
   blinkLED();
 }
+
+
+void runConfigurationMode() {  
+  Serial << endl << "Starting configuration mode" << endl;
+  Serial << " - launching access point" << endl;
+  
+  IPAddress apIP(192, 168, 5, 1);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.softAP(hostName);
+  dnsServer.setTTL(300);
+  dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+  dnsServer.start(53, "www.example.com", apIP);
+  
+  Serial << " - launching web server" << endl;
+  server.on("/", handleRoot);
+  server.on("/configure", handleConfiguration);
+  server.on("/update", handleUpdate);
+  server.on("/save", handleSave);
+  server.onNotFound(handleNotFound);
+  server.begin();
+  Serial << " - ready " << endl << endl;   
+}
+

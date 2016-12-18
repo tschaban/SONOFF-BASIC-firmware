@@ -19,7 +19,7 @@ void connectToMQTT() {
         Serial << endl << "Connected" << endl;
         sprintf(mqttString,"%s/cmd", mqttTopic);
         client.subscribe(mqttString);
-        Serial << "Subsribed to : " << mqttTopic << endl;
+        Serial << " - Subsribed to : " << mqttTopic << endl;
         getConfiguration();
     } else {
       blinkLED(CONNECTION_WAIT_TIME/2);
@@ -73,7 +73,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
 void getConfiguration() {  
   char  mqttString[50];
   sprintf(mqttString,"%s/get", mqttTopic);
-  Serial << "Requesting configuration : " << mqttTopic << " " << "defaultState" << 
+  Serial << " - Requesting configuration : " << mqttTopic << " " << "defaultState" << 
   endl;
   client.publish(mqttString, "defaultState");
   blinkLED();

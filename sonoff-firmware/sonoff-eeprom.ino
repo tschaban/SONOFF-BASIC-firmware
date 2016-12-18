@@ -4,33 +4,41 @@ SonoffEEPROM::SonoffEEPROM() {
   EEPROM.begin(512);
 }
 
+
+SONOFFCONFIG SonoffEEPROM::getConfiguration() {
+  Serial << "Reading configuration from EEPROM" << endl; 
+  SONOFFCONFIG _temp;
+  getWiFiSSID().toCharArray(_temp.wifi_ssid,sizeof(_temp.wifi_ssid));
+  getWiFiPassword().toCharArray(_temp.wifi_password,sizeof(_temp.wifi_password));
+  getMQTTHost().toCharArray(_temp.mqtt_host,sizeof(_temp.mqtt_host));
+  _temp.mqtt_port = getMQTTPort().toInt();
+  getMQTTUser().toCharArray(_temp.mqtt_user,sizeof(_temp.mqtt_user));
+  getMQTTPassword().toCharArray(_temp.mqtt_password,sizeof(_temp.mqtt_password));
+
+  return _temp;
+}
+
 String SonoffEEPROM::getWiFiSSID() {
-  Serial << "Reading WiFi SSID" << endl;
   return read(232,32);
 }
 
 String SonoffEEPROM::getWiFiPassword() {
-  Serial << "Reading WiFi Password" << endl;
   return read(264,32);
 }
 
 String SonoffEEPROM::getMQTTHost() {
-  Serial << "Reading MQTT Host" << endl;
   return read(296,32);
 }
 
 String SonoffEEPROM::getMQTTPort() {
-  Serial << "Reading MQTT Port" << endl;
   return read(328,5);
 }
 
 String SonoffEEPROM::getMQTTUser() {
-  Serial << "Reading MQTT User" << endl;
   return read(333,32);
 }
 
 String SonoffEEPROM::getMQTTPassword() {
-  Serial << "Reading MQTT Password" << endl;
   return read(365,32);
 }
 
@@ -83,8 +91,8 @@ String SonoffEEPROM::read(int address, int size) {
   Serial << " - reading " << size << "B from EEPROM [0x" << address << "] : "; 
   for (int i = address; i < address+size; ++i)
   {
-   if (EEPROM.read(i)!=0) {
-    Serial << char(EEPROM.read(i)) << "[" << EEPROM.read(i) << "],"; 
+   if (EEPROM.read(i)!=255) {
+  //  Serial << char(EEPROM.read(i)) << "[" << EEPROM.read(i) << "],"; 
     _return += char(EEPROM.read(i));
    }    
   }
@@ -97,7 +105,8 @@ String SonoffEEPROM::read(int address, int size) {
 void SonoffEEPROM::clear(int address, int size) {
   Serial << " - erasing " << size << "B from EEPROM [0x" << address << "]" << endl;  
   for (int i = 0; i < size; ++i) {
-    EEPROM.write(i+address, 0);
+    EEPROM.write(i+address, 255);
   }
   EEPROM.commit();
 }
+
