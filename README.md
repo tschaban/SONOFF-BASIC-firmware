@@ -3,7 +3,7 @@
 **Work in progress - not ready for productive release yet, although core functions are working**
 
 **Status of implementation:**
-* firmware update over the network - **not started**
+* firmware update over the network - **in progress**
 * sonoff configuration by the browser - **done, partially tested, additional options might be added**
 * possibility to connect sensor ds18b20 with automatic detection - **in progress**
 * relay controlled by MQTT messages - **done, tested - be aware that format of MQTT message may change**
@@ -34,7 +34,7 @@
 | /sonoff/*ID*/cmd | Inbound | tempCorrection:N | **NOT IMPLEMENTED**  Sets a value of temperature correction. Example tempCorrection:-1.2 - means correct returned temperature by -1.2. Default: 0 | 
 | /sonoff/*ID*/state | Outbound | ON | Sonoff  publishes this if relay is set to ON by MQTT or manually by pressing Sonoff button |
 | /sonoff/*ID*/state | Outbound | OFF | Sonoff  publishes this if relay is set to OFF by MQTT or manually by pressing Sonoff button |
-| /sonoff/*ID*/get | Outbound | defaultState | Sonoff switch sends this message to the broker while booting in order to get default values of the relay, temp.correction and interval of sensor read. If it's not implemented in the MQTT broker then default values are set | 
+| /sonoff/*ID*/get | Outbound | defaultState | **It will be removed - EEPROM will be used instead** Sonoff switch sends this message to the broker while booting in order to get default values of the relay, temp.correction and interval of sensor read. If it's not implemented in the MQTT broker then default values are set | 
 | /sonoff/*ID*/temperature | Outbound | Number | Sonoff switch sends temperature from DS18B20 sensor if it was changed between subsequent measures | 
 
 where 

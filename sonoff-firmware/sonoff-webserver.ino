@@ -139,6 +139,10 @@ void handleConfiguration() {
         "<td class=\"header\">Password</td>"
         "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += sonoffConfig.mqtt_password; page += "\" /></td>"
     "</tr>"
+    "<tr>"
+        "<td class=\"header\">Topic</td>"
+        "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\""; page += sonoffConfig.mqtt_topic; page += "\" /></td>"
+    "</tr>"    
 "</table>"
 "<h3>Temperature sensor configuration:</h3>"
 "<table>"
@@ -159,7 +163,7 @@ void handleConfiguration() {
 }
 
 void handleUpdate() {
-  Serial << "Server: configuration" << endl;
+  Serial << "Server: update" << endl;
   String page = "Firmware update";
   generatePage(page);
 }
@@ -189,6 +193,7 @@ void handleSave() {
   String _mqtt_port = server.arg("mqtt_port");
   String _mqtt_user = server.arg("mqtt_user");
   String _mqtt_password = server.arg("mqtt_password");
+  String _mqtt_topic = server.arg("mqtt_topic");
 
   String _temp_correction = server.arg("temp_correction");
   String _temp_interval = server.arg("temp_interval");
@@ -222,6 +227,11 @@ void handleSave() {
 
   if (_mqtt_password.length() > 0) {  
     memory.saveMQTTPassword(_mqtt_password);
+    saveing = true;
+  }
+
+  if (_mqtt_topic.length() > 0) {  
+    memory.saveMQTTTopic(_mqtt_topic);
     saveing = true;
   }
 

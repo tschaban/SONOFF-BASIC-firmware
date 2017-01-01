@@ -23,7 +23,8 @@ class SonoffEEPROM
     void saveMQTTTopic(String in);     
     void saveSwitchMode(int in);
     void saveTemperatureCorrection(float in); 
-    void saveTemperatureInterval(unsigned int in);        
+    void saveTemperatureInterval(unsigned int in);
+    void saveRelayState(unsigned int in);
     String getWiFiSSID();
     String getWiFiPassword();
     String getMQTTHost();
@@ -35,6 +36,7 @@ class SonoffEEPROM
     String getVersion();
     String getTemperatureCorrection(); 
     String getTemperatureInterval(); 
+    unsigned int getRelayState();
     SONOFFCONFIG getConfiguration();
     void erase();
   private: 

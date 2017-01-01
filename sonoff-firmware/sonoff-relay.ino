@@ -10,6 +10,7 @@ void relayOn() {
   digitalWrite(RELAY, HIGH);
   publishRelayStateMessage();
   Serial << "Relay set to ON" << endl;
+  memory.saveRelayState(1);
   blinkLED();
 }
 
@@ -18,6 +19,7 @@ void relayOff() {
   digitalWrite(RELAY, LOW);
   publishRelayStateMessage();
   Serial << "Relay set to OFF" << endl;
+  memory.saveRelayState(0);
   blinkLED();
 }
 

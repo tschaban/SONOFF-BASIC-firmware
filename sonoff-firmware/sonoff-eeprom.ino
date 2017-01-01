@@ -81,6 +81,10 @@ String SonoffEEPROM::getTemperatureInterval() {
   return read(110, 8);
 }
 
+unsigned int SonoffEEPROM::getRelayState() {
+  return read(118, 1).toInt();
+}
+
 void SonoffEEPROM::saveSwitchMode(int in) {
   Serial << "Storing Switch Mode" << endl;
   write(104, 1, String(in));
@@ -95,6 +99,12 @@ void SonoffEEPROM::saveTemperatureInterval(unsigned int in) {
   Serial << "Storing temperature interval" << endl;
   write(110, 8, String(in));
 }
+
+void SonoffEEPROM::saveRelayState(unsigned int in) {
+  Serial << "Storing Relay state" << endl;
+  write(118, 1, String(in));
+}
+
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
   Serial << "Storing WiFi SSID" << endl;

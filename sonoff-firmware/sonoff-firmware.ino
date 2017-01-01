@@ -1,3 +1,5 @@
+
+
 /*
  Sonoff: firmware
  More info: https://github.com/tschaban/SONOFF-firmware
@@ -12,6 +14,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
+#include <ESP8266HTTPUpdateServer.h>
 
 #include "Streaming.h"
 #include "sonoff-configuration.h"
@@ -35,6 +38,7 @@ DallasTemperature DS18B20(&wireProtocol);
 
 ESP8266WebServer server(80);
 DNSServer dnsServer;
+ESP8266HTTPUpdateServer httpUpdater;
 
 char hostName[16] = {0};
 
@@ -48,8 +52,7 @@ void setup() {
   Serial << "Host name: " << hostName << endl;
 
   Serial.println();
-  pinMode(RELAY, OUTPUT);
-  digitalWrite(RELAY, LOW);
+
   pinMode(LED, OUTPUT);
   digitalWrite(LED, HIGH);
   pinMode(BUTTON, INPUT_PULLUP);
@@ -70,13 +73,21 @@ void setup() {
   Serial << " - Temp interval: " << sonoffConfig.temp_interval << endl;
 
   buttonTimer.attach(0.05, button);
+
+  Serial << endl << "Setting relay: " << endl;
+  pinMode(RELAY, OUTPUT);
+  if (memory.getRelayState()==1) {
+      digitalWrite(RELAY, HIGH);
+  } else {
+      digitalWrite(RELAY, LOW);
+  }
   
   if (sonoffConfig.wifi_ssid[0]==(char) 0 || sonoffConfig.wifi_password[0]==(char) 0 || sonoffConfig.mqtt_host[0]==(char) 0) {
     Serial << endl << "Missing configuration. Going to configuration mode." << endl;
     memory.saveSwitchMode(1);
     sonoffConfig.mode=1;
   }
-
+  
   if (sonoffConfig.mode==1) {
     Serial << endl << "Entering configuration mode" << endl;
     runConfigurationMode();
