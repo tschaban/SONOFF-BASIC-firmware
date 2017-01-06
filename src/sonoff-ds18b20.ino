@@ -9,7 +9,7 @@ void publishTemperature() {
   float temperature = getTemperature();
   dtostrf(temperature, 2, 1, temperatureString);
   if (previousTemperature!=temperature) {
-    sprintf(mqttString,"%s/temperature", mqttTopic);
+    sprintf(mqttString,"%s/temperature", sonoffConfig.mqtt_topic);
     client.publish(mqttString, temperatureString);
     previousTemperature=temperature;
   }

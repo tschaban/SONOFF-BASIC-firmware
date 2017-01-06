@@ -5,52 +5,18 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
-const String PAGE_HEADER =
-"<!DOCTYPE html>"
-"<html lang=\"en\">"
-"<head>"
-"    <meta charset=\"UTF-8\">"
-"    <meta name=\"viewport\" content=\"user-scalable = yes\">"
-"    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
-"    <title>Sonoff Configuration</title>"
-"    <style>"
-"        body {font-family: Tahoma;font-size: 14px}"
-"        a {color: #1E90FF;text-decoration: none;}"
-"        table {margin: 2px 0 15px 0;}"
-"        td {}"
-"        h1,h3 {color: #AA5F39;margin: 0px;}"
-"        hr {height: 1px;border: 0 none;background-color: #eee;}"
-"        ul {margin: 0;  padding: 0; list-style-type: none;}"
-"        li {display: inline; padding-right: 5px;}"
-"        footer {color: #aaaaaa; font-size: small;}"
-"        .container{width: 350px; margin: 10px auto; height: auto}"
-"        .content{margin: 5px 5px}"
-"        .header {font-weight: bold;}"
-"        .submit {margin: 5px 0; padding: 2px 10px; }"
-"        .red {color: #FF0000;}"
-"    </style>"
-"</head>"
-"<body>"
-"<div class=\"container\">"
-"    <h1>Sonoff</h1>"
-"    <hr />"
-"    <ul>"
-"        <li><a href=\"/\">Home</a></li>"
-"        <li><a href=\"/configure\">Configuration</a></li>"
-"        <li><a href=\"/update\">Firmware</a></li>"
-"        <li><a href=\"/reboot\">Reboot</a></li>"
-"        <li><a href=\"/reset\">Reset to defaults</a></li>"
-"    </ul>"
-"    <hr />"
-"    <div class=\"content\">";
-
-const String PAGE_FOOTER =
-"<hr />"
-"<footer>Version: 0.1 beta</footer>"
-"</div>"
-"</div>"
-"</body>"
-"</html>";
+void startHttpServer() {
+  Serial << endl << " - Starting web server" << endl;
+  server.on("/", handleRoot);
+  server.on("/configure", handleConfiguration);
+  server.on("/reboot", handleReboot);
+  server.on("/reset", handleReset);  
+  server.on("/save", handleSave);
+  server.onNotFound(handleNotFound);
+  httpUpdater.setup(&server);
+  server.begin();
+  Serial << endl << " - Web server is working" << endl;
+}
           
 void handleRoot() {
   Serial << "Server: root requested" << endl;
@@ -58,16 +24,23 @@ void handleRoot() {
   String page =
 "<h3>Device:</h3>"   
 "<table>"
-"<tr>"
 "<td class=\"header\">ID</td>"
-"<td>: "; page += ID; page += "</td>"
+"<td>: "; page += sonoffConfig.id; page += "</td>"
 "</tr>"
 "<tr>"
 "<td class=\"header\">Name</td>"
-"<td>: "; page += hostName; page += "</td>"
+"<td>: "; page += sonoffConfig.host_name; page += "</td>"
 "</tr>" 
 "</table>"
-"<h3>Configuration:</h3>"   
+"<h3>Firmware:</h3>"   
+"<table>"
+"<tr>"
+"<td class=\"header\">Version</td>"
+"<td>: "; page += sonoffConfig.version; page += "</td>"
+"</tr>"
+"<tr>"
+"</table>"
+"<h3>WiFi:</h3>"   
 "<table>"      
 "<tr>"
 "<td class=\"header\">WiFi SSID</td>"
@@ -78,6 +51,9 @@ void handleRoot() {
 "<td>: "; page += sonoffConfig.wifi_password; page += "</td>"
 "</tr>"
 "<tr>"
+"</table>"
+"<h3>MQTT Broker:</h3>"   
+"<table>"
 "<td class=\"header\">MQTT Host</td>"
 "<td>: "; page += sonoffConfig.mqtt_host; page += ":";  page += sonoffConfig.mqtt_port; page += "</td>"
 "</tr>"
@@ -88,7 +64,11 @@ void handleRoot() {
 "<tr>"
 "<td class=\"header\">MQTT Password</td>"
 "<td>: "; page += sonoffConfig.mqtt_password; page += "</td>"
-"</tr>"         
+"</tr>"
+"<tr>"
+"<td class=\"header\">MQTT Topic</td>"
+"<td>: "; page += sonoffConfig.mqtt_topic; page += "</td>"
+"</tr>"          
 "</table>"
 "<h3>Temp.Sensor:</h3>"   
 "<table>"
@@ -162,20 +142,22 @@ void handleConfiguration() {
   generatePage(page);
 }
 
-void handleUpdate() {
-  Serial << "Server: update mode" << endl;
-  String page =
-  "<h4>Going to update mode in 3sec.</h4>"; 
-  generatePage(page);  
-  flashMode();
-  ESP.restart();  
-}
-
-
-
 void handleNotFound(){
   Serial << "Server: page not found" << endl;
-  String page = "Page not found";
+
+  String page = "Page Not Found\n\n";
+  page += "URI: ";
+  page += server.uri();
+  page += "\nMethod: ";
+  page += (server.method() == HTTP_GET)?"GET":"POST";
+  page += "\nArguments: ";
+  page += server.args();
+  page += "\n";
+  for (uint8_t i=0; i<server.args(); i++){
+    page += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+     
+  Serial << page << endl; 
   generatePage(page); 
 }
 
@@ -256,12 +238,12 @@ void handleSave() {
   }
   
   String page =
-  "<h3>Saveing data</h3>"
-  "- completed";
+  "<h3 style='margin-top:70px;'>Configuration has been successfully saved.</h3>"
+  "<p style='margin-bottom:70px;'>Exit configuration to apply all changes</p>";
      
   generatePage(page);
 
-  blinkLEDInLoop(1);
+  blinkLEDInLoop(0.1);
   
 }
 
@@ -271,6 +253,15 @@ void handleReset() {
   "<h4>Resetting device in 6sec.</h4>"; 
   generatePage(page);
   resetDeviceMode();
+}
+
+
+String handleFlash() {
+  Serial << "Server: firmware update" << endl;
+   String page =
+  "<h4>Resetting device in 6sec.</h4>"; 
+
+  return page;
 }
 
 void generatePage(String &page) {

@@ -14,31 +14,48 @@ class SonoffEEPROM
 {
   public:
     SonoffEEPROM();
-    void saveWiFiSSID(String in);
-    void saveWiFiPassword(String in);
-    void saveMQTTHost(String in);
-    void saveMQTTPort(unsigned int in);
-    void saveMQTTUser(String in);
-    void saveMQTTPassword(String in);
-    void saveMQTTTopic(String in);     
-    void saveSwitchMode(int in);
-    void saveTemperatureCorrection(float in); 
-    void saveTemperatureInterval(unsigned int in);
-    void saveRelayState(unsigned int in);
+
+    String getSwitchMode();
+    String getID(); 
+    String getHostName();  
+    String getVersion();
+   
     String getWiFiSSID();
     String getWiFiPassword();
+    
     String getMQTTHost();
     String getMQTTPort();
     String getMQTTUser();
     String getMQTTTopic();
     String getMQTTPassword();
-    String getSwitchMode();
-    String getVersion();
+    
+
     String getTemperatureCorrection(); 
-    String getTemperatureInterval(); 
+    String getTemperatureInterval();
     unsigned int getRelayState();
+    
     SONOFFCONFIG getConfiguration();
+
+    void saveVersion(String in);
+    
+    void saveWiFiSSID(String in);
+    void saveWiFiPassword(String in);
+   
+    void saveMQTTHost(String in);
+    void saveMQTTPort(unsigned int in);
+    void saveMQTTUser(String in);
+    void saveMQTTPassword(String in);
+    void saveMQTTTopic(String in);     
+    
+    void saveSwitchMode(int in);
+    
+    void saveTemperatureCorrection(float in); 
+    void saveTemperatureInterval(unsigned int in);
+    
+    void saveRelayState(unsigned int in);
+
     void erase();
+  
   private: 
     int EEPROM_size = 512;
     void write(int address, int size, String in);

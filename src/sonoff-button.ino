@@ -17,7 +17,7 @@ void callbackButton() {
       if (sonoffConfig.mode==2) {
         runSwitchMode();
       } else {
-         flashMode();
+         configuratonAPMode();
       }
   } else {
     if (sonoffConfig.mode==0 && pressedCount > 1 && pressedCount <= 10) {

@@ -8,7 +8,7 @@
 /* Publishing state of the Relay to MQTT Broker */
 void publishRelayStateMessage() {
   char  mqttString[50];
-  sprintf(mqttString,"%s/state", mqttTopic);
+  sprintf(mqttString,"%sstate", sonoffConfig.mqtt_topic);
   if (digitalRead(RELAY)==LOW) {
     client.publish(mqttString, "OFF");
   } else {
@@ -19,15 +19,16 @@ void publishRelayStateMessage() {
 /* Connected to MQTT Broker */
 void connectToMQTT() {
   char  mqttString[50];
-  sprintf(mqttString,"Sonoff (ID: %i)",ID);
+  sprintf(mqttString,"Sonoff (ID: %s)",sonoffConfig.id);
   Serial << "Connecting to MQTT : " << sonoffConfig.mqtt_host << " ";
   while (!client.connected()) {
     if (client.connect(mqttString, sonoffConfig.mqtt_user, sonoffConfig.mqtt_password)) {
         Serial << endl << "Connected" << endl;
-        sprintf(mqttString,"%s/cmd", mqttTopic);
+        sprintf(mqttString,"%scmd", sonoffConfig.mqtt_topic);
         client.subscribe(mqttString);
-        Serial << " - Subsribed to : " << mqttTopic << endl;
+        Serial << " - Subsribed to : " << sonoffConfig.mqtt_topic << endl;
         getConfiguration();
+        LEDOff();
     } else {
       delay(CONNECTION_WAIT_TIME);
       Serial << ".";
@@ -40,11 +41,11 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   char  mqttString[50];
   blinkLED();
   Serial << "Got MQTT Topic : " << topic << " ";
-  if (length>=6) { // command arrived
-    if((char)payload[5] == 'N') { // turnON
-      Serial << "turnON" << endl;
+  if (length>=2) { // command arrived
+    if((char)payload[1] == 'N') { // ON
+      Serial << "ON" << endl;
       relayOn();
-    } else if((char)payload[5] == 'F') { // turnOFF
+    } else if((char)payload[1] == 'F') { // OFF
       Serial << "turnOFF" << endl;
       relayOff();
     } else if((char)payload[2] == 'p') { // reportState
@@ -53,24 +54,10 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
     } else if((char)payload[2] == 's') { // reset
       Serial << "reset" << endl;
       ESP.restart();
-    } else if((char)payload[4] == 'I') { // tempInterval
-        Serial << "tempInterval";
-        String inString = "";
-        for (int i=13;i<length;i++) {
-            inString += (char)payload[i];
-        }
-        Serial << ":" << inString << endl;
-//        setSensorReadInterval(inString.toInt());
-    } else if((char)payload[4] == 'C') { // tempCorrection
-        String inString = "";
-        Serial << "tempCorrection";
-        for (int i=15;i<length;i++) {
-            inString += (char)payload[i];
-        }
-         Serial << ":" << inString << endl;
-//        tempCorrection =  inString.toFloat();
-
-    }
+    } else if((char)payload[2] == 'n') { // configurationMode
+      Serial << "configuration Mode" << endl;
+      toggleMode();    
+    } 
   }
 }
 
@@ -78,7 +65,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
 /* Gets default configuration. Relay state and temp sensor config. It has to be implemented in the service and published over MQTT */
 void getConfiguration() {  
   char  mqttString[50];
-  sprintf(mqttString,"%s/get", mqttTopic);
-  Serial << " - Requesting configuration : " << mqttTopic << " " << "defaultState" <<  endl;
+  sprintf(mqttString,"%sget", sonoffConfig.mqtt_topic);
+  Serial << " - Requesting configuration : " << sonoffConfig.mqtt_topic << " " << "defaultState" <<  endl;
   client.publish(mqttString, "defaultState");
 }

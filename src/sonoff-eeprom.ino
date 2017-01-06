@@ -16,16 +16,17 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   Serial << "Reading configuration from EEPROM" << endl;
   SONOFFCONFIG _temp;
 
-  _temp.version = 0.1;
+  getVersion().toCharArray(_temp.version,sizeof(_temp.version));
   _temp.mode = getSwitchMode().toInt();
-
-  Serial << "Device mode in EEPROM=" << _temp.mode << endl;
   
-  // It switch_mode not set set it to configuraion mode = 1
-  if (!(_temp.mode == 0 || _temp.mode == 1 || _temp.mode == 2)) {
+  // If thwew is no version in EPPROM this a first launch 
+  if(_temp.version[0] == '\0')  {
     erase();
     _temp.mode = 1;
   }
+
+  getID().toCharArray(_temp.id, sizeof(_temp.id));
+  getHostName().toCharArray(_temp.host_name, sizeof(_temp.host_name));
 
   getWiFiSSID().toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
   getWiFiPassword().toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));
@@ -40,6 +41,19 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
 
   return _temp;
 }
+
+String SonoffEEPROM::getVersion() {
+  return read(0, 8);
+}
+
+String SonoffEEPROM::getID() {
+  return read(119, 6);
+}
+
+String SonoffEEPROM::getHostName() {
+  return read(125, 13);
+}
+
 
 String SonoffEEPROM::getWiFiSSID() {
   return read(232, 32);
@@ -85,59 +99,65 @@ unsigned int SonoffEEPROM::getRelayState() {
   return read(118, 1).toInt();
 }
 
+
+void SonoffEEPROM::saveVersion(String in) {
+  Serial << "Saving version" << endl;
+  write(0, 8, in);
+}
+
 void SonoffEEPROM::saveSwitchMode(int in) {
-  Serial << "Storing Switch Mode" << endl;
+  Serial << "Saving  Switch Mode" << endl;
   write(104, 1, String(in));
 }
 
 void SonoffEEPROM::saveTemperatureCorrection(float in) {
-  Serial << "Storing temperature correction" << endl;
+  Serial << "Saving  temperature correction" << endl;
   write(105, 5, String(in));
 }
 
 void SonoffEEPROM::saveTemperatureInterval(unsigned int in) {
-  Serial << "Storing temperature interval" << endl;
+  Serial << "Saving  temperature interval" << endl;
   write(110, 8, String(in));
 }
 
 void SonoffEEPROM::saveRelayState(unsigned int in) {
-  Serial << "Storing Relay state" << endl;
+  Serial << "Saving  Relay state" << endl;
   write(118, 1, String(in));
 }
 
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
-  Serial << "Storing WiFi SSID" << endl;
+  Serial << "Saving  WiFi SSID" << endl;
   write(232, 32, in);
 }
 
 void SonoffEEPROM::saveWiFiPassword(String in) {
-  Serial << "Storing WiFi Password" << endl;
+  Serial << "Saving  WiFi Password" << endl;
   write(264, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTHost(String in) {
-  Serial << "Storing MQTT Host" << endl;
+  Serial << "Saving  MQTT Host" << endl;
   write(296, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTPort(unsigned int in) {
-  Serial << "Storing MQTT Port" << endl;
+  Serial << "Saving  MQTT Port" << endl;
   write(328, 5, String(in));
 }
 
 void SonoffEEPROM::saveMQTTUser(String in) {
-  Serial << "Storing MQTT User" << endl;
+  Serial << "Saving  MQTT User" << endl;
   write(333, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTPassword(String in) {
-  Serial << "Storing MQTT Password" << endl;
+  Serial << "Saving  MQTT Password" << endl;
   write(365, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTTopic(String in) {
-  Serial << "Storing MQTT Topic" << endl;
+  Serial << "Saving  MQTT Topic" << endl;
   write(397, 32, in);
 }
 
@@ -148,16 +168,36 @@ void SonoffEEPROM::erase() {
 }
 
 void SonoffEEPROM::setDefaults() {
+  
   Serial << "Setting default values" << endl;
+
+
+  char _id[6] = {0};
+  char _host_name[13] = {0};
+  char _mqtt_topic[32] = {0};
+  
+  sprintf(_id, "%06X", ESP.getChipId());
+  sprintf(_host_name,"SONOFF_%s",_id);
+  sprintf(_mqtt_topic,"/sonoff/%s/",_id);
+  
+  write(119, 6, _id);
+  write(125, 13, _host_name);
+
+  saveVersion(sonoffDefault.version);
+  
   saveTemperatureCorrection(sonoffDefault.temp_correction);
   saveTemperatureInterval(sonoffDefault.temp_interval);
+  saveMQTTTopic(_mqtt_topic);    
   saveMQTTPort(sonoffDefault.mqtt_port);
-  saveMQTTTopic(sonoffDefault.mqtt_topic);
+
+  saveSwitchMode(0);
+  saveRelayState(0);  
+  
 }
 
 void SonoffEEPROM::write(int address, int size, String in) {
   clear(address, size);
-  Serial << " - saveing [0x" << address << "] String size=" << in.length() << " : ";
+  Serial << " - saving [0x" << address << "] String size=" << in.length() << " : ";
   for (int i = 0; i < in.length(); ++i)
   {
     EEPROM.write(address + i, in[i]);

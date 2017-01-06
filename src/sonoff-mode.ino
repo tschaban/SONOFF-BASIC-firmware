@@ -9,49 +9,35 @@ void runSwitchMode() {
   LEDOn();
   Serial << endl << "Device mode: SWITCH" << endl;
   Serial << endl << "Configuring MQTT" << endl;
-  sprintf(mqttTopic, "%s%i", sonoffConfig.mqtt_topic, ID);
   client.setServer(sonoffConfig.mqtt_host, sonoffConfig.mqtt_port);
   client.setCallback(callbackMQTT);
   connectToWiFi();
-  LEDOff();
 }
 
-void runHttpUpdateMode() {
-  blinkLEDInLoop(0.1);
-  Serial << endl << "Device mode: HTTP UPDATE" << endl;
-  WiFi.mode(WIFI_AP_STA);  
+void runConfigurationLANMode() {
+  LEDOn();
+  Serial << endl << "Device mode: LAN Configuration" << endl;
+  WiFi.mode(WIFI_STA);
   connectToWiFi();
-  Serial << " - starting HTTP Update server" << endl;
-  MDNS.begin(hostName);
-  httpUpdater.setup(&server);
-  server.begin();
-  MDNS.addService("http", "tcp", 80);
-  Serial << endl << " - ready for update on http://" << WiFi.localIP() << "/update" << endl;
-  memory.saveSwitchMode(0);  
+  startHttpServer();
+  Serial << endl << " - Ready for configuration. Open http://" << WiFi.localIP() << endl << endl;
+  blinkLEDInLoop(0.1);
 }
 
-void runConfigurationMode() {
-  blinkLEDInLoop(1);
-  Serial << endl << "Device mode: CONFIGURATION" << endl;
+void runConfigurationAPMode() {
+  LEDOn();
+  Serial << endl << "Device mode: Access Point Configuration" << endl;
   Serial << " - launching access point" << endl;
   IPAddress apIP(192, 168, 5, 1);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(hostName);
+  WiFi.softAP(sonoffConfig.host_name);
   dnsServer.setTTL(300);
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
   dnsServer.start(53, "www.example.com", apIP);
-  Serial << " - launching web server" << endl;
-  server.on("/", handleRoot);
-  server.on("/configure", handleConfiguration);
-  server.on("/update", handleUpdate);
-  server.on("/reboot", handleReboot);
-  server.on("/reset", handleReset);  
-  server.on("/save", handleSave);
-  server.onNotFound(handleNotFound);
-  server.begin();
-  Serial << " - ready " << endl << endl;
-  
+  startHttpServer();
+  Serial << " - After conecting to WiFi: " << sonoffConfig.host_name << " open: http://192.168.5.1/  " << endl << endl;
+  blinkLEDInLoop(0.1);  
 }
 
 void toggleMode() {
@@ -66,11 +52,11 @@ void toggleMode() {
   ESP.restart();
 }
 
-void flashMode() {
+void configuratonAPMode() {
   LEDOn();
   memory.saveSwitchMode(2);
-  Serial << "Rebooting device in 3sek" << endl;
-  delay(3000);
+  Serial << "Rebooting device to Access Point" << endl;
+  delay(1000);
   ESP.restart();
 }
 

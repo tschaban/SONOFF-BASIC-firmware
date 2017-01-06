@@ -3,18 +3,41 @@
 **Work in progress - not ready for productive release yet, although core functions are working**
 
 **Status of implementation:**
-* firmware update over the network - **works, not tested**
-* sonoff configuration by the browser - **done, partially tested, additional options might be added**
-* possibility to connect sensor ds18b20 with automatic detection - **in progress**
-* relay controlled by MQTT messages - **done, tested - be aware that format of MQTT message may change**
-* temperature published by MQTT broker - **done, tested - be aware that format of MQTT message may change**
-* relay controlled manually by sonoff button - **done, unit tested**
+* firmware update over the network - **done**
+* sonoff configuration by the browser - **done**
+* possibility to connect sensor ds18b20 with automatic detection - **to do**
+* relay controlled by MQTT messages - **done**
+* temperature published by MQTT broker - **to do**
+* relay controlled manually by sonoff button - **done**
 
 **Hints**
 * 1 short button press toggles the relay
-* 3-4 sec. button press toggles device mode: configuration mode or switch mode
+* during first start it goes to configuration mode automatically
 * if there is no WiFi and/or MQTT Broker configured device will go automatically to configuration mode
-* in order configure device via browser: find SONOFF_xxxxxx WiFi network - connect to it (no password needed) and then open http://192.168.5.1 in your browser 
+
+**Device configuraton**
+There are two options to configure Sonoff by the browser
+* accessing configuration page over your WiFI network or
+* connecting directly to Sonoff when it's working in Access Point Mode
+
+Access Point is the only option if WiFi has not been configured yet. Once the WiFi is configured you can choose from above to options.
+Usually Access Point mode is used only for a first time while installing the device. Once WiFi, MQTT is entered easier option to configure Sonoff is by just connecting to it via browser. You have to know IP address of your Sonoff.
+
+Going to configuration modes:
+* Mode 1: Configuring by connecting to Sonoff Access Point: press Sonoff button until led start blinking fast
+* Mode 2: Configuring by connecting to Sonoff IP Address : press Sonoff button for 3-7 sec. LED will turn on and after few seconds it will start blinking fast. 
+
+If the device is in Access Point mode
+* find SONOFF_XXXXXX Wifi network
+* connect to it, no password needed
+* open http://192.168.5.1 in your browser
+
+If the device is in configuration mode 2 (above)
+* enter IP address of Sonoff in your browser - you can find it in your WiFi ruter
+
+To exit configuration mode
+* press Sonoff button for 3-7 sec or
+* click Exit link in Sonoff Configuration panel
 
 **What is possible to configure via browser at the moment**
 * WiFi access
@@ -26,19 +49,34 @@
 
 | Topic  | Inbound / Outbound | Message | Description |
 |---|---|---|---|---| 
-| /sonoff/*ID*/cmd | Inbound | turnON | Sets relay to ON  | 
-| /sonoff/*ID*/cmd | Inbound | turnOFF | Sets relay to OFF | 
-| /sonoff/*ID*/cmd | Inbound | reportStatus | Requests state of a relay. Sonoff repays with /sonoff/*ID*/state topic | 
-| /sonoff/*ID*/cmd | Inbound | reset |  Resets switch | 
-| /sonoff/*ID*/cmd | Inbound | tempInterval:N |  **NOT IMPLEMENTED** Sets how often Sonoff should read value of DS18B20 sensor. N - number of seconds. Example: tempInterval:60 - means read sesonr value every 1 minute. Default: 10min  | 
-| /sonoff/*ID*/cmd | Inbound | tempCorrection:N | **NOT IMPLEMENTED**  Sets a value of temperature correction. Example tempCorrection:-1.2 - means correct returned temperature by -1.2. Default: 0 | 
-| /sonoff/*ID*/state | Outbound | ON | Sonoff  publishes this if relay is set to ON by MQTT or manually by pressing Sonoff button |
-| /sonoff/*ID*/state | Outbound | OFF | Sonoff  publishes this if relay is set to OFF by MQTT or manually by pressing Sonoff button |
-| /sonoff/*ID*/get | Outbound | defaultState | **It will be removed - EEPROM will be used instead** Sonoff switch sends this message to the broker while booting in order to get default values of the relay, temp.correction and interval of sensor read. If it's not implemented in the MQTT broker then default values are set | 
-| /sonoff/*ID*/temperature | Outbound | Number | Sonoff switch sends temperature from DS18B20 sensor if it was changed between subsequent measures | 
+| /sonoff/XXXXXX/cmd | Inbound | ON | Sets relay to ON  | 
+| /sonoff/XXXXXX/cmd | Inbound | OFF | Sets relay to OFF | 
+| /sonoff/XXXXXX/cmd | Inbound | reportStatus | Requests state of a relay. Sonoff repays with /sonoff/*ID*/state topic | 
+| /sonoff/XXXXXX/cmd | Inbound | reset |  Resets switch | 
+| /sonoff/XXXXXX/cmd | Inbound | configurationMode | It reboots Sonoff to configuration mode over your WiFi network  | 
+| /sonoff/XXXXXX/state | Outbound | ON | Sonoff  publishes this if relay is set to ON by MQTT or manually by pressing Sonoff button |
+| /sonoff/XXXXXX/state | Outbound | OFF | Sonoff  publishes this if relay is set to OFF by MQTT or manually by pressing Sonoff button |
+| /sonoff/XXXXXX/get | Outbound | defaultState | **It will be removed - EEPROM will be used instead** Sonoff switch sends this message to the broker while booting in order to get default values of the relay, temp.correction and interval of sensor read. If it's not implemented in the MQTT broker then default values are set | 
+| /sonoff/XXXXXX/temperature | Outbound | Number | Sonoff switch sends temperature from DS18B20 sensor if it was changed between subsequent measures | 
 
-where 
-*  _ID_ is a value of particular switch ChipID - it could be set manually to whatever value in the configuration part of a sketch **Planning to implement set it up via browser as well**
+Hint:
+* /sonoff/XXXXXX/ can be manually set to something different in the configuration. 
+
+**Installation**
+* Working binary is available in firmware folder
+
+First time upload. 
+* You can upload it to Sonoff using NodeMCU Flasher https://github.com/nodemcu/nodemcu-flasher
+
+Upload parameters:
+* Baudrate: 115200
+* Flash size: 1MB
+* Flash speed: 40MHz
+* SPI Mode: QIO
+* Binary must be uploaded from 0x00000 address
+
+Next uploads can be made over the network which means in the configuraion mode you have an option to upgrade firmware.
+
 
 **Resources**
 * Project web page (in polish): [here](http://smart-house.adrian.czabanowski.com/projekt-firmware-do-sonoff/)
