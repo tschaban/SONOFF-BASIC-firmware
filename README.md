@@ -75,7 +75,7 @@ Upload parameters:
 * SPI Mode: QIO
 * Binary must be uploaded from 0x00000 address
 
-Next uploads can be made over the network which means in the configuraion mode you have an option to upgrade firmware.
+Next uploads can be made over the network which means in the configuration mode you have an option to upgrade firmware.
 
 
 **Resources**
