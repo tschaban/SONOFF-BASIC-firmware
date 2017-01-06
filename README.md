@@ -3,7 +3,7 @@
 **Work in progress - not ready for productive release yet, although core functions are working**
 
 **Status of implementation:**
-* firmware update over the network - **in progress**
+* firmware update over the network - **works, not tested**
 * sonoff configuration by the browser - **done, partially tested, additional options might be added**
 * possibility to connect sensor ds18b20 with automatic detection - **in progress**
 * relay controlled by MQTT messages - **done, tested - be aware that format of MQTT message may change**

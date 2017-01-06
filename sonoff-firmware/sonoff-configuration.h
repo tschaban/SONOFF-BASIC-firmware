@@ -18,7 +18,6 @@
 /* Variables, temporarly here */
 
 char  mqttTopic[50];  // it stories topic which is MQTT_TOPIC/ID/
-unsigned long pressedCount = 0;
 
 struct DEFAULTS {
   unsigned int mqtt_port = 1883;

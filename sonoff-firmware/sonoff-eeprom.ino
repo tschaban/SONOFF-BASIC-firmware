@@ -22,7 +22,7 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   Serial << "Device mode in EEPROM=" << _temp.mode << endl;
   
   // It switch_mode not set set it to configuraion mode = 1
-  if (!(_temp.mode == 0 || _temp.mode == 1)) {
+  if (!(_temp.mode == 0 || _temp.mode == 1 || _temp.mode == 2)) {
     erase();
     _temp.mode = 1;
   }

@@ -5,22 +5,30 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
+unsigned long pressedCount = 0;
+
 /* Button pressed method. Short changes relay state, long reboot device */
-void button() {
-  if (!digitalRead(BUTTON)) {
+void callbackButton() {
+
+  if (!digitalRead(BUTTON) && pressedCount < 80) {
     pressedCount++;
-  }
-  else {
-    if (pressedCount > 1 && pressedCount <= 10) {
+  } else if (!digitalRead(BUTTON) && pressedCount == 80) {
+      buttonTimer.detach();
+      if (sonoffConfig.mode==2) {
+        runSwitchMode();
+      } else {
+         flashMode();
+      }
+  } else {
+    if (sonoffConfig.mode==0 && pressedCount > 1 && pressedCount <= 10) {
       if (digitalRead(RELAY)==LOW) {
           relayOn();
       } else {
           relayOff();
       }
-    }
-    else if (pressedCount>30 && pressedCount <= 60 ){
+    } else if (pressedCount>20 && pressedCount < 80 ){
       toggleMode();
-    }
+    } 
   pressedCount = 0;
   }
 }

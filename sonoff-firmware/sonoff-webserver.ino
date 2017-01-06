@@ -163,9 +163,12 @@ void handleConfiguration() {
 }
 
 void handleUpdate() {
-  Serial << "Server: update" << endl;
-  String page = "Firmware update";
-  generatePage(page);
+  Serial << "Server: update mode" << endl;
+  String page =
+  "<h4>Going to update mode in 3sec.</h4>"; 
+  generatePage(page);  
+  flashMode();
+  ESP.restart();  
 }
 
 
@@ -173,7 +176,7 @@ void handleUpdate() {
 void handleNotFound(){
   Serial << "Server: page not found" << endl;
   String page = "Page not found";
-  generatePage(page);
+  generatePage(page); 
 }
 
 void handleReboot() {
@@ -185,6 +188,9 @@ void handleReboot() {
 }
 
 void handleSave() {
+  stopBlinkLEDInLoop();
+  LEDOn();
+
   Serial << "Server: saving data" << endl;
 
   String _wifi_ssid = server.arg("wifi_ssid");
@@ -254,6 +260,9 @@ void handleSave() {
   "- completed";
      
   generatePage(page);
+
+  blinkLEDInLoop(1);
+  
 }
 
 void handleReset() {
@@ -261,7 +270,7 @@ void handleReset() {
   String page =
   "<h4>Resetting device in 6sec.</h4>"; 
   generatePage(page);
-  resetDevceMode();
+  resetDeviceMode();
 }
 
 void generatePage(String &page) {
@@ -270,6 +279,5 @@ void generatePage(String &page) {
   server.sendHeader("Expires", "-1");
   page = PAGE_HEADER + page + PAGE_FOOTER;
   server.send(200, "text/html", page);
-  blinkLED();
 }
 

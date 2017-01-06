@@ -1,5 +1,3 @@
-
-
 /*
  Sonoff: firmware
  More info: https://github.com/tschaban/SONOFF-firmware
@@ -14,6 +12,8 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
+
+#include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 
 #include "Streaming.h"
@@ -72,7 +72,7 @@ void setup() {
   Serial << " - Temp correctin: " << sonoffConfig.temp_correction << endl;
   Serial << " - Temp interval: " << sonoffConfig.temp_interval << endl;
 
-  buttonTimer.attach(0.05, button);
+  buttonTimer.attach(0.05, callbackButton);
 
   Serial << endl << "Setting relay: " << endl;
   pinMode(RELAY, OUTPUT);
@@ -91,7 +91,10 @@ void setup() {
   if (sonoffConfig.mode==1) {
     Serial << endl << "Entering configuration mode" << endl;
     runConfigurationMode();
-  } else {
+  } else if (sonoffConfig.mode==2) {
+     Serial << endl << "Entering update mode" << endl;
+     runHttpUpdateMode(); 
+  }else {
     Serial << endl << "Entering switch mode" << endl;
     runSwitchMode();  
   }
@@ -101,9 +104,7 @@ void setup() {
   setSensorReadInterval(TEMP_INTERVAL);
   buttonTimer.attach(0.1, button);  
     */
-
-
-    
+   
 }
 
 
@@ -116,15 +117,11 @@ void connectToWiFi() {
   Serial << endl << "Connecting to WiFi: " << sonoffConfig.wifi_ssid;
   while (WiFi.status() != WL_CONNECTED) {
     Serial << ".";
-    blinkLED(CONNECTION_WAIT_TIME / 2);
-    delay(CONNECTION_WAIT_TIME / 2);
+    delay(CONNECTION_WAIT_TIME);
   }
   Serial << endl << " - Connected" << endl;
   Serial << " - IP: " << WiFi.localIP() << endl;
 }
-
-
-
 
 
 
@@ -136,6 +133,8 @@ void loop() {
     client.loop();
   } else if (sonoffConfig.mode==1) {  
     dnsServer.processNextRequest();
+    server.handleClient();
+  } else if (sonoffConfig.mode==2) {
     server.handleClient();
   } else {
     Serial << "Internal Application Error" << endl;
