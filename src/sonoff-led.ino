@@ -3,40 +3,47 @@
   More info: https://github.com/tschaban/SONOFF-firmware
   LICENCE: http://opensource.org/licenses/MIT
   2016-10-27 tschaban https://github.com/tschaban
+    digitalWrite(GPIO_LED, LOW);
 */
-void LEDOn() {
-  if (digitalRead(LED) == HIGH) {
-    digitalWrite(LED, LOW);
+
+#include "sonoff-led.h"
+
+SonoffLED::SonoffLED() {
+  pinMode(GPIO_LED, OUTPUT);
+  digitalWrite(GPIO_LED, HIGH);  
+}
+
+void SonoffLED::On() {
+  if (digitalRead(GPIO_LED) == HIGH) {
   }
 }
 
-void LEDOff() {
-  if (digitalRead(LED) == LOW) {
-    digitalWrite(LED, HIGH);
+void SonoffLED::Off() {
+  if (digitalRead(GPIO_LED) == LOW) {
+    digitalWrite(GPIO_LED, HIGH);
   }
-
 }
 
-/* Blink LED, t defines for how long LED should be ON */
-void blinkLED(int t) {
-  LEDOn();
+/* Blink GPIO_LED, t defines for how long GPIO_LED should be ON */
+void SonoffLED::blink(int t) {
+  On();
   delay(t);
-  LEDOff();
+  Off();
 }
 
-void blinkLEDInLoop(float t) {
-  configurationMode.attach(t, callbackLED);
+void SonoffLED::startBlinking(float t) {
+  LEDTimer.attach(t,callbackLED);
 }
 
-void stopBlinkLEDInLoop() {
-  configurationMode.detach();
+void SonoffLED::stopBlinking() {
+  LEDTimer.detach();
 }
 
 
 void callbackLED() {
-  if (digitalRead(LED) == HIGH) {
-    digitalWrite(LED, LOW);
+  if (digitalRead(GPIO_LED) == HIGH) {
+    digitalWrite(GPIO_LED, LOW);
   } else {
-    digitalWrite(LED, HIGH);
+    digitalWrite(GPIO_LED, HIGH);
   }
 }

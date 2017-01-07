@@ -5,8 +5,11 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
+#ifndef _sonoff_configuration_h
+#define _sonoff_configuration_h
+
 #define RELAY 12
-#define LED 13
+#define GPIO_LED 13
 #define BUTTON 0
 #define TEMP_SENSOR 14
 
@@ -14,10 +17,11 @@
 #define   CONNECTION_WAIT_TIME 500
 
 struct DEFAULTS {
-  char          version[8] = "0.2.15";
+  char          version[8] = "0.3.1";
   unsigned int  mqtt_port = 1883;
   float         temp_correction = 0;
-  unsigned int  temp_interval = 600;     
+  unsigned int  temp_interval = 600;
+  boolean       temp_present = false;     
  };
 
 
@@ -40,6 +44,7 @@ struct SONOFFCONFIG {
 
   float         temp_correction;
   unsigned int  temp_interval;
+  boolean       temp_present;
 
 };
 
@@ -55,7 +60,7 @@ const String PAGE_HEADER =
 "    <style>"
 "        body {font-family: Tahoma;font-size: 14px}"
 "        a {color: #1E90FF;text-decoration: none;}"
-"        table {margin: 2px 0 15px 0;}"
+"        table {margin: 2px 15px 15px 15px;}"
 "        td {}"
 "        h1,h3 {color: #AA5F39;margin: 0px;}"
 "        hr {height: 1px;border: 0 none;background-color: #eee;}"
@@ -85,8 +90,10 @@ const String PAGE_HEADER =
 
 const String PAGE_FOOTER =
 "<hr />"
-"<footer>(c) 2017 <a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></footer>"
+"<footer>(c)2017 Sonoff Configuration Panel, <a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></footer>"
 "</div>"
 "</div>"
 "</body>"
 "</html>";
+
+#endif

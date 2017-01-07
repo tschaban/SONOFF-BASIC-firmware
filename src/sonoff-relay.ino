@@ -11,7 +11,7 @@ void relayOn() {
   publishRelayStateMessage();
   Serial << "Relay set to ON" << endl;
   memory.saveRelayState(1);
-  blinkLED();
+  LED.blink();
 }
 
 /* Set relay to OFF */
@@ -20,7 +20,7 @@ void relayOff() {
   publishRelayStateMessage();
   Serial << "Relay set to OFF" << endl;
   memory.saveRelayState(0);
-  blinkLED();
+  LED.blink();
 }
 
 /* Toggle relay */

@@ -28,7 +28,7 @@ void connectToMQTT() {
         client.subscribe(mqttString);
         Serial << " - Subsribed to : " << sonoffConfig.mqtt_topic << endl;
         getConfiguration();
-        LEDOff();
+        LED.Off();
     } else {
       delay(CONNECTION_WAIT_TIME);
       Serial << ".";
@@ -39,9 +39,9 @@ void connectToMQTT() {
 /* Callback of MQTT Broker, it listens for messages */
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   char  mqttString[50];
-  blinkLED();
-  Serial << "Got MQTT Topic : " << topic << " ";
-  if (length>=2) { // command arrived
+  LED.blink();
+  Serial << "Got MQTT Topic : " << topic << ", length=" << length;
+  if (length>=1) { // command arrived
     if((char)payload[1] == 'N') { // ON
       Serial << "ON" << endl;
       relayOn();
@@ -59,6 +59,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
       toggleMode();    
     } 
   }
+  Serial << endl;
 }
 
 

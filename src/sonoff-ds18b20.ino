@@ -7,9 +7,10 @@ void publishTemperature() {
   char  temperatureString[6];
   char  mqttString[50];
   float temperature = getTemperature();
-  dtostrf(temperature, 2, 1, temperatureString);
+  dtostrf(temperature, 2, 2, temperatureString);
   if (previousTemperature!=temperature) {
-    sprintf(mqttString,"%s/temperature", sonoffConfig.mqtt_topic);
+    Serial << " - publishing: " << temperatureString << endl;
+    sprintf(mqttString,"%stemperature", sonoffConfig.mqtt_topic);
     client.publish(mqttString, temperatureString);
     previousTemperature=temperature;
   }
@@ -26,9 +27,11 @@ void setSensorReadInterval(int interval) {
 /* Get temperature */
 float getTemperature() {
   float temperature;
+  Serial << endl << "Requesting temperature" << endl;
   do {
     DS18B20.requestTemperatures();
     temperature = DS18B20.getTempCByIndex(0);
   } while (temperature == 85.0 || temperature == (-127.0));
+  Serial << endl << " - temperature: " << temperature << endl;
   return temperature + tempCorrection;
 }

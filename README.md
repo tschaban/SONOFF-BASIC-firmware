@@ -1,13 +1,16 @@
 # Software for Sonoff switch
 
-**Work in progress - not ready for productive release yet, although core functions are working**
+**Work in progress - testing 3 devices at home right now ;-)**
+
+**ToDo**
+* Software crashes if DS18B20 is not connected or wrongly connected and when Sonoff is configured to use it
 
 **Status of implementation:**
 * firmware update over the network - **done**
 * sonoff configuration by the browser - **done**
-* possibility to connect sensor ds18b20 with automatic detection - **to do**
+* possibility to connect sensor ds18b20 with automatic detection - **done**
 * relay controlled by MQTT messages - **done**
-* temperature published by MQTT broker - **to do**
+* temperature published by MQTT broker - **done**
 * relay controlled manually by sonoff button - **done**
 
 **Hints**
@@ -56,14 +59,13 @@ To exit configuration mode
 | /sonoff/XXXXXX/cmd | Inbound | configurationMode | It reboots Sonoff to configuration mode over your WiFi network  | 
 | /sonoff/XXXXXX/state | Outbound | ON | Sonoff  publishes this if relay is set to ON by MQTT or manually by pressing Sonoff button |
 | /sonoff/XXXXXX/state | Outbound | OFF | Sonoff  publishes this if relay is set to OFF by MQTT or manually by pressing Sonoff button |
-| /sonoff/XXXXXX/get | Outbound | defaultState | **It will be removed - EEPROM will be used instead** Sonoff switch sends this message to the broker while booting in order to get default values of the relay, temp.correction and interval of sensor read. If it's not implemented in the MQTT broker then default values are set | 
 | /sonoff/XXXXXX/temperature | Outbound | Number | Sonoff switch sends temperature from DS18B20 sensor if it was changed between subsequent measures | 
 
 Hint:
 * /sonoff/XXXXXX/ can be manually set to something different in the configuration. 
 
 **Installation**
-* Working binary is available in firmware folder
+* Working binary is available in firmware folder. Version: 0.3.1
 
 First time upload. 
 * You can upload it to Sonoff using NodeMCU Flasher https://github.com/nodemcu/nodemcu-flasher
@@ -76,6 +78,7 @@ Upload parameters:
 * Binary must be uploaded from 0x00000 address
 
 Next uploads can be made over the network which means in the configuration mode you have an option to upgrade firmware.
+
 
 
 **Resources**

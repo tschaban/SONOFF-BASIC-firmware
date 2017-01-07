@@ -13,21 +13,22 @@
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 
+
 #include "Streaming.h"
-#include "ota.h"
 #include "sonoff-configuration.h"
-#include "sonoff-led.h"
 #include "sonoff-eeprom.h"
+#include "sonoff-led.h"
+#include "ota.h"
 
 /* Variables */
 SonoffEEPROM memory;
 SONOFFCONFIG sonoffConfig;
 DEFAULTS sonoffDefault;
+SonoffLED LED;
 
 /* Timers */
 Ticker buttonTimer;
 Ticker temperatureTimer;
-Ticker configurationMode;
 
 /* Libraries init */
 WiFiClient esp;
@@ -45,8 +46,7 @@ void setup() {
 
   Serial.println();
 
-  pinMode(LED, OUTPUT);
-  digitalWrite(LED, HIGH);
+
   pinMode(BUTTON, INPUT_PULLUP);
 
   Serial << endl << "EEPROM" << endl;
@@ -64,6 +64,7 @@ void setup() {
   Serial << " - MQTT User: " << sonoffConfig.mqtt_user << endl;
   Serial << " - MQTT Password: " << sonoffConfig.mqtt_password << endl;
   Serial << " - MQTT Topic: " << sonoffConfig.mqtt_topic <<  endl;
+  Serial << " - DS18B20 present: " << sonoffConfig.temp_present << endl;
   Serial << " - Temp correctin: " << sonoffConfig.temp_correction << endl;
   Serial << " - Temp interval: " << sonoffConfig.temp_interval << endl;
 
@@ -99,13 +100,7 @@ void setup() {
     Serial << endl << "Entering switch mode" << endl;
     runSwitchMode();  
   }
-
-  /* 
-  DS18B20.begin(); 
-  setSensorReadInterval(TEMP_INTERVAL);
-  buttonTimer.attach(0.1, button);  
-    */
-   
+  
 }
 
 
@@ -133,10 +128,10 @@ void loop() {
       connectToMQTT();
     } 
     client.loop();
-  } else if (sonoffConfig.mode==1) {  
-    dnsServer.processNextRequest();
-    server.handleClient();
+  } else if (sonoffConfig.mode==1) {      
+    server.handleClient();    
   } else if (sonoffConfig.mode==2) {
+    dnsServer.processNextRequest();
     server.handleClient();
   } else {
     Serial << "Internal Application Error" << endl;

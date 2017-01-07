@@ -6,26 +6,34 @@
 */
 
 void runSwitchMode() {
-  LEDOn();
+  LED.On();
   Serial << endl << "Device mode: SWITCH" << endl;
   Serial << endl << "Configuring MQTT" << endl;
   client.setServer(sonoffConfig.mqtt_host, sonoffConfig.mqtt_port);
   client.setCallback(callbackMQTT);
   connectToWiFi();
+
+  if (sonoffConfig.temp_present) {
+    Serial << endl << "Starting DS18B20" << endl;
+    DS18B20.begin(); 
+    setSensorReadInterval(sonoffConfig.temp_interval);
+  } else {
+    Serial << endl << "DS18B20 not present" << endl; 
+  }
 }
 
 void runConfigurationLANMode() {
-  LEDOn();
+  LED.On();
   Serial << endl << "Device mode: LAN Configuration" << endl;
   WiFi.mode(WIFI_STA);
   connectToWiFi();
   startHttpServer();
   Serial << endl << " - Ready for configuration. Open http://" << WiFi.localIP() << endl << endl;
-  blinkLEDInLoop(0.1);
+  LED.startBlinking(0.1);
 }
 
 void runConfigurationAPMode() {
-  LEDOn();
+  LED.On();
   Serial << endl << "Device mode: Access Point Configuration" << endl;
   Serial << " - launching access point" << endl;
   IPAddress apIP(192, 168, 5, 1);
@@ -37,7 +45,7 @@ void runConfigurationAPMode() {
   dnsServer.start(53, "www.example.com", apIP);
   startHttpServer();
   Serial << " - After conecting to WiFi: " << sonoffConfig.host_name << " open: http://192.168.5.1/  " << endl << endl;
-  blinkLEDInLoop(0.1);  
+  LED.startBlinking(0.1);  
 }
 
 void toggleMode() {
@@ -47,13 +55,13 @@ void toggleMode() {
     memory.saveSwitchMode(0);
   }
   Serial << "Rebooting device" << endl;
-  blinkLED();
+  LED.blink();
   delay(1000);
   ESP.restart();
 }
 
 void configuratonAPMode() {
-  LEDOn();
+  LED.On();
   memory.saveSwitchMode(2);
   Serial << "Rebooting device to Access Point" << endl;
   delay(1000);
@@ -61,7 +69,7 @@ void configuratonAPMode() {
 }
 
 void resetDeviceMode() {
-  LEDOn();
+  LED.On();
   Serial << "- ereasing EEPROM" << endl;
   memory.erase();
   delay(1000);

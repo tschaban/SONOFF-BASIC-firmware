@@ -6,8 +6,8 @@
 */
 
 
-#ifndef __HTTP_UPDATE_SERVER_H
-#define __HTTP_UPDATE_SERVER_H
+#ifndef _sonoff_OTA_h
+#define _sonoff_OTA_h
 
 class ESP8266WebServer;
 
@@ -42,8 +42,7 @@ class ESP8266HTTPUpdateServer
     }
 
     void setup(ESP8266WebServer *server, const char * path, const char * username, const char * password);
-
-    
+   
 };
 
 
