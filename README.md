@@ -80,4 +80,4 @@ Next uploads can be made over the network which means in the configuration mode 
 
 **Resources**
 * Project web page (in polish): [here](http://smart-house.adrian.czabanowski.com/projekt-firmware-do-sonoff/)
-* Project status (in polish): [here](http://smart-house.adrian.czabanowski.com/forum/oprogramowanie/alternatywny-firmware-do-przelacznika-sonoff-projekt/)
+* Project status (in polish): [here](http://smart-house.adrian.czabanowski.com/forum/ogolne/alternatywny-firmware-do-przelacznika-sonoff-projekt/#post-70)
