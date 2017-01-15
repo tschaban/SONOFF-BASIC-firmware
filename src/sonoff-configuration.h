@@ -17,7 +17,7 @@
 #define   CONNECTION_WAIT_TIME 500
 
 struct DEFAULTS {
-  char          version[8] = "0.3.1";
+  char          version[8] = "0.3.2";
   unsigned int  mqtt_port = 1883;
   float         temp_correction = 0;
   unsigned int  temp_interval = 600;

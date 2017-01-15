@@ -22,9 +22,9 @@ void callbackButton() {
   } else {
     if (sonoffConfig.mode==0 && pressedCount > 1 && pressedCount <= 10) {
       if (digitalRead(RELAY)==LOW) {
-          relayOn();
+          Relay.on();
       } else {
-          relayOff();
+          Relay.off();
       }
     } else if (pressedCount>20 && pressedCount < 80 ){
       toggleMode();

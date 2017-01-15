@@ -5,16 +5,6 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
-/* Publishing state of the Relay to MQTT Broker */
-void publishRelayStateMessage() {
-  char  mqttString[50];
-  sprintf(mqttString,"%sstate", sonoffConfig.mqtt_topic);
-  if (digitalRead(RELAY)==LOW) {
-    client.publish(mqttString, "OFF");
-  } else {
-      client.publish(mqttString, "ON");
-  }
-}
 
 /* Connected to MQTT Broker */
 void connectToMQTT() {
@@ -27,7 +17,6 @@ void connectToMQTT() {
         sprintf(mqttString,"%scmd", sonoffConfig.mqtt_topic);
         client.subscribe(mqttString);
         Serial << " - Subsribed to : " << sonoffConfig.mqtt_topic << endl;
-        getConfiguration();
         LED.Off();
     } else {
       delay(CONNECTION_WAIT_TIME);
@@ -44,13 +33,13 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   if (length>=1) { // command arrived
     if((char)payload[1] == 'N') { // ON
       Serial << "ON" << endl;
-      relayOn();
+      Relay.on();
     } else if((char)payload[1] == 'F') { // OFF
       Serial << "turnOFF" << endl;
-      relayOff();
+      Relay.off();
     } else if((char)payload[2] == 'p') { // reportState
       Serial << "reportState" << endl;
-      publishRelayStateMessage();
+      Relay.publish();
     } else if((char)payload[2] == 's') { // reset
       Serial << "reset" << endl;
       ESP.restart();
@@ -62,11 +51,3 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   Serial << endl;
 }
 
-
-/* Gets default configuration. Relay state and temp sensor config. It has to be implemented in the service and published over MQTT */
-void getConfiguration() {  
-  char  mqttString[50];
-  sprintf(mqttString,"%sget", sonoffConfig.mqtt_topic);
-  Serial << " - Requesting configuration : " << sonoffConfig.mqtt_topic << " " << "defaultState" <<  endl;
-  client.publish(mqttString, "defaultState");
-}

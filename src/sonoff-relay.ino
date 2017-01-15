@@ -1,33 +1,65 @@
 /*
- Sonoff: firmware
- More info: https://github.com/tschaban/SONOFF-firmware
- LICENCE: http://opensource.org/licenses/MIT
- 2016-10-27 tschaban https://github.com/tschaban
+  Sonoff: firmware
+  More info: https://github.com/tschaban/SONOFF-firmware
+  LICENCE: http://opensource.org/licenses/MIT
+  2016-10-27 tschaban https://github.com/tschaban
 */
 
+#include "sonoff-relay.h"
+
+SonoffRelay::SonoffRelay(SONOFFCONFIG *configuration) {
+  _configuration = configuration;
+  pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(RELAY, OUTPUT);  
+}
+
+void SonoffRelay::setup(SonoffLED *led, SonoffEEPROM *eeprom, PubSubClient *mqtt) {
+  _led = led;
+  _eeprom = eeprom;
+  _mqtt = mqtt;
+  
+  Serial << endl << "Setting relay default " << endl;
+  
+  if (_eeprom->getRelayState()==1) {
+      digitalWrite(RELAY, HIGH);
+  } else {
+      digitalWrite(RELAY, LOW);
+  }
+}
+
 /* Set relay to ON */
-void relayOn() {
+void SonoffRelay::on() {
   digitalWrite(RELAY, HIGH);
-  publishRelayStateMessage();
+  publish();
   Serial << "Relay set to ON" << endl;
-  memory.saveRelayState(1);
-  LED.blink();
+  _eeprom->saveRelayState(1);
+  _led->blink();
 }
 
 /* Set relay to OFF */
-void relayOff() {
+void SonoffRelay::off() {
   digitalWrite(RELAY, LOW);
-  publishRelayStateMessage();
+  publish();
   Serial << "Relay set to OFF" << endl;
-  memory.saveRelayState(0);
-  LED.blink();
+  _eeprom->saveRelayState(0);
+  _led->blink();
 }
 
 /* Toggle relay */
-void relayToggle() {
+void SonoffRelay::togle() {
   if (digitalRead(RELAY) == LOW) {
-    relayOn();
+    on();
   } else {
-    relayOff();
+    off();
+  }
+}
+
+void SonoffRelay::publish() {
+  char  mqttString[50];
+  sprintf(mqttString,"%sstate", _configuration->mqtt_topic);
+  if (digitalRead(RELAY)==LOW) {
+    _mqtt->publish(mqttString, "OFF");
+  } else {
+    _mqtt->publish(mqttString, "ON");
   }
 }

@@ -13,11 +13,11 @@
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 
-
 #include "Streaming.h"
 #include "sonoff-configuration.h"
 #include "sonoff-eeprom.h"
 #include "sonoff-led.h"
+#include "sonoff-relay.h"
 #include "ota.h"
 
 /* Variables */
@@ -25,6 +25,7 @@ SonoffEEPROM memory;
 SONOFFCONFIG sonoffConfig;
 DEFAULTS sonoffDefault;
 SonoffLED LED;
+SonoffRelay Relay(&sonoffConfig);
 
 /* Timers */
 Ticker buttonTimer;
@@ -45,9 +46,6 @@ void setup() {
   delay(10);
 
   Serial.println();
-
-
-  pinMode(BUTTON, INPUT_PULLUP);
 
   Serial << endl << "EEPROM" << endl;
   sonoffConfig = memory.getConfiguration();
@@ -70,13 +68,7 @@ void setup() {
 
   buttonTimer.attach(0.05, callbackButton);
 
-  Serial << endl << "Setting relay: " << endl;
-  pinMode(RELAY, OUTPUT);
-  if (memory.getRelayState()==1) {
-      digitalWrite(RELAY, HIGH);
-  } else {
-      digitalWrite(RELAY, LOW);
-  }
+  Relay.setup(&LED,&memory,&client);
   
   if (sonoffConfig.wifi_ssid[0]==(char) 0 || sonoffConfig.wifi_password[0]==(char) 0 || sonoffConfig.mqtt_host[0]==(char) 0) {
     Serial << endl << "Missing configuration. Going to configuration mode." << endl;
@@ -107,8 +99,7 @@ void setup() {
 
 
 /* Connect to WiFI */
-void connectToWiFi() {
-  
+void connectToWiFi() {  
   WiFi.hostname(sonoffConfig.host_name);
   WiFi.begin(sonoffConfig.wifi_ssid, sonoffConfig.wifi_password);
   Serial << endl << "Connecting to WiFi: " << sonoffConfig.wifi_ssid;

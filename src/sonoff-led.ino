@@ -15,6 +15,7 @@ SonoffLED::SonoffLED() {
 
 void SonoffLED::On() {
   if (digitalRead(GPIO_LED) == HIGH) {
+    digitalWrite(GPIO_LED, LOW);
   }
 }
 
