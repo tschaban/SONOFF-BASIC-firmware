@@ -2,7 +2,7 @@
 
 **Resources**
 * **PL** Dokumentacja: instalacja i konfiguracja: [tutaj](http://smart-house.adrian.czabanowski.com/firmware-sonoff/)
-* **EN** Documentation: installation and configuration: [here]http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
+* **EN** Documentation: installation and configuration: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
 
 **Features :**
 * firmware update over the network
