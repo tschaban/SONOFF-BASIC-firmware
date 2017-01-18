@@ -18,13 +18,31 @@ class SonoffEEPROM
     String read(int address, int size);
     void clear(int start, int size);
     void setDefaults();
+    char* getChar(int start, int size);
+    
    
   public:
     SonoffEEPROM();    
     SONOFFCONFIG getConfiguration();
 
     unsigned int getRelayState();
-    String getVersion();
+    char* getVersion();
+
+    char* getID();
+    char* getHostName();
+
+    char* getWiFiSSID();
+    char* getWiFiPassword();
+
+    char* getMQTTHost();
+    int getMQTTPort();
+    char* getMQTTUser();
+    char* getMQTTPassword();
+    char* getMQTTTopic();
+
+    boolean isDS18B20Present();
+    float   DS18B20Correction();
+    unsigned int DS18B20ReadInterval();
 
     void saveVersion(String in);    
     void saveWiFiSSID(String in);

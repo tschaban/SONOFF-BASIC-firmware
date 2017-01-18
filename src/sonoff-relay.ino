@@ -56,7 +56,7 @@ void SonoffRelay::togle() {
 
 void SonoffRelay::publish() {
   char  mqttString[50];
-  sprintf(mqttString,"%sstate", _configuration->mqtt_topic);
+  sprintf(mqttString,"%sstate", _eeprom->getMQTTTopic());
   if (digitalRead(RELAY)==LOW) {
     _mqtt->publish(mqttString, "OFF");
   } else {

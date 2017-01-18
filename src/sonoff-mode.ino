@@ -9,14 +9,14 @@ void runSwitchMode() {
   LED.On();
   Serial << endl << "Device mode: SWITCH" << endl;
   Serial << endl << "Configuring MQTT" << endl;
-  client.setServer(sonoffConfig.mqtt_host, sonoffConfig.mqtt_port);
+  client.setServer(eeprom.getMQTTHost(), eeprom.getMQTTPort());
   client.setCallback(callbackMQTT);
   connectToWiFi();
 
-  if (sonoffConfig.temp_present) {
+  if (eeprom.isDS18B20Present()) {
     Serial << endl << "Starting DS18B20" << endl;
     DS18B20.begin(); 
-    setSensorReadInterval(sonoffConfig.temp_interval);
+    setSensorReadInterval(eeprom.DS18B20ReadInterval());
   } else {
     Serial << endl << "DS18B20 not present" << endl; 
   }
@@ -39,20 +39,20 @@ void runConfigurationAPMode() {
   IPAddress apIP(192, 168, 5, 1);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(sonoffConfig.host_name);
+  WiFi.softAP(eeprom.getHostName());
   dnsServer.setTTL(300);
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
   dnsServer.start(53, "www.example.com", apIP);
   startHttpServer();
-  Serial << " - After conecting to WiFi: " << sonoffConfig.host_name << " open: http://192.168.5.1/  " << endl << endl;
+  Serial << " - After conecting to WiFi: " << eeprom.getHostName() << " open: http://192.168.5.1/  " << endl << endl;
   LED.startBlinking(0.1);  
 }
 
 void toggleMode() {
   if (sonoffConfig.mode == 0) {
-    memory.saveSwitchMode(1);
+    eeprom.saveSwitchMode(1);
   } else {
-    memory.saveSwitchMode(0);
+    eeprom.saveSwitchMode(0);
   }
   Serial << "Rebooting device" << endl;
   LED.blink();
@@ -62,7 +62,7 @@ void toggleMode() {
 
 void configuratonAPMode() {
   LED.On();
-  memory.saveSwitchMode(2);
+  eeprom.saveSwitchMode(2);
   Serial << "Rebooting device to Access Point" << endl;
   delay(1000);
   ESP.restart();
@@ -71,7 +71,7 @@ void configuratonAPMode() {
 void resetDeviceMode() {
   LED.On();
   Serial << "- ereasing EEPROM" << endl;
-  memory.erase();
+  eeprom.erase();
   delay(1000);
   ESP.restart();
 }

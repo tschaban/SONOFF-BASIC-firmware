@@ -21,7 +21,7 @@
 #include "ota.h"
 
 /* Variables */
-SonoffEEPROM memory;
+SonoffEEPROM eeprom;
 SONOFFCONFIG sonoffConfig;
 DEFAULTS sonoffDefault;
 SonoffLED LED;
@@ -48,38 +48,38 @@ void setup() {
   Serial.println();
 
   Serial << endl << "EEPROM" << endl;
-  sonoffConfig = memory.getConfiguration();
+  sonoffConfig = eeprom.getConfiguration();
 
   Serial << endl << "Configuration: " << endl;
-  Serial << " - Version: " << sonoffConfig.version << endl;
+  Serial << " - Version: " << eeprom.getVersion() << endl;
   Serial << " - Switch mode: " << sonoffConfig.mode << endl;
-  Serial << " - Device ID: " << sonoffConfig.id << endl;
-  Serial << " - Host name: " << sonoffConfig.host_name << endl;
-  Serial << " - WiFi SSID: " << sonoffConfig.wifi_ssid << endl;
-  Serial << " - WiFi Password: " << sonoffConfig.wifi_password << endl;
-  Serial << " - MQTT Host: " << sonoffConfig.mqtt_host << endl;
-  Serial << " - MQTT Port: " << sonoffConfig.mqtt_port << endl;
-  Serial << " - MQTT User: " << sonoffConfig.mqtt_user << endl;
-  Serial << " - MQTT Password: " << sonoffConfig.mqtt_password << endl;
-  Serial << " - MQTT Topic: " << sonoffConfig.mqtt_topic <<  endl;
-  Serial << " - DS18B20 present: " << sonoffConfig.temp_present << endl;
-  Serial << " - Temp correctin: " << sonoffConfig.temp_correction << endl;
-  Serial << " - Temp interval: " << sonoffConfig.temp_interval << endl;
+  Serial << " - Device ID: " << eeprom.getID() << endl;
+  Serial << " - Host name: " << eeprom.getHostName() << endl;
+  Serial << " - WiFi SSID: " << eeprom.getWiFiSSID() << endl;
+  Serial << " - WiFi Password: " << eeprom.getWiFiPassword() << endl;
+  Serial << " - MQTT Host: " << eeprom.getMQTTHost() << endl;
+  Serial << " - MQTT Port: " << eeprom.getMQTTPort() << endl;
+  Serial << " - MQTT User: " << eeprom.getMQTTUser()<< endl;
+  Serial << " - MQTT Password: " << eeprom.getMQTTPassword() << endl;
+  Serial << " - MQTT Topic: " << eeprom.getMQTTTopic() <<  endl;
+  Serial << " - DS18B20 present: " << eeprom.isDS18B20Present() << endl;
+  Serial << " - Temp correctin: " << eeprom.DS18B20Correction() << endl;
+  Serial << " - Temp interval: " << eeprom.DS18B20ReadInterval() << endl;
 
   buttonTimer.attach(0.05, callbackButton);
 
-  Relay.setup(&LED,&memory,&client);
+  Relay.setup(&LED,&eeprom,&client);
   
-  if (sonoffConfig.wifi_ssid[0]==(char) 0 || sonoffConfig.wifi_password[0]==(char) 0 || sonoffConfig.mqtt_host[0]==(char) 0) {
+  if (eeprom.getWiFiSSID()[0]==(char) 0 || eeprom.getWiFiPassword()[0]==(char) 0 || eeprom.getMQTTHost()[0]==(char) 0) {
     Serial << endl << "Missing configuration. Going to configuration mode." << endl;
-    memory.saveSwitchMode(2);
+    eeprom.saveSwitchMode(2);
     sonoffConfig.mode=2;
   }
 
-  if (String(sonoffDefault.version) != String(sonoffConfig.version)) {      
-      Serial << endl << "SOFTWARE WAS UPGRADED from version : " << sonoffConfig.version << " to " << sonoffDefault.version << endl;
-      memory.saveVersion(sonoffDefault.version);
-      memory.getVersion().toCharArray(sonoffConfig.version,sizeof(sonoffConfig.version));
+   /* POST Upgrade check, version upgrade */
+  if (String(sonoffDefault.version) != String(eeprom.getVersion())) {      
+      Serial << endl << "SOFTWARE WAS UPGRADED from version : " << eeprom.getVersion() << " to " << sonoffDefault.version << endl;
+      eeprom.saveVersion(sonoffDefault.version);     
   }
   
   if (sonoffConfig.mode==1) {
@@ -100,9 +100,9 @@ void setup() {
 
 /* Connect to WiFI */
 void connectToWiFi() {  
-  WiFi.hostname(sonoffConfig.host_name);
-  WiFi.begin(sonoffConfig.wifi_ssid, sonoffConfig.wifi_password);
-  Serial << endl << "Connecting to WiFi: " << sonoffConfig.wifi_ssid;
+  WiFi.hostname(eeprom.getHostName());
+  WiFi.begin(eeprom.getWiFiSSID(), eeprom.getWiFiPassword());
+  Serial << endl << "Connecting to WiFi: " << eeprom.getWiFiSSID();
   while (WiFi.status() != WL_CONNECTED) {
     Serial << ".";
     delay(CONNECTION_WAIT_TIME);

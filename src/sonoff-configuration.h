@@ -12,12 +12,13 @@
 #define GPIO_LED 13
 #define BUTTON 0
 #define TEMP_SENSOR 14
+#define EEPROM_SIZE 512;
 
 /* Configuration parameters */
 #define   CONNECTION_WAIT_TIME 500
 
 struct DEFAULTS {
-  char          version[8] = "0.3.2";
+  char          version[8] = "0.3.3";
   unsigned int  mqtt_port = 1883;
   float         temp_correction = 0;
   unsigned int  temp_interval = 600;
@@ -26,25 +27,25 @@ struct DEFAULTS {
 
 
 struct SONOFFCONFIG {
-  char          version[8];
+ // char          version[8];
 
-  char          id[6] = {0};
-  char          host_name[13] = {0};
+  //char          id[6] = {0};
+  //char          host_name[13] = {0};
   
   char          update_url[100];
   unsigned int  mode;
-  char          wifi_ssid[32];
-  char          wifi_password[32];
+//  char          wifi_ssid[32];
+//  char          wifi_password[32];
 
-  char          mqtt_host[32];
-  unsigned int  mqtt_port;
-  char          mqtt_user[32];
-  char          mqtt_password[32];
-  char          mqtt_topic[32];
+//  char          mqtt_host[32];
+//  unsigned int  mqtt_port;
+//char          mqtt_user[32];
+//char          mqtt_password[32];
+//  char          mqtt_topic[32];
 
-  float         temp_correction;
-  unsigned int  temp_interval;
-  boolean       temp_present;
+//  float         temp_correction;
+//  unsigned int  temp_interval;
+//  boolean       temp_present;
 
 };
 

@@ -9,14 +9,14 @@
 /* Connected to MQTT Broker */
 void connectToMQTT() {
   char  mqttString[50];
-  sprintf(mqttString,"Sonoff (ID: %s)",sonoffConfig.id);
-  Serial << "Connecting to MQTT : " << sonoffConfig.mqtt_host << " ";
+  sprintf(mqttString,"Sonoff (ID: %s)",eeprom.getID());
+  Serial << "Connecting to MQTT : " << eeprom.getMQTTHost() << " ";
   while (!client.connected()) {
-    if (client.connect(mqttString, sonoffConfig.mqtt_user, sonoffConfig.mqtt_password)) {
+    if (client.connect(mqttString, eeprom.getMQTTUser(), eeprom.getMQTTPassword())) {
         Serial << endl << "Connected" << endl;
-        sprintf(mqttString,"%scmd", sonoffConfig.mqtt_topic);
+        sprintf(mqttString,"%scmd", eeprom.getMQTTTopic());
         client.subscribe(mqttString);
-        Serial << " - Subsribed to : " << sonoffConfig.mqtt_topic << endl;
+        Serial << " - Subsribed to : " << eeprom.getMQTTTopic() << endl;
         LED.Off();
     } else {
       delay(CONNECTION_WAIT_TIME);

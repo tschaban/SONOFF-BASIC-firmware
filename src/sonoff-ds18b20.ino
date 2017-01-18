@@ -1,4 +1,3 @@
-float tempCorrection = sonoffConfig.temp_correction;
 float previousTemperature = 0;
 
 
@@ -10,7 +9,7 @@ void publishTemperature() {
   dtostrf(temperature, 2, 2, temperatureString);
   if (previousTemperature!=temperature) {
     Serial << " - publishing: " << temperatureString << endl;
-    sprintf(mqttString,"%stemperature", sonoffConfig.mqtt_topic);
+    sprintf(mqttString,"%stemperature", eeprom.getMQTTTopic());
     client.publish(mqttString, temperatureString);
     previousTemperature=temperature;
   }
@@ -33,5 +32,5 @@ float getTemperature() {
     temperature = DS18B20.getTempCByIndex(0);
   } while (temperature == 85.0 || temperature == (-127.0));
   Serial << endl << " - temperature: " << temperature << endl;
-  return temperature + tempCorrection;
+  return temperature + eeprom.DS18B20Correction();
 }

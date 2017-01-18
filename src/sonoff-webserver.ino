@@ -26,25 +26,25 @@ void handleRoot() {
     "<table>"
     "<tr>"
     "<td class=\"header\">ID</td>"
-    "<td>: "; page += sonoffConfig.id; page += "</td>"
+    "<td>: "; page += eeprom.getID(); page += "</td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">Name</td>"
-    "<td>: "; page += sonoffConfig.host_name; page += "</td>"
+    "<td>: "; page += eeprom.getHostName(); page += "</td>"
     "</tr>"
     "</table>"
     "<h3>Firmware:</h3>"
     "<table>"
     "<tr>"
     "<td class=\"header\">Version</td>"
-    "<td>: "; page += sonoffConfig.version; page += "</td>"
+    "<td>: "; page += eeprom.getVersion(); page += "</td>"
     "</tr>"
     "</table>"
     "<h3>WiFi:</h3>"
     "<table>"
     "<tr>"
     "<td class=\"header\">WiFi SSID</td>"
-    "<td>: "; page += sonoffConfig.wifi_ssid; page += "</td>"
+    "<td>: "; page += eeprom.getWiFiSSID(); page += "</td>"
     "</tr>"
 //    "<tr>"
 //    "<td class=\"header\">WiFi Password</td>"
@@ -55,7 +55,7 @@ void handleRoot() {
     "<table>"
     "<tr>"
     "<td class=\"header\">MQTT Host</td>"
-    "<td>: "; page += sonoffConfig.mqtt_host; page += ":";  page += sonoffConfig.mqtt_port; page += "</td>"
+    "<td>: "; page += eeprom.getMQTTHost(); page += ":";  page += eeprom.getMQTTPort(); page += "</td>"
     "</tr>"
     "<tr>"
 //    "<td class=\"header\">MQTT User</td>"
@@ -67,7 +67,7 @@ void handleRoot() {
 //    "</tr>"
     "<tr>"
     "<td class=\"header\">MQTT Topic</td>"
-    "<td>: "; page += sonoffConfig.mqtt_topic; page += "</td>"
+    "<td>: "; page += eeprom.getMQTTTopic(); page += "</td>"
     "</tr>"
     "</table>"
     "<h3>Temperature Sensor:</h3>"
@@ -75,18 +75,18 @@ void handleRoot() {
     "<tr>"
     "<td class=\"header\">Present?</td>"
     "<td>: "; 
-    page += (sonoffConfig.temp_present?"Yes":"No");
+    page += (eeprom.isDS18B20Present()?"Yes":"No");
     page += "</td>"
     "</tr>";
-    if (sonoffConfig.temp_present) {
+    if (eeprom.isDS18B20Present()) {
       page += 
       "<tr>"
       "<td class=\"header\">Correction</td>"
-      "<td>: "; page += sonoffConfig.temp_correction; page += "</td>"
+      "<td>: "; page += eeprom.DS18B20Correction(); page += "</td>"
       "</tr>"
       "<tr>"
       "<td class=\"header\">Interval</td>"
-      "<td>: "; page += sonoffConfig.temp_interval; page += "sec.</td>"
+      "<td>: "; page += eeprom.DS18B20ReadInterval(); page += "sec.</td>"
       "</tr>";
     }
     page += "</table>";
@@ -103,34 +103,34 @@ void handleConfiguration() {
     "<table>"
     "<tr>"
     "<td class=\"header\">WiFi SSID<sup class=\"red\">*</sup></td>"
-    "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += sonoffConfig.wifi_ssid; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"wifi_ssid\" length=32 value=\""; page += eeprom.getWiFiSSID(); page += "\" /></td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">WiFi Password<sup class=\"red\">*</sup></td>"
-    "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += sonoffConfig.wifi_password; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\""; page += eeprom.getWiFiPassword(); page += "\" /></td>"
     "</tr>"
     "</table>"
     "<h3>MQTT Broker configuration:</h3>"
     "<table>"
     "<tr>"
     "<td class=\"header\">Host<sup class=\"red\">*</sup></td>"
-    "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += sonoffConfig.mqtt_host; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"mqtt_host\" length=32 value=\""; page += eeprom.getMQTTHost(); page += "\" /></td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">Port<sup class=\"red\">*</sup></td>"
-    "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += sonoffConfig.mqtt_port; page += "\"/></td>"
+    "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\""; page += eeprom.getMQTTPort(); page += "\"/></td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">User</td>"
-    "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += sonoffConfig.mqtt_user; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\""; page += eeprom.getMQTTUser(); page += "\" /></td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">Password</td>"
-    "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += sonoffConfig.mqtt_password; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\""; page += eeprom.getMQTTPassword(); page += "\" /></td>"
     "</tr>"
     "<tr>"
     "<td class=\"header\">Topic<sup class=\"red\">*</sup></td>"
-    "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\""; page += sonoffConfig.mqtt_topic; page += "\" /></td>"
+    "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\""; page += eeprom.getMQTTTopic(); page += "\" /></td>"
     "</tr>"
     "</table>"
     "<h3>Temperature sensor configuration:</h3>"
@@ -138,7 +138,7 @@ void handleConfiguration() {
     "<tr>"
     "<td class=\"header\">Is present?<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"checkbox\" name=\"temp_present\" length=1 value=\"1\"";
-  if (sonoffConfig.temp_present) {
+  if (eeprom.isDS18B20Present()) {
     page += " checked ";
   }
 
@@ -146,11 +146,11 @@ void handleConfiguration() {
           "</tr>"
           "<tr>"
           "<td class=\"header\">Correction</td>"
-          "<td>: <input type=\"text\" name=\"temp_correction\" length=5 value=\""; page += sonoffConfig.temp_correction; page += "\" /></td>"
+          "<td>: <input type=\"text\" name=\"temp_correction\" length=5 value=\""; page += eeprom.DS18B20Correction(); page += "\" /></td>"
           "</tr>"
           "<tr>"
           "<td class=\"header\">Interval (in sec.)</td>"
-          "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\""; page += sonoffConfig.temp_interval; page += "\" /></td>"
+          "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\""; page += eeprom.DS18B20ReadInterval(); page += "\" /></td>"
           "</tr>"
           "</table>"
           "<input class=\"submit\" type=\"submit\" />"
@@ -212,62 +212,62 @@ void handleSave() {
   bool saveing = false;
 
   if (_wifi_ssid.length() > 0) {
-    memory.saveWiFiSSID(_wifi_ssid);
+    eeprom.saveWiFiSSID(_wifi_ssid);
     saveing = true;
   }
 
   if (_wifi_password.length() > 0) {
-    memory.saveWiFiPassword(_wifi_password);
+    eeprom.saveWiFiPassword(_wifi_password);
     saveing = true;
   }
 
   if (_mqtt_host.length() > 0) {
-    memory.saveMQTTHost(_mqtt_host);
+    eeprom.saveMQTTHost(_mqtt_host);
     saveing = true;
   }
 
   if (_mqtt_port.length() > 0) {
-    memory.saveMQTTPort(_mqtt_port.toInt());
+    eeprom.saveMQTTPort(_mqtt_port.toInt());
     saveing = true;
   }
 
   if (_mqtt_user.length() > 0) {
-    memory.saveMQTTUser(_mqtt_user);
+    eeprom.saveMQTTUser(_mqtt_user);
     saveing = true;
   }
 
   if (_mqtt_password.length() > 0) {
-    memory.saveMQTTPassword(_mqtt_password);
+    eeprom.saveMQTTPassword(_mqtt_password);
     saveing = true;
   }
 
   if (_mqtt_topic.length() > 0) {
-    memory.saveMQTTTopic(_mqtt_topic);
+    eeprom.saveMQTTTopic(_mqtt_topic);
     saveing = true;
   }
 
   if (_temp_present.length() > 0 ) {
-    memory.saveTemperatureSensorPresent(1);
+    eeprom.saveTemperatureSensorPresent(1);
     saveing = true;
   } else {
-    if (sonoffConfig.temp_present) {
-      memory.saveTemperatureSensorPresent(0);
+    if (eeprom.isDS18B20Present()) {
+      eeprom.saveTemperatureSensorPresent(0);
       saveing = true;
     }
   }
 
   if (_temp_correction.length() > 0 ) {
-    memory.saveTemperatureCorrection(_temp_correction.toFloat());
+    eeprom.saveTemperatureCorrection(_temp_correction.toFloat());
     saveing = true;
   }
 
   if (_temp_interval.length() > 0) {
-    memory.saveTemperatureInterval(_temp_interval.toInt());
+    eeprom.saveTemperatureInterval(_temp_interval.toInt());
     saveing = true;
   }
 
   if (saveing) {
-    sonoffConfig = memory.getConfiguration();
+    sonoffConfig = eeprom.getConfiguration();
   }
 
   String page =
