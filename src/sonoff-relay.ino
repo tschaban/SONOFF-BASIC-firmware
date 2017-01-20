@@ -7,23 +7,21 @@
 
 #include "sonoff-relay.h"
 
-SonoffRelay::SonoffRelay(SONOFFCONFIG *configuration) {
-  _configuration = configuration;
-  pinMode(BUTTON, INPUT_PULLUP);
-  pinMode(RELAY, OUTPUT);  
+SonoffRelay::SonoffRelay() {
+  pinMode(RELAY, OUTPUT);
 }
 
 void SonoffRelay::setup(SonoffLED *led, SonoffEEPROM *eeprom, PubSubClient *mqtt) {
   _led = led;
   _eeprom = eeprom;
   _mqtt = mqtt;
-  
+
   Serial << endl << "Setting relay default " << endl;
-  
-  if (_eeprom->getRelayState()==1) {
-      digitalWrite(RELAY, HIGH);
+
+  if (_eeprom->getRelayState() == 1) {
+    digitalWrite(RELAY, HIGH);
   } else {
-      digitalWrite(RELAY, LOW);
+    digitalWrite(RELAY, LOW);
   }
 }
 
@@ -47,6 +45,7 @@ void SonoffRelay::off() {
 
 /* Toggle relay */
 void SonoffRelay::togle() {
+
   if (digitalRead(RELAY) == LOW) {
     on();
   } else {
@@ -55,11 +54,13 @@ void SonoffRelay::togle() {
 }
 
 void SonoffRelay::publish() {
+
   char  mqttString[50];
-  sprintf(mqttString,"%sstate", _eeprom->getMQTTTopic());
-  if (digitalRead(RELAY)==LOW) {
+  sprintf(mqttString, "%sstate", _eeprom->getMQTTTopic());
+  if (digitalRead(RELAY) == LOW) {
     _mqtt->publish(mqttString, "OFF");
   } else {
     _mqtt->publish(mqttString, "ON");
   }
 }
+

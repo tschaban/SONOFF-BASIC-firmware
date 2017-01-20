@@ -10,6 +10,8 @@
 
 #include <EEPROM.h>
 
+#define EEPROM_SIZE 512
+
 class SonoffEEPROM
 {
   private: 
@@ -23,22 +25,25 @@ class SonoffEEPROM
    
   public:
     SonoffEEPROM();    
-    SONOFFCONFIG getConfiguration();
-
-    unsigned int getRelayState();
-    char* getVersion();
 
     char* getID();
+        
+    char* getVersion();
+
+    unsigned int getMode(); /* Look at MODE_... defined */
+    
     char* getHostName();
 
     char* getWiFiSSID();
     char* getWiFiPassword();
 
     char* getMQTTHost();
-    int getMQTTPort();
+    unsigned int getMQTTPort();
     char* getMQTTUser();
     char* getMQTTPassword();
     char* getMQTTTopic();
+
+    unsigned int getRelayState();
 
     boolean isDS18B20Present();
     float   DS18B20Correction();
@@ -52,7 +57,7 @@ class SonoffEEPROM
     void saveMQTTUser(String in);
     void saveMQTTPassword(String in);
     void saveMQTTTopic(String in);       
-    void saveSwitchMode(int in);    
+    void saveMode(int in); /* Look at MODE_... defined */
     void saveTemperatureCorrection(float in); 
     void saveTemperatureInterval(unsigned int in);
     void saveTemperatureSensorPresent(unsigned int in);    

@@ -18,17 +18,17 @@
 #include "sonoff-eeprom.h"
 #include "sonoff-led.h"
 #include "sonoff-relay.h"
+#include "sonoff-button.h"
 #include "ota.h"
 
-/* Variables */
-SonoffEEPROM eeprom;
-SONOFFCONFIG sonoffConfig;
 DEFAULTS sonoffDefault;
+
+SonoffEEPROM eeprom;
 SonoffLED LED;
-SonoffRelay Relay(&sonoffConfig);
+SonoffRelay Relay;
+SonoffButton Button;
 
 /* Timers */
-Ticker buttonTimer;
 Ticker temperatureTimer;
 
 /* Libraries init */
@@ -47,12 +47,9 @@ void setup() {
 
   Serial.println();
 
-  Serial << endl << "EEPROM" << endl;
-  sonoffConfig = eeprom.getConfiguration();
-
-  Serial << endl << "Configuration: " << endl;
+  Serial << endl << "Reading EEPROM" << endl;
   Serial << " - Version: " << eeprom.getVersion() << endl;
-  Serial << " - Switch mode: " << sonoffConfig.mode << endl;
+  Serial << " - Switch mode: " << eeprom.getMode() << endl;
   Serial << " - Device ID: " << eeprom.getID() << endl;
   Serial << " - Host name: " << eeprom.getHostName() << endl;
   Serial << " - WiFi SSID: " << eeprom.getWiFiSSID() << endl;
@@ -66,14 +63,13 @@ void setup() {
   Serial << " - Temp correctin: " << eeprom.DS18B20Correction() << endl;
   Serial << " - Temp interval: " << eeprom.DS18B20ReadInterval() << endl;
 
-  buttonTimer.attach(0.05, callbackButton);
+  
 
   Relay.setup(&LED,&eeprom,&client);
   
   if (eeprom.getWiFiSSID()[0]==(char) 0 || eeprom.getWiFiPassword()[0]==(char) 0 || eeprom.getMQTTHost()[0]==(char) 0) {
     Serial << endl << "Missing configuration. Going to configuration mode." << endl;
-    eeprom.saveSwitchMode(2);
-    sonoffConfig.mode=2;
+    eeprom.saveMode(MODE_ACCESSPOINT);
   }
 
    /* POST Upgrade check, version upgrade */
@@ -82,10 +78,10 @@ void setup() {
       eeprom.saveVersion(sonoffDefault.version);     
   }
   
-  if (sonoffConfig.mode==1) {
+  if (eeprom.getMode()==MODE_CONFIGURATION) {
     Serial << endl << "Entering configuration mode over the LAN" << endl;
     runConfigurationLANMode();
-  } else if (sonoffConfig.mode==2) {
+  } else if (eeprom.getMode()==MODE_ACCESSPOINT) {
      Serial << endl << "Entering configuration mode with Access Point" << endl;
      runConfigurationAPMode(); 
   }else {
@@ -114,14 +110,14 @@ void connectToWiFi() {
 
 
 void loop() {
-  if (sonoffConfig.mode==0) {
+  if (eeprom.getMode()==MODE_SWITCH) {
     if (!client.connected()) {
       connectToMQTT();
     } 
     client.loop();
-  } else if (sonoffConfig.mode==1) {      
+  } else if (eeprom.getMode()==MODE_CONFIGURATION) {      
     server.handleClient();    
-  } else if (sonoffConfig.mode==2) {
+  } else if (eeprom.getMode()==MODE_ACCESSPOINT) {
     dnsServer.processNextRequest();
     server.handleClient();
   } else {

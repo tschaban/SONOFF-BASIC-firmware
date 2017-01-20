@@ -1,34 +1,64 @@
 /*
- Sonoff: firmware
- More info: https://github.com/tschaban/SONOFF-firmware
- LICENCE: http://opensource.org/licenses/MIT
- 2016-10-27 tschaban https://github.com/tschaban
+  Sonoff: firmware
+  More info: https://github.com/tschaban/SONOFF-firmware
+  LICENCE: http://opensource.org/licenses/MIT
+  2016-10-27 tschaban https://github.com/tschaban
 */
 
-unsigned long pressedCount = 0;
+#include "sonoff-button.h"
 
-/* Button pressed method. Short changes relay state, long reboot device */
+
+
+SonoffButton::SonoffButton() {
+  pinMode(BUTTON, INPUT_PULLUP);
+  buttonTimer.attach(0.05, callbackButton);
+}
+
+
+void SonoffButton::stop() {
+  buttonTimer.detach();
+}
+
+boolean SonoffButton::isPressed() {
+  return !digitalRead(BUTTON);
+}
+
+void SonoffButton::pressed() {
+  counter++;
+}
+
+void SonoffButton::reset() {
+  counter = 0;
+}
+
+boolean SonoffButton::accessPointTrigger() {
+   return counter==80?true:false;
+}
+boolean SonoffButton::configurationTrigger() {
+  return counter>20&&counter<80?true:false;
+
+}
+boolean SonoffButton::relayTrigger() {
+  return counter>1&&counter<=10?true:false;
+}
+
 void callbackButton() {
 
-  if (!digitalRead(BUTTON) && pressedCount < 80) {
-    pressedCount++;
-  } else if (!digitalRead(BUTTON) && pressedCount == 80) {
-      buttonTimer.detach();
-      if (sonoffConfig.mode==2) {
-        runSwitchMode();
-      } else {
-         configuratonAPMode();
-      }
+  if (Button.isPressed() && !Button.accessPointTrigger()) {
+    Button.pressed();
+  } else if (Button.isPressed() && Button.accessPointTrigger()) {
+    Button.stop();
+    if (eeprom.getMode()==MODE_ACCESSPOINT) {
+      runSwitchMode();
+    } else {
+      configuratonAPMode();
+    }
   } else {
-    if (sonoffConfig.mode==0 && pressedCount > 1 && pressedCount <= 10) {
-      if (digitalRead(RELAY)==LOW) {
-          Relay.on();
-      } else {
-          Relay.off();
-      }
-    } else if (pressedCount>20 && pressedCount < 80 ){
+    if (eeprom.getMode() == 0 && Button.relayTrigger()) {
+      Relay.togle();
+    } else if (Button.configurationTrigger()) {
       toggleMode();
-    } 
-  pressedCount = 0;
+    }
+    Button.reset();
   }
 }

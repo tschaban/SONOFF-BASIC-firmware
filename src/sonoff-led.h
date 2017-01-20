@@ -4,6 +4,8 @@
 #include <Ticker.h>
 #include "sonoff-configuration.h"
 
+#define GPIO_LED 13
+
 class SonoffLED
 {
   public:

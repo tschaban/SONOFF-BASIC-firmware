@@ -8,11 +8,13 @@
 #ifndef _sonoff_configuration_h
 #define _sonoff_configuration_h
 
-#define RELAY 12
-#define GPIO_LED 13
-#define BUTTON 0
+
+#define MODE_SWITCH 0
+#define MODE_CONFIGURATION 1
+#define MODE_ACCESSPOINT 2
+
 #define TEMP_SENSOR 14
-#define EEPROM_SIZE 512;
+
 
 /* Configuration parameters */
 #define   CONNECTION_WAIT_TIME 500
@@ -25,29 +27,6 @@ struct DEFAULTS {
   boolean       temp_present = false;     
  };
 
-
-struct SONOFFCONFIG {
- // char          version[8];
-
-  //char          id[6] = {0};
-  //char          host_name[13] = {0};
-  
-  char          update_url[100];
-  unsigned int  mode;
-//  char          wifi_ssid[32];
-//  char          wifi_password[32];
-
-//  char          mqtt_host[32];
-//  unsigned int  mqtt_port;
-//char          mqtt_user[32];
-//char          mqtt_password[32];
-//  char          mqtt_topic[32];
-
-//  float         temp_correction;
-//  unsigned int  temp_interval;
-//  boolean       temp_present;
-
-};
 
 
 const String PAGE_HEADER =

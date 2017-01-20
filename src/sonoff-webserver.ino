@@ -209,65 +209,48 @@ void handleSave() {
 
   Serial << "TEMP=" << _temp_present << " ... length= " << _temp_present.length() << endl;
 
-  bool saveing = false;
-
   if (_wifi_ssid.length() > 0) {
     eeprom.saveWiFiSSID(_wifi_ssid);
-    saveing = true;
   }
 
   if (_wifi_password.length() > 0) {
     eeprom.saveWiFiPassword(_wifi_password);
-    saveing = true;
   }
 
   if (_mqtt_host.length() > 0) {
     eeprom.saveMQTTHost(_mqtt_host);
-    saveing = true;
   }
 
   if (_mqtt_port.length() > 0) {
     eeprom.saveMQTTPort(_mqtt_port.toInt());
-    saveing = true;
   }
 
   if (_mqtt_user.length() > 0) {
     eeprom.saveMQTTUser(_mqtt_user);
-    saveing = true;
   }
 
   if (_mqtt_password.length() > 0) {
     eeprom.saveMQTTPassword(_mqtt_password);
-    saveing = true;
   }
 
   if (_mqtt_topic.length() > 0) {
     eeprom.saveMQTTTopic(_mqtt_topic);
-    saveing = true;
   }
 
   if (_temp_present.length() > 0 ) {
     eeprom.saveTemperatureSensorPresent(1);
-    saveing = true;
   } else {
     if (eeprom.isDS18B20Present()) {
       eeprom.saveTemperatureSensorPresent(0);
-      saveing = true;
     }
   }
 
   if (_temp_correction.length() > 0 ) {
     eeprom.saveTemperatureCorrection(_temp_correction.toFloat());
-    saveing = true;
   }
 
   if (_temp_interval.length() > 0) {
     eeprom.saveTemperatureInterval(_temp_interval.toInt());
-    saveing = true;
-  }
-
-  if (saveing) {
-    sonoffConfig = eeprom.getConfiguration();
   }
 
   String page =

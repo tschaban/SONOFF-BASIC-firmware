@@ -49,10 +49,10 @@ void runConfigurationAPMode() {
 }
 
 void toggleMode() {
-  if (sonoffConfig.mode == 0) {
-    eeprom.saveSwitchMode(1);
+  if (eeprom.getMode()==MODE_SWITCH) {
+    eeprom.saveMode(MODE_CONFIGURATION);
   } else {
-    eeprom.saveSwitchMode(0);
+    eeprom.saveMode(MODE_SWITCH);
   }
   Serial << "Rebooting device" << endl;
   LED.blink();
@@ -62,17 +62,15 @@ void toggleMode() {
 
 void configuratonAPMode() {
   LED.On();
-  eeprom.saveSwitchMode(2);
+  eeprom.saveMode(MODE_ACCESSPOINT);
   Serial << "Rebooting device to Access Point" << endl;
   delay(1000);
   ESP.restart();
 }
 
 void resetDeviceMode() {
-  LED.On();
   Serial << "- ereasing EEPROM" << endl;
   eeprom.erase();
-  delay(1000);
   ESP.restart();
 }
 

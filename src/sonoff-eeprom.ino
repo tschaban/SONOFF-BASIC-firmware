@@ -9,47 +9,24 @@
 
 SonoffEEPROM::SonoffEEPROM() {
   EEPROM.begin(EEPROM_size);
-}
-
-SONOFFCONFIG SonoffEEPROM::getConfiguration() {
-  Serial << "Reading configuration from EEPROM" << endl;
-  SONOFFCONFIG _temp;
-
-  //getVersion().toCharArray(_temp.version, sizeof(_temp.version));
   
-  _temp.mode = read(104, 1).toInt();
-
-  // If thwew is no version in EPPROM this a first launch
   if (getVersion()[0] == '\0')  {
     erase();
-    _temp.mode = 1;
+    saveMode(1);
   }
 
-  //read(119, 6).toCharArray(_temp.id, sizeof(_temp.id));
-  // read(125, 13).toCharArray(_temp.host_name, sizeof(_temp.host_name));
+}
 
-  //  read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
-  //read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));
-
-  //read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));
-  //_temp.mqtt_port = read(328, 5).toInt();
-  //read(333, 32).toCharArray(_temp.mqtt_user, sizeof(_temp.mqtt_user));
-  //read(365, 32).toCharArray(_temp.mqtt_password, sizeof(_temp.mqtt_password));
-  //read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));
-
-  //  _temp.temp_present = (read(138, 1).toInt() == 1 ? true : false);
-  // _temp.temp_correction = read(105, 5).toFloat();
-  // _temp.temp_interval = read(110, 8).toInt();
-
-  return _temp;
+char* SonoffEEPROM::getID() {
+  return getChar(119, 6);
 }
 
 char* SonoffEEPROM::getVersion() {
   return getChar(0, 8);
 }
 
-char* SonoffEEPROM::getID() {
-  return getChar(119, 6);
+unsigned int SonoffEEPROM::getMode() {
+  return read(104, 1).toInt();
 }
 
 char* SonoffEEPROM::getHostName() {
@@ -68,7 +45,7 @@ char* SonoffEEPROM::getMQTTHost() {
   return getChar(296, 32);
 }
 
-int SonoffEEPROM::getMQTTPort() {
+unsigned int SonoffEEPROM::getMQTTPort() {
   return read(328, 5).toInt();
 }
 
@@ -106,7 +83,7 @@ void SonoffEEPROM::saveVersion(String in) {
   write(0, 8, in);
 }
 
-void SonoffEEPROM::saveSwitchMode(int in) {
+void SonoffEEPROM::saveMode(int in) {
   Serial << endl << "Saving  Switch Mode" << endl;
   write(104, 1, String(in));
 }
@@ -195,7 +172,7 @@ void SonoffEEPROM::setDefaults() {
   saveMQTTTopic(_mqtt_topic);
   saveMQTTPort(sonoffDefault.mqtt_port);
 
-  saveSwitchMode(0);
+  saveMode(MODE_SWITCH);
   saveRelayState(0);
 
 }
