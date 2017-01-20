@@ -1,8 +1,8 @@
 /*
-  Source taken from: https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266HTTPUpdateServer
-  Creditis to all autors !!!!
+ Source taken from: https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266HTTPUpdateServer
+ Credits to all authors !!!!
 
-  Modifcations by tschaban https://github.com/tschaban
+ Modifications by tschaban https://github.com/tschaban
 */
 
 #include <Arduino.h>
@@ -10,7 +10,7 @@
 #include <WiFiServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
-#include "ota.h"
+#include "sonoff-ota.h"
 #include "sonoff-configuration.h"
 
 

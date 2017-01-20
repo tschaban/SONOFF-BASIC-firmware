@@ -1,8 +1,8 @@
 /*
  Source taken from: https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266HTTPUpdateServer
- Creditis to all autors !!!!
+ Credits to all authors !!!!
 
- Modifcations by tschaban https://github.com/tschaban 
+ Modifications by tschaban https://github.com/tschaban
 */
 
 
