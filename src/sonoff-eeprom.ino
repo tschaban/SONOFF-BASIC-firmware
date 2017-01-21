@@ -9,57 +9,46 @@
 
 SonoffEEPROM::SonoffEEPROM() {
   EEPROM.begin(EEPROM_size);
-  
-  if (getVersion()[0] == '\0')  {
+
+  /* If version not set it assumes first launch */
+  if (read(0,8)[0] == '\0')  {
     erase();
     saveMode(1);
   }
-
 }
 
-char* SonoffEEPROM::getID() {
-  return getChar(119, 6);
+
+SONOFFCONFIG SonoffEEPROM::getConfiguration() {
+  SONOFFCONFIG _temp;
+
+  read(0,8).toCharArray(_temp.version,sizeof(_temp.version));
+  _temp.mode = read(104, 1).toInt();
+  
+  // If thwew is no version in EPPROM this a first launch 
+  if(_temp.version[0] == '\0')  {
+    erase();
+    _temp.mode = 1;
+  }
+
+  read(119, 6).toCharArray(_temp.id, sizeof(_temp.id));
+  read(125, 13).toCharArray(_temp.host_name, sizeof(_temp.host_name));
+
+  read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
+  read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));
+  
+  read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));
+  _temp.mqtt_port = read(328, 5).toInt();  
+  read(333, 32).toCharArray(_temp.mqtt_user, sizeof(_temp.mqtt_user));
+  read(365, 32).toCharArray(_temp.mqtt_password, sizeof(_temp.mqtt_password));
+  read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));
+  
+  _temp.ds18b20_present = (read(138,1).toInt()==1?true:false);
+  _temp.ds18b20_correction = read(105, 5).toFloat();
+  _temp.ds18b20_interval = read(110, 8).toInt();
+
+  return _temp;
 }
 
-char* SonoffEEPROM::getVersion() {
-  return getChar(0, 8);
-}
-
-unsigned int SonoffEEPROM::getMode() {
-  return read(104, 1).toInt();
-}
-
-char* SonoffEEPROM::getHostName() {
-  return getChar(125, 13);
-}
-
-char* SonoffEEPROM::getWiFiSSID() {
-  return getChar(232, 32);
-}
-
-char* SonoffEEPROM::getWiFiPassword() {
-  return getChar(264, 32);
-}
-
-char* SonoffEEPROM::getMQTTHost() {
-  return getChar(296, 32);
-}
-
-unsigned int SonoffEEPROM::getMQTTPort() {
-  return read(328, 5).toInt();
-}
-
-char* SonoffEEPROM::getMQTTUser() {
-  return getChar(333, 32);
-}
-
-char* SonoffEEPROM::getMQTTPassword() {
-  return getChar(365, 32);
-}
-
-char* SonoffEEPROM::getMQTTTopic() {
-  return getChar(397, 32);
-}
 
 boolean SonoffEEPROM::isDS18B20Present() {
   return (read(138, 1).toInt() == 1 ? true : false);
@@ -79,79 +68,63 @@ unsigned int SonoffEEPROM::getRelayState() {
 }
 
 void SonoffEEPROM::saveVersion(String in) {
-  Serial << endl << "Saving version" << endl;
   write(0, 8, in);
 }
 
 void SonoffEEPROM::saveMode(int in) {
-  Serial << endl << "Saving  Switch Mode" << endl;
   write(104, 1, String(in));
 }
 
 void SonoffEEPROM::saveTemperatureCorrection(float in) {
-  Serial << endl << "Saving  temperature correction" << endl;
   write(105, 5, String(in));
 }
 
 void SonoffEEPROM::saveTemperatureInterval(unsigned int in) {
-  Serial << endl << "Saving  temperature interval" << endl;
   write(110, 8, String(in));
 }
 
 void SonoffEEPROM::saveTemperatureSensorPresent(unsigned int in) {
-  Serial << endl << "Saving ds18b20 presence" << endl;
   write(138, 1, String(in));
 }
 
 void SonoffEEPROM::saveRelayState(unsigned int in) {
-  Serial << endl << "Saving  Relay state" << endl;
   write(118, 1, String(in));
 }
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
-  Serial << endl << "Saving  WiFi SSID" << endl;
   write(232, 32, in);
 }
 
 void SonoffEEPROM::saveWiFiPassword(String in) {
-  Serial << endl << "Saving  WiFi Password" << endl;
   write(264, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTHost(String in) {
-  Serial << endl << "Saving  MQTT Host" << endl;
   write(296, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTPort(unsigned int in) {
-  Serial << endl << "Saving  MQTT Port" << endl;
   write(328, 5, String(in));
 }
 
 void SonoffEEPROM::saveMQTTUser(String in) {
-  Serial << endl << "Saving  MQTT User" << endl;
   write(333, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTPassword(String in) {
-  Serial << endl << "Saving  MQTT Password" << endl;
   write(365, 32, in);
 }
 
 void SonoffEEPROM::saveMQTTTopic(String in) {
-  Serial << endl << "Saving  MQTT Topic" << endl;
   write(397, 32, in);
 }
 
 void SonoffEEPROM::erase() {
-  Serial << "Erasing EEPROM" << endl;
   clear(0, EEPROM_size);
   setDefaults();
 }
 
 void SonoffEEPROM::setDefaults() {
-  Serial << endl << "Setting default values" << endl;
-
   char _id[6] = {0};
   char _host_name[13] = {0};
   char _mqtt_topic[32] = {0};
@@ -174,44 +147,30 @@ void SonoffEEPROM::setDefaults() {
 
   saveMode(MODE_SWITCH);
   saveRelayState(0);
-
 }
 
-char* SonoffEEPROM::getChar(int address, int size) {
-  char _temp[size];
-  read(address, size).toCharArray(_temp, size);
-  return _temp;
-}
 
 void SonoffEEPROM::write(int address, int size, String in) {
   clear(address, size);
-  Serial << " - saving [0x" << address << "] String size=" << in.length() << " : ";
   for (int i = 0; i < in.length(); ++i)
   {
     EEPROM.write(address + i, in[i]);
-    Serial << in[i];
   }
   EEPROM.commit();
-  Serial << " [completed]" << endl;
 }
 
 String SonoffEEPROM::read(int address, int size) {
   String _return;
-
-  Serial << " - reading " << size << "B from EEPROM [0x" << address << "] : ";
   for (int i = address; i < address + size; ++i)
   {
     if (EEPROM.read(i) != 255) {
-      //  Serial << char(EEPROM.read(i)) << "[" << EEPROM.read(i) << "],";
       _return += char(EEPROM.read(i));
     }
   }
-  Serial << _return << endl;
   return _return;
 }
 
 void SonoffEEPROM::clear(int address, int size) {
-  Serial << " - erasing " << size << "B from EEPROM [0x" << address << "]" << endl;
   for (int i = 0; i < size; ++i) {
     EEPROM.write(i + address, 255);
   }

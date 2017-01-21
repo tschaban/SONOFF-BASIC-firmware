@@ -5,9 +5,6 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
-#include <DallasTemperature.h>
-#include <OneWire.h>
-#include <Ticker.h>
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
@@ -15,31 +12,28 @@
 
 #include "Streaming.h"
 #include "sonoff-configuration.h"
-#include "sonoff-eeprom.h"
+#include "sonoff-core.h"
 #include "sonoff-led.h"
+#include "sonoff-eeprom.h"
 #include "sonoff-relay.h"
 #include "sonoff-button.h"
-#include "ota.h"
+#include "sonoff-ota.h"
 
 DEFAULTS sonoffDefault;
+SONOFFCONFIG Configuration; 
 
-SonoffEEPROM eeprom;
-SonoffLED LED;
-SonoffRelay Relay;
-SonoffButton Button;
-
-/* Timers */
-Ticker temperatureTimer;
-
-/* Libraries init */
 WiFiClient esp;
-PubSubClient client(esp);
-OneWire wireProtocol(TEMP_SENSOR);
-DallasTemperature DS18B20(&wireProtocol);
+PubSubClient Mqtt(esp);
 
 ESP8266WebServer server(80);
 DNSServer dnsServer;
 ESP8266HTTPUpdateServer httpUpdater;
+
+SonoffEEPROM    Eeprom;
+SonoffRelay     Relay;
+SonoffButton    Button;
+SonoffLED       Led;
+Sonoff          Sonoff;
 
 void setup() {
   Serial.begin(115200);
@@ -47,80 +41,28 @@ void setup() {
 
   Serial.println();
 
-  Serial << endl << "Reading EEPROM" << endl;
-  Serial << " - Version: " << eeprom.getVersion() << endl;
-  Serial << " - Switch mode: " << eeprom.getMode() << endl;
-  Serial << " - Device ID: " << eeprom.getID() << endl;
-  Serial << " - Host name: " << eeprom.getHostName() << endl;
-  Serial << " - WiFi SSID: " << eeprom.getWiFiSSID() << endl;
-  Serial << " - WiFi Password: " << eeprom.getWiFiPassword() << endl;
-  Serial << " - MQTT Host: " << eeprom.getMQTTHost() << endl;
-  Serial << " - MQTT Port: " << eeprom.getMQTTPort() << endl;
-  Serial << " - MQTT User: " << eeprom.getMQTTUser()<< endl;
-  Serial << " - MQTT Password: " << eeprom.getMQTTPassword() << endl;
-  Serial << " - MQTT Topic: " << eeprom.getMQTTTopic() <<  endl;
-  Serial << " - DS18B20 present: " << eeprom.isDS18B20Present() << endl;
-  Serial << " - Temp correctin: " << eeprom.DS18B20Correction() << endl;
-  Serial << " - Temp interval: " << eeprom.DS18B20ReadInterval() << endl;
+  Configuration = Eeprom.getConfiguration();
 
-  
+  Serial << endl << "Configuration: " << endl;
+  Serial << " - Version: " << Configuration.version << endl;
+  Serial << " - Switch mode: " << Configuration.mode << endl;
+  Serial << " - Device ID: " << Configuration.id << endl;
+  Serial << " - Host name: " << Configuration.host_name << endl;
+  Serial << " - WiFi SSID: " << Configuration.wifi_ssid << endl;
+  Serial << " - WiFi Password: " << Configuration.wifi_password << endl;
+  Serial << " - MQTT Host: " << Configuration.mqtt_host << endl;
+  Serial << " - MQTT Port: " << Configuration.mqtt_port << endl;
+  Serial << " - MQTT User: " << Configuration.mqtt_user << endl;
+  Serial << " - MQTT Password: " << Configuration.mqtt_password << endl;
+  Serial << " - MQTT Topic: " << Configuration.mqtt_topic <<  endl;
+  Serial << " - DS18B20 present: " << Configuration.ds18b20_present << endl;
+  Serial << " - Temp correctin: " << Configuration.ds18b20_correction << endl;
+  Serial << " - Temp interval: " << Configuration.ds18b20_interval << endl;
 
-  Relay.setup(&LED,&eeprom,&client);
-  
-  if (eeprom.getWiFiSSID()[0]==(char) 0 || eeprom.getWiFiPassword()[0]==(char) 0 || eeprom.getMQTTHost()[0]==(char) 0) {
-    Serial << endl << "Missing configuration. Going to configuration mode." << endl;
-    eeprom.saveMode(MODE_ACCESSPOINT);
-  }
-
-   /* POST Upgrade check, version upgrade */
-  if (String(sonoffDefault.version) != String(eeprom.getVersion())) {      
-      Serial << endl << "SOFTWARE WAS UPGRADED from version : " << eeprom.getVersion() << " to " << sonoffDefault.version << endl;
-      eeprom.saveVersion(sonoffDefault.version);     
-  }
-  
-  if (eeprom.getMode()==MODE_CONFIGURATION) {
-    Serial << endl << "Entering configuration mode over the LAN" << endl;
-    runConfigurationLANMode();
-  } else if (eeprom.getMode()==MODE_ACCESSPOINT) {
-     Serial << endl << "Entering configuration mode with Access Point" << endl;
-     runConfigurationAPMode(); 
-  }else {
-    Serial << endl << "Entering switch mode" << endl;
-    runSwitchMode();  
-  }
+  Sonoff.run(); 
   
 }
-
-
-
-
-/* Connect to WiFI */
-void connectToWiFi() {  
-  WiFi.hostname(eeprom.getHostName());
-  WiFi.begin(eeprom.getWiFiSSID(), eeprom.getWiFiPassword());
-  Serial << endl << "Connecting to WiFi: " << eeprom.getWiFiSSID();
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial << ".";
-    delay(CONNECTION_WAIT_TIME);
-  }
-  Serial << endl << " - Connected" << endl;
-  Serial << " - IP: " << WiFi.localIP() << endl;
-}
-
-
 
 void loop() {
-  if (eeprom.getMode()==MODE_SWITCH) {
-    if (!client.connected()) {
-      connectToMQTT();
-    } 
-    client.loop();
-  } else if (eeprom.getMode()==MODE_CONFIGURATION) {      
-    server.handleClient();    
-  } else if (eeprom.getMode()==MODE_ACCESSPOINT) {
-    dnsServer.processNextRequest();
-    server.handleClient();
-  } else {
-    Serial << "Internal Application Error" << endl;
-  }  
+  Sonoff.listener();
 }

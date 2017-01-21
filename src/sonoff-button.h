@@ -7,7 +7,6 @@
 #define BUTTON 0
 
 
-
 class SonoffButton
 {
   private:  

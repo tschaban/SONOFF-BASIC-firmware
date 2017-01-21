@@ -8,12 +8,10 @@
 #include "sonoff-button.h"
 
 
-
 SonoffButton::SonoffButton() {
   pinMode(BUTTON, INPUT_PULLUP);
   buttonTimer.attach(0.05, callbackButton);
 }
-
 
 void SonoffButton::stop() {
   buttonTimer.detach();
@@ -34,10 +32,12 @@ void SonoffButton::reset() {
 boolean SonoffButton::accessPointTrigger() {
    return counter==80?true:false;
 }
+
 boolean SonoffButton::configurationTrigger() {
   return counter>20&&counter<80?true:false;
 
 }
+
 boolean SonoffButton::relayTrigger() {
   return counter>1&&counter<=10?true:false;
 }
@@ -48,16 +48,18 @@ void callbackButton() {
     Button.pressed();
   } else if (Button.isPressed() && Button.accessPointTrigger()) {
     Button.stop();
-    if (eeprom.getMode()==MODE_ACCESSPOINT) {
-      runSwitchMode();
+    if (Configuration.mode==MODE_ACCESSPOINT) {
+      Sonoff.run();
     } else {
-      configuratonAPMode();
+       Eeprom.saveMode(MODE_ACCESSPOINT);
+       delay(10);
+       ESP.restart();
     }
   } else {
-    if (eeprom.getMode() == 0 && Button.relayTrigger()) {
-      Relay.togle();
+    if (Configuration.mode==MODE_SWITCH && Button.relayTrigger()) {
+      Relay.toggle();
     } else if (Button.configurationTrigger()) {
-      toggleMode();
+      Sonoff.toggle();
     }
     Button.reset();
   }

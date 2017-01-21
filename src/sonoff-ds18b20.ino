@@ -1,36 +1,19 @@
-float previousTemperature = 0;
 
+#include "sonoff-ds18b20.h"
 
-/* Pubish temperature to MQTT broker */
-void publishTemperature() {
-  char  temperatureString[6];
-  char  mqttString[50];
-  float temperature = getTemperature();
-  dtostrf(temperature, 2, 2, temperatureString);
-  if (previousTemperature!=temperature) {
-    Serial << " - publishing: " << temperatureString << endl;
-    sprintf(mqttString,"%stemperature", eeprom.getMQTTTopic());
-    client.publish(mqttString, temperatureString);
-    previousTemperature=temperature;
-  }
+SonoffDS18B20::SonoffDS18B20() {
 }
 
-
-/* Set how often sensor should be read */
-void setSensorReadInterval(int interval) {
-  temperatureTimer.detach();
-  temperatureTimer.attach(interval, publishTemperature);
-}
-
-
-/* Get temperature */
-float getTemperature() {
+float SonoffDS18B20::get() {
   float temperature;
+  OneWire wireProtocol(SENSOR_DS18B20);
+  DallasTemperature DS18B20(&wireProtocol);
+  DS18B20.begin();
   Serial << endl << "Requesting temperature" << endl;
   do {
     DS18B20.requestTemperatures();
     temperature = DS18B20.getTempCByIndex(0);
   } while (temperature == 85.0 || temperature == (-127.0));
   Serial << endl << " - temperature: " << temperature << endl;
-  return temperature + eeprom.DS18B20Correction();
+  return temperature + Eeprom.DS18B20Correction();
 }

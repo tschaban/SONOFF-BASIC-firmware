@@ -10,13 +10,13 @@ class SonoffLED
 {
   public:
     SonoffLED();
-    void On();
-    void Off();
+    void on();
+    void off();
     void blink(int t = 100);
     void startBlinking(float t);
     void stopBlinking();
- 
-  private:  
+
+  private:
     Ticker LEDTimer;
 
 };

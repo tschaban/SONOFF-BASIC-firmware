@@ -11,27 +11,13 @@ SonoffRelay::SonoffRelay() {
   pinMode(RELAY, OUTPUT);
 }
 
-void SonoffRelay::setup(SonoffLED *led, SonoffEEPROM *eeprom, PubSubClient *mqtt) {
-  _led = led;
-  _eeprom = eeprom;
-  _mqtt = mqtt;
-
-  Serial << endl << "Setting relay default " << endl;
-
-  if (_eeprom->getRelayState() == 1) {
-    digitalWrite(RELAY, HIGH);
-  } else {
-    digitalWrite(RELAY, LOW);
-  }
-}
-
 /* Set relay to ON */
 void SonoffRelay::on() {
   digitalWrite(RELAY, HIGH);
   publish();
   Serial << "Relay set to ON" << endl;
-  _eeprom->saveRelayState(1);
-  _led->blink();
+  Eeprom.saveRelayState(1);
+  Led.blink();
 }
 
 /* Set relay to OFF */
@@ -39,13 +25,12 @@ void SonoffRelay::off() {
   digitalWrite(RELAY, LOW);
   publish();
   Serial << "Relay set to OFF" << endl;
-  _eeprom->saveRelayState(0);
-  _led->blink();
+  Eeprom.saveRelayState(0);
+  Led.blink();
 }
 
 /* Toggle relay */
-void SonoffRelay::togle() {
-
+void SonoffRelay::toggle() {
   if (digitalRead(RELAY) == LOW) {
     on();
   } else {
@@ -54,13 +39,12 @@ void SonoffRelay::togle() {
 }
 
 void SonoffRelay::publish() {
-
   char  mqttString[50];
-  sprintf(mqttString, "%sstate", _eeprom->getMQTTTopic());
+  sprintf(mqttString, "%sstate", Configuration.mqtt_topic);
   if (digitalRead(RELAY) == LOW) {
-    _mqtt->publish(mqttString, "OFF");
+    Mqtt.publish(mqttString, "OFF");
   } else {
-    _mqtt->publish(mqttString, "ON");
+    Mqtt.publish(mqttString, "ON");
   }
 }
 

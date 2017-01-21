@@ -10,16 +10,16 @@
 
 SonoffLED::SonoffLED() {
   pinMode(GPIO_LED, OUTPUT);
-  digitalWrite(GPIO_LED, HIGH);  
+  digitalWrite(GPIO_LED, HIGH);
 }
 
-void SonoffLED::On() {
+void SonoffLED::on() {
   if (digitalRead(GPIO_LED) == HIGH) {
     digitalWrite(GPIO_LED, LOW);
   }
 }
 
-void SonoffLED::Off() {
+void SonoffLED::off() {
   if (digitalRead(GPIO_LED) == LOW) {
     digitalWrite(GPIO_LED, HIGH);
   }
@@ -27,13 +27,13 @@ void SonoffLED::Off() {
 
 /* Blink GPIO_LED, t defines for how long GPIO_LED should be ON */
 void SonoffLED::blink(int t) {
-  On();
+  on();
   delay(t);
-  Off();
+  off();
 }
 
 void SonoffLED::startBlinking(float t) {
-  LEDTimer.attach(t,callbackLED);
+  LEDTimer.attach(t, callbackLED);
 }
 
 void SonoffLED::stopBlinking() {

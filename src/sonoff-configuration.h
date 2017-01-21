@@ -8,16 +8,12 @@
 #ifndef _sonoff_configuration_h
 #define _sonoff_configuration_h
 
-
-#define MODE_SWITCH 0
-#define MODE_CONFIGURATION 1
-#define MODE_ACCESSPOINT 2
-
-#define TEMP_SENSOR 14
-
-
 /* Configuration parameters */
 #define   CONNECTION_WAIT_TIME 500
+#define   MODE_SWITCH 0
+#define   MODE_CONFIGURATION 1
+#define   MODE_ACCESSPOINT 2
+
 
 struct DEFAULTS {
   char          version[8] = "0.3.3";
@@ -27,6 +23,28 @@ struct DEFAULTS {
   boolean       temp_present = false;     
  };
 
+struct SONOFFCONFIG {
+  char          version[8];
+
+  char          id[6] = {0};
+  char          host_name[13] = {0};
+  
+  char          update_url[100];
+  unsigned int  mode;
+  char          wifi_ssid[32];
+  char          wifi_password[32];
+
+  char          mqtt_host[32];
+  unsigned int  mqtt_port;
+  char          mqtt_user[32];
+  char          mqtt_password[32];
+  char          mqtt_topic[32];
+
+  float         ds18b20_correction;
+  unsigned int  ds18b20_interval;
+  boolean       ds18b20_present;
+
+};
 
 
 const String PAGE_HEADER =
