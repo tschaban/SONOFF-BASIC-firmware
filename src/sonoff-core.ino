@@ -173,6 +173,8 @@ void Sonoff::postUpgradeCheck() {
 void callbackDS18B20() {
   SonoffDS18B20 Temperature;  
   float temperature = Temperature.get();
+
+  Sonoff.publishTemperature(temperature);
 }
 
 /* Callback of MQTT Broker, it listens for messages */
