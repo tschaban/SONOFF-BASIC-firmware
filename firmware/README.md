@@ -1,6 +1,6 @@
 [PL: Opis zmian w jeżyku polskim](http://smart-house.adrian.czabanowski.com/forum/firmware-do-przelacznika-sonoff-ogolne/sonoff-firmware-log-zmian/#post-76)
 
-**0.4.0 (2017-01-22**
+**0.4.0 (2017-01-22)**
 * Added option how Sonoff should behave after power interruption. Basically what should be the state of relay when Sonoff powers up. Possible options: ON,OFF,Last known,Server value
 * some code refactoring
 
