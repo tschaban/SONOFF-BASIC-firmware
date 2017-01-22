@@ -14,14 +14,22 @@
 #define   MODE_CONFIGURATION 1
 #define   MODE_ACCESSPOINT 2
 
+/* Values for EEPROM Parameter Relay state after crash */
+#define   DEFAULT_RELAY_ON 1
+#define   DEFAULT_RELAY_OFF 2
+#define   DEFAULT_RELAY_LAST_KNOWN 3
+#define   DEFAULT_RELAY_SERVER 4
+
 
 struct DEFAULTS {
-  char          version[8] = "0.3.3";
+  char          version[8] = "0.4.0";
   unsigned int  mqtt_port = 1883;
   float         temp_correction = 0;
   unsigned int  temp_interval = 600;
-  boolean       temp_present = false;     
+  boolean       temp_present = false; 
+  uint8_t       relay_post_crash = 3;     
  };
+
 
 struct SONOFFCONFIG {
   char          version[8];
@@ -30,7 +38,7 @@ struct SONOFFCONFIG {
   char          host_name[13] = {0};
   
   char          update_url[100];
-  unsigned int  mode;
+  uint8_t       mode;
   char          wifi_ssid[32];
   char          wifi_password[32];
 
@@ -43,7 +51,6 @@ struct SONOFFCONFIG {
   float         ds18b20_correction;
   unsigned int  ds18b20_interval;
   boolean       ds18b20_present;
-
 };
 
 
@@ -88,7 +95,7 @@ const String PAGE_HEADER =
 
 const String PAGE_FOOTER =
 "<hr />"
-"<footer>(c)2017 Sonoff Configuration Panel, <a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></footer>"
+"<footer>(c) 2017 Sonoff Configuration Panel, <a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></footer>"
 "</div>"
 "</div>"
 "</body>"

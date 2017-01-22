@@ -90,6 +90,26 @@ void handleRoot() {
       "</tr>";
     }
     page += "</table>";
+    page += "<h3>Advanced:</h3>"
+    "<table>"
+    "<tr>"
+    "<td class=\"header\">After power restored set relay to:</td>"
+    "<td>"; 
+
+    if (Eeprom.getRelayStartState()==DEFAULT_RELAY_ON) {
+        page += "ON";
+    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF) {
+        page += "OFF";
+    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN) {
+        page += "Last known";
+    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_SERVER) {
+        page += "Server value";
+    } else {
+        page += "Not configured yet";
+    }
+    
+    page += "</td>"
+    "</table>";
 
   generatePage(page);
 }
@@ -152,11 +172,24 @@ void handleConfiguration() {
           "<td class=\"header\">Interval (in sec.)</td>"
           "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\""; page += Configuration.ds18b20_interval; page += "\" /></td>"
           "</tr>"
-          "</table>"
-          "<input class=\"submit\" type=\"submit\" />"
+          "</table>";
+
+   page += "<h3>Advanced:</h3>"
+    "<table>"
+    "<tr>"
+    "<td class=\"header\">After power restored set relay to:<sup class=\"red\">*</sup></td>"
+    "<td>: <select name=\"relay_restore\" length=1>"
+    "<option value=\"1\""; page += (Eeprom.getRelayStartState()==DEFAULT_RELAY_ON ?" selected=\"selected\"":""); page += ">On</option>"
+    "<option value=\"2\""; page += (Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":""); page += ">Off</option>"
+    "<option value=\"3\""; page += (Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":""); page += ">Last known</option>"
+    "<option value=\"4\""; page += (Eeprom.getRelayStartState()==DEFAULT_RELAY_SERVER ?" selected=\"selected\"":""); page += ">Server value</option>"
+    "</select></td>"
+    "</tr>"
+    "</table>";
+
+  page += "<input class=\"submit\" type=\"submit\" />"
           "</form>";
-
-
+  
   generatePage(page);
 }
 
@@ -205,6 +238,7 @@ void handleSave() {
   String _temp_interval = server.arg("temp_interval");
 
   String _temp_present = server.arg("temp_present");
+  String _temp_relay_restore = server.arg("relay_restore");
 
   if (_wifi_ssid.length() > 0) {
     Eeprom.saveWiFiSSID(_wifi_ssid);
@@ -248,6 +282,10 @@ void handleSave() {
 
   if (_temp_interval.length() > 0) {
     Eeprom.saveTemperatureInterval(_temp_interval.toInt());
+  }
+
+  if (_temp_relay_restore.length() > 0) {
+    Eeprom.saveRelayDefaultState(_temp_relay_restore.toInt());
   }
 
   Configuration = Eeprom.getConfiguration();

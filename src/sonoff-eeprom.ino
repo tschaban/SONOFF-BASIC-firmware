@@ -24,26 +24,26 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   read(0,8).toCharArray(_temp.version,sizeof(_temp.version));
   _temp.mode = read(104, 1).toInt();
   
-  // If thwew is no version in EPPROM this a first launch 
+  // If there is no version in EPPROM this a first launch 
   if(_temp.version[0] == '\0')  {
     erase();
-    _temp.mode = 1;
+    _temp.mode = MODE_ACCESSPOINT;
   }
 
   read(119, 6).toCharArray(_temp.id, sizeof(_temp.id));
   read(125, 13).toCharArray(_temp.host_name, sizeof(_temp.host_name));
-
   read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
-  read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));
-  
-  read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));
-  _temp.mqtt_port = read(328, 5).toInt();  
+  read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));  
+  read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));   
   read(333, 32).toCharArray(_temp.mqtt_user, sizeof(_temp.mqtt_user));
   read(365, 32).toCharArray(_temp.mqtt_password, sizeof(_temp.mqtt_password));
-  read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));
+  read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));  
   
   _temp.ds18b20_present = (read(138,1).toInt()==1?true:false);
+  
   _temp.ds18b20_correction = read(105, 5).toFloat();
+
+  _temp.mqtt_port = read(328, 5).toInt(); 
   _temp.ds18b20_interval = read(110, 8).toInt();
 
   return _temp;
@@ -62,15 +62,18 @@ unsigned int SonoffEEPROM::DS18B20ReadInterval() {
   return read(110, 8).toInt();
 }
 
-
-unsigned int SonoffEEPROM::getRelayState() {
+uint8_t SonoffEEPROM::getRelayState() {
   return read(118, 1).toInt();
+}
+
+uint8_t SonoffEEPROM::getRelayStartState() {
+  return read(139,1).toInt();
 }
 
 void SonoffEEPROM::saveVersion(String in) {
   write(0, 8, in);
 }
-
+  
 void SonoffEEPROM::saveMode(int in) {
   write(104, 1, String(in));
 }
@@ -89,6 +92,10 @@ void SonoffEEPROM::saveTemperatureSensorPresent(unsigned int in) {
 
 void SonoffEEPROM::saveRelayState(unsigned int in) {
   write(118, 1, String(in));
+}
+
+void SonoffEEPROM::saveRelayDefaultState(unsigned int in) {
+  write(139, 1, String(in));
 }
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
@@ -125,6 +132,7 @@ void SonoffEEPROM::erase() {
 }
 
 void SonoffEEPROM::setDefaults() {
+  
   char _id[6] = {0};
   char _host_name[13] = {0};
   char _mqtt_topic[32] = {0};
@@ -147,6 +155,7 @@ void SonoffEEPROM::setDefaults() {
 
   saveMode(MODE_SWITCH);
   saveRelayState(0);
+  saveRelayDefaultState(sonoffDefault.relay_post_crash);
 }
 
 

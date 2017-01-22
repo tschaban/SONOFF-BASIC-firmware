@@ -9,6 +9,9 @@
 #ifndef _sonoff_OTA_h
 #define _sonoff_OTA_h
 
+#include "sonoff-ota.h"
+#include "sonoff-configuration.h"
+
 class ESP8266WebServer;
 
 class ESP8266HTTPUpdateServer

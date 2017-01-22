@@ -9,6 +9,7 @@
 #define _sonoff_EEPROM_h
 
 #include <EEPROM.h>
+#include "sonoff-configuration.h"
 
 #define EEPROM_SIZE 512
 
@@ -26,7 +27,8 @@ class SonoffEEPROM
 
     SONOFFCONFIG getConfiguration();
    
-    unsigned int getRelayState();
+    uint8_t getRelayState();
+    uint8_t getRelayStartState();
     boolean isDS18B20Present();
     float   DS18B20Correction();
     unsigned int DS18B20ReadInterval();
@@ -43,6 +45,7 @@ class SonoffEEPROM
     void saveTemperatureInterval(unsigned int in);
     void saveTemperatureSensorPresent(unsigned int in);
     void saveRelayState(unsigned int in);
+    void saveRelayDefaultState(unsigned int in);
     void erase();
 };
 #endif

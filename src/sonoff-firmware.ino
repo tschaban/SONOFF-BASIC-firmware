@@ -43,6 +43,7 @@ void setup() {
 
   Configuration = Eeprom.getConfiguration();
 
+ 
   Serial << endl << "Configuration: " << endl;
   Serial << " - Version: " << Configuration.version << endl;
   Serial << " - Switch mode: " << Configuration.mode << endl;
@@ -58,7 +59,10 @@ void setup() {
   Serial << " - DS18B20 present: " << Configuration.ds18b20_present << endl;
   Serial << " - Temp correctin: " << Configuration.ds18b20_correction << endl;
   Serial << " - Temp interval: " << Configuration.ds18b20_interval << endl;
+  Serial << " - Relay state: " << Eeprom.getRelayState() << endl;
+  Serial << " - Post crash relay state: " << Eeprom.getRelayStartState() << endl;
 
+ 
   Sonoff.run(); 
   
 }

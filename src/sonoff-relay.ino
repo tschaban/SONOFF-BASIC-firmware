@@ -9,6 +9,20 @@
 
 SonoffRelay::SonoffRelay() {
   pinMode(RELAY, OUTPUT);
+
+  /* Default value while booting sonoff */
+  
+  if (Eeprom.getRelayStartState()==DEFAULT_RELAY_ON) {
+    digitalWrite(RELAY, HIGH);
+  } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF) {
+    digitalWrite(RELAY, LOW);
+  } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN) {
+    if (Eeprom.getRelayState()==1) {
+      digitalWrite(RELAY, HIGH);
+    } else {
+      digitalWrite(RELAY, LOW);
+    }
+  }
 }
 
 /* Set relay to ON */

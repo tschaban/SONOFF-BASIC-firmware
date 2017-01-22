@@ -11,8 +11,6 @@
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
 #include "sonoff-ota.h"
-#include "sonoff-configuration.h"
-
 
 
 const char* ESP8266HTTPUpdateServer::_serverIndex =
