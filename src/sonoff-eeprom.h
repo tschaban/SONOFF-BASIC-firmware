@@ -33,6 +33,7 @@ class SonoffEEPROM
     float   DS18B20Correction();
     unsigned int DS18B20ReadInterval();
     void saveVersion(String in);
+    void saveLanguage(String in);
     void saveWiFiSSID(String in);
     void saveWiFiPassword(String in);
     void saveMQTTHost(String in);

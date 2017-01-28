@@ -9,6 +9,9 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
+#include <DallasTemperature.h>
+#include <OneWire.h>
+
 
 #include "Streaming.h"
 #include "sonoff-configuration.h"
@@ -28,6 +31,8 @@ PubSubClient Mqtt(esp);
 ESP8266WebServer server(80);
 DNSServer dnsServer;
 ESP8266HTTPUpdateServer httpUpdater;
+OneWire wireProtocol(SENSOR_DS18B20);
+DallasTemperature DS18B20(&wireProtocol);
 
 SonoffEEPROM    Eeprom;
 SonoffRelay     Relay;
@@ -46,6 +51,7 @@ void setup() {
  
   Serial << endl << "Configuration: " << endl;
   Serial << " - Version: " << Configuration.version << endl;
+  Serial << " - Language: " << Configuration.language << endl;
   Serial << " - Switch mode: " << Configuration.mode << endl;
   Serial << " - Device ID: " << Configuration.id << endl;
   Serial << " - Host name: " << Configuration.host_name << endl;

@@ -140,6 +140,8 @@ void Sonoff::runSwitch() {
   connectWiFi();
   if (Configuration.ds18b20_present) {
     Serial << endl << "Starting DS18B20" << endl;
+
+    
     setDS18B20Interval(Configuration.ds18b20_interval);
   } else {
     Serial << endl << "DS18B20 not present" << endl;
@@ -186,9 +188,11 @@ void Sonoff::postUpgradeCheck() {
     Serial << endl << "SOFTWARE WAS UPGRADED from version : " << Configuration.version << " to " << sonoffDefault.version << endl;
     Eeprom.saveVersion(sonoffDefault.version);
 
-    if (String(sonoffDefault.version) == "0.4.0") {
-      Eeprom.saveRelayDefaultState(sonoffDefault.relay_post_crash);
-    }
+    if (String(Configuration.version) == "0.3.2") {
+      Eeprom.saveRelayDefaultState(sonoffDefault.relay_post_crash);      
+    }    
+    Eeprom.saveLanguage(sonoffDefault.language);   
+    
     Configuration = Eeprom.getConfiguration();
   }
 }

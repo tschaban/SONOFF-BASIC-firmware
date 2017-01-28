@@ -31,6 +31,7 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   }
 
   read(119, 6).toCharArray(_temp.id, sizeof(_temp.id));
+  read(140, 2).toCharArray(_temp.language, sizeof(_temp.language));
   read(125, 13).toCharArray(_temp.host_name, sizeof(_temp.host_name));
   read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
   read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));  
@@ -72,6 +73,10 @@ uint8_t SonoffEEPROM::getRelayStartState() {
 
 void SonoffEEPROM::saveVersion(String in) {
   write(0, 8, in);
+}
+
+void SonoffEEPROM::saveLanguage(String in) {
+  write(140,2,in);
 }
   
 void SonoffEEPROM::saveMode(int in) {
@@ -156,6 +161,7 @@ void SonoffEEPROM::setDefaults() {
   saveMode(MODE_SWITCH);
   saveRelayState(0);
   saveRelayDefaultState(sonoffDefault.relay_post_crash);
+  saveLanguage(sonoffDefault.language); 
 }
 
 

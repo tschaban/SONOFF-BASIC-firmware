@@ -2,13 +2,11 @@
 #include "sonoff-ds18b20.h"
 
 SonoffDS18B20::SonoffDS18B20() {
+  DS18B20.begin();
 }
 
 float SonoffDS18B20::get() {
-  float temperature;
-  OneWire wireProtocol(SENSOR_DS18B20);
-  DallasTemperature DS18B20(&wireProtocol);
-  DS18B20.begin();
+  float temperature;  
   Serial << endl << "Requesting temperature" << endl;
   do {
     DS18B20.requestTemperatures();

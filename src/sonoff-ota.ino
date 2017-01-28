@@ -13,16 +13,6 @@
 #include "sonoff-ota.h"
 
 
-const char* ESP8266HTTPUpdateServer::_serverIndex =
-  R"(<html><body><form method='POST' action='' enctype='multipart/form-data'>
-                  <input type='file' name='update'>
-                  <input type='submit' value='Update firmware'>
-               </form>
-         </body></html>)";
-const char* ESP8266HTTPUpdateServer::_failedResponse = R"(Update Failed!)";
-const char* ESP8266HTTPUpdateServer::_successResponse = "<META http-equiv=\"refresh\" content=\"10;URL=/\"><h3>Upgrade was successful!</h3><p>Please wait while Sonoff is rebooting</p>";
-
-
 ESP8266HTTPUpdateServer::ESP8266HTTPUpdateServer(bool serial_debug)
 {
   _serial_output = serial_debug;
@@ -42,25 +32,14 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server, const char * path,
   _server->on(path, HTTP_GET, [&]() {
     if (_username != NULL && _password != NULL && !_server->authenticate(_username, _password))
       return _server->requestAuthentication();
-
-    String page =
-      "<h3>Firmware upgrade</h3>"
-      "<p style='margin-top:40px;'><strong>Do not disconnect Sonoff from power source during upgrade.</strong></p>"
-      "<p style='margin-bottom:40px;'>After upgrade Sonoff will be automatically restarted. </p>"
-      "<form style='margin-bottom: 100px;' method='POST' action='' enctype='multipart/form-data'>"
-      "<input type='file' name='update'>"
-      "<input type='submit' value='Upgrade'>"
-      "</form>";
-
-    _server->send(200, "text/html", PAGE_HEADER + page + PAGE_FOOTER);
-
+     handleUpgrade();
   });
 
   // handler for the /update form POST (once file upload finishes)
   _server->on(path, HTTP_POST, [&]() {
     if (!_authenticated)
       return _server->requestAuthentication();
-    _server->send(200, "text/html", Update.hasError() ? _failedResponse : _successResponse);
+    handleUpgradeCompleted(Update.hasError());
     ESP.restart();
   }, [&]() {
     // handler for the file upload, get's the sketch bytes, and writes
