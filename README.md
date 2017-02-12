@@ -1,8 +1,12 @@
 # Firmware for Sonoff switch
 
 **Resources**
-* **PL** Dokumentacja: instalacja i konfiguracja: [tutaj](http://smart-house.adrian.czabanowski.com/firmware-sonoff/)
-* **EN** Documentation: installation and configuration: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
+* **PL** Dokumentacja w języku polskim: [tutaj](http://smart-house.adrian.czabanowski.com/firmware-sonoff/)
+* **EN** Documentaion in english: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
+
+
+**Binaries**
+* [Latest version ready to upload to the switch](https://github.com/tschaban/SONOFF-Firmwares/tree/master/Basic/)
 
 **Features :**
 * firmware update over the network
