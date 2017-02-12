@@ -1,11 +1,11 @@
-# Firmware for Sonoff switch
+# Firmware for [Sonoff Basic switch](http://sonoff.itead.cc/en/products/sonoff/sonoff-basic)
 
 **Resources**
 * **PL** Dokumentacja w języku polskim: [tutaj](http://smart-house.adrian.czabanowski.com/firmware-sonoff/)
-* **EN** Documentaion in english: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
+* **EN** Documentation in english: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
 
 **Binaries**
-* [Latest version ready to upload to the switch](https://github.com/tschaban/SONOFF-Firmwares/tree/master/BASIC/)
+* [Latest binary version; ready to upload to a Sonoff Basic switch](https://github.com/tschaban/SONOFF-Firmwares/tree/master/BASIC/)
 
 
 # Change log
