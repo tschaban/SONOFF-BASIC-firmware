@@ -5,7 +5,7 @@
 * **EN** Documentaion in english: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
 
 **Binaries**
-* [Latest version ready to upload to the switch](https://github.com/tschaban/SONOFF-Firmwares/tree/master/Basic/)
+* [Latest version ready to upload to the switch](https://github.com/tschaban/SONOFF-Firmwares/tree/master/BASIC/)
 
 
 # Change log
