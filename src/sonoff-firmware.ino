@@ -1,6 +1,6 @@
 /*
- Sonoff: firmware
- More info: https://github.com/tschaban/SONOFF-firmware
+ SONOFF BASIC: firmware
+ More info: https://github.com/tschaban/SONOFF-BASIC-firmware
  LICENCE: http://opensource.org/licenses/MIT
  2016-10-27 tschaban https://github.com/tschaban
 */
@@ -68,7 +68,6 @@ void setup() {
   Serial << " - Relay state: " << Eeprom.getRelayState() << endl;
   Serial << " - Post crash relay state: " << Eeprom.getRelayStartState() << endl;
 
- 
   Sonoff.run(); 
   
 }

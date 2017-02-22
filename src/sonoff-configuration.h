@@ -1,6 +1,6 @@
 /*
- Sonoff: firmware
- More info: https://github.com/tschaban/SONOFF-firmware
+ SONOFF BASIC: firmware
+ More info: https://github.com/tschaban/SONOFF-BASIC-firmware
  LICENCE: http://opensource.org/licenses/MIT
  2016-10-27 tschaban https://github.com/tschaban
 */
@@ -22,7 +22,7 @@
 
 
 struct DEFAULTS {
-  char          version[8] = "0.5.0";
+  char          version[8] = "0.5.2";
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
   float         temp_correction = 0;

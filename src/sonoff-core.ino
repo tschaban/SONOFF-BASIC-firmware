@@ -1,8 +1,8 @@
 /*
-  Sonoff: firmware
-  More info: https://github.com/tschaban/SONOFF-firmware
-  LICENCE: http://opensource.org/licenses/MIT
-  2016-10-27 tschaban https://github.com/tschaban
+ SONOFF BASIC: firmware
+ More info: https://github.com/tschaban/SONOFF-BASIC-firmware
+ LICENCE: http://opensource.org/licenses/MIT
+ 2016-10-27 tschaban https://github.com/tschaban
 */
 
 #include "sonoff-core.h"
@@ -176,7 +176,7 @@ void Sonoff::runConfigurationAP() {
 }
 
 boolean Sonoff::isConfigured() {
-  if (Configuration.wifi_ssid[0] == (char) 0 || Configuration.wifi_password[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0) {
+  if (Configuration.wifi_ssid[0] == (char) 0 || Configuration.wifi_password[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 ) {
     Serial << endl << "Missing configuration. Going to configuration mode." << endl;
     Eeprom.saveMode(MODE_ACCESSPOINT);
     Configuration = Eeprom.getConfiguration();
@@ -206,7 +206,6 @@ void callbackDS18B20() {
 
 /* Callback of MQTT Broker, it listens for messages */
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
-  char  mqttString[50];
   Led.blink();
   Serial << "Got MQTT Topic : " << topic << ", length=" << length;
   if (length >= 1) { // command arrived

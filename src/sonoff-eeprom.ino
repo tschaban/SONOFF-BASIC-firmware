@@ -1,8 +1,8 @@
 /*
-  Sonoff: firmware
-  More info: https://github.com/tschaban/SONOFF-firmware
-  LICENCE: http://opensource.org/licenses/MIT
-  2016-10-27 tschaban https://github.com/tschaban
+ SONOFF BASIC: firmware
+ More info: https://github.com/tschaban/SONOFF-BASIC-firmware
+ LICENCE: http://opensource.org/licenses/MIT
+ 2016-10-27 tschaban https://github.com/tschaban
 */
 
 #include "sonoff-eeprom.h"
@@ -10,8 +10,7 @@
 SonoffEEPROM::SonoffEEPROM() {
   EEPROM.begin(EEPROM_size);
 
-  /* If version not set it assumes first launch */
-  if (read(0,8)[0] == '\0')  {
+  if (read(0,8)[0] == '\0' || ( read(140, 2)[0]!='e' &&  read(140, 2)[0]!='p'))  {
     erase();
     saveMode(1);
   }
@@ -132,11 +131,14 @@ void SonoffEEPROM::saveMQTTTopic(String in) {
 }
 
 void SonoffEEPROM::erase() {
+  Serial << "Erasing EEPROM" << endl;
   clear(0, EEPROM_size);
   setDefaults();
 }
 
 void SonoffEEPROM::setDefaults() {
+
+   Serial << "Setting default values" << endl;
   
   char _id[6] = {0};
   char _host_name[13] = {0};
