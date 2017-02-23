@@ -22,6 +22,7 @@ class SonoffRelay
    
   public:
     SonoffRelay();
+    uint8_t get();
     void on();
     void off();
     void toggle();

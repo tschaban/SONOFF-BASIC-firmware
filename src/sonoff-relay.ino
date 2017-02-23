@@ -12,17 +12,21 @@ SonoffRelay::SonoffRelay() {
 
   /* Default value while booting sonoff */
   
-  if (Eeprom.getRelayStartState()==DEFAULT_RELAY_ON) {
+  if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON && get()==RELAY_OFF) {
     digitalWrite(RELAY, HIGH);
-  } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF) {
+  } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF && get()==RELAY_ON) {
     digitalWrite(RELAY, LOW);
-  } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN) {
-    if (Eeprom.getRelayState()==1) {
+  } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN) {
+    if (Eeprom.getRelayState()==RELAY_ON  && get()==RELAY_OFF) {
       digitalWrite(RELAY, HIGH);
-    } else {
+    } else if (Eeprom.getRelayState()==RELAY_OFF  && get()==RELAY_ON) {
       digitalWrite(RELAY, LOW);
     }
   }
+}
+
+uint8_t SonoffRelay::get() {
+  return digitalRead(RELAY)==HIGH?RELAY_ON:RELAY_OFF;
 }
 
 /* Set relay to ON */
@@ -30,7 +34,7 @@ void SonoffRelay::on() {
   digitalWrite(RELAY, HIGH);
   publish();
   Serial << "Relay set to ON" << endl;
-  Eeprom.saveRelayState(1);
+  Eeprom.saveRelayState(RELAY_ON);
   Led.blink();
 }
 
@@ -39,7 +43,7 @@ void SonoffRelay::off() {
   digitalWrite(RELAY, LOW);
   publish();
   Serial << "Relay set to OFF" << endl;
-  Eeprom.saveRelayState(0);
+  Eeprom.saveRelayState(RELAY_OFF);
   Led.blink();
 }
 

@@ -31,7 +31,7 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
 
   read(119, 6).toCharArray(_temp.id, sizeof(_temp.id));
   read(140, 2).toCharArray(_temp.language, sizeof(_temp.language));
-  read(125, 13).toCharArray(_temp.host_name, sizeof(_temp.host_name));
+  read(142, 32).toCharArray(_temp.device_name, sizeof(_temp.device_name));
   read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
   read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));  
   read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));   
@@ -66,8 +66,16 @@ uint8_t SonoffEEPROM::getRelayState() {
   return read(118, 1).toInt();
 }
 
-uint8_t SonoffEEPROM::getRelayStartState() {
+uint8_t SonoffEEPROM::getRelayStateAfterPowerRestored() {
   return read(139,1).toInt();
+}
+
+uint8_t SonoffEEPROM::getRelayStateAfterConnectionRestored() {
+  return read(125,1).toInt();
+}
+
+void SonoffEEPROM::saveDeviceName(String in) {
+  write(142, 32, in);
 }
 
 void SonoffEEPROM::saveVersion(String in) {
@@ -98,8 +106,12 @@ void SonoffEEPROM::saveRelayState(unsigned int in) {
   write(118, 1, String(in));
 }
 
-void SonoffEEPROM::saveRelayDefaultState(unsigned int in) {
+void SonoffEEPROM::saveRelayStateAfterPowerRestored(unsigned int in) {
   write(139, 1, String(in));
+}
+
+void SonoffEEPROM::saveRelayStateAfterConnectionRestored(unsigned int in) {
+  write(125, 1, String(in));
 }
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
@@ -141,28 +153,29 @@ void SonoffEEPROM::setDefaults() {
    Serial << "Setting default values" << endl;
   
   char _id[6] = {0};
-  char _host_name[13] = {0};
+  char _device_name[13] = {0};
   char _mqtt_topic[32] = {0};
 
   sprintf(_id, "%06X", ESP.getChipId());
-  sprintf(_host_name, "SONOFF_%s", _id);
+  sprintf(_device_name, "SONOFF_%s", _id);
   sprintf(_mqtt_topic, "/sonoff/%s/", _id);
 
   write(119, 6, _id);
-  write(125, 13, _host_name);
+  write(142, 32, _device_name);
 
   saveVersion(sonoffDefault.version);
 
+  saveTemperatureSensorPresent(sonoffDefault.temp_present);
   saveTemperatureCorrection(sonoffDefault.temp_correction);
   saveTemperatureInterval(sonoffDefault.temp_interval);
-  saveTemperatureSensorPresent(sonoffDefault.temp_present);
 
   saveMQTTTopic(_mqtt_topic);
   saveMQTTPort(sonoffDefault.mqtt_port);
 
   saveMode(MODE_SWITCH);
   saveRelayState(0);
-  saveRelayDefaultState(sonoffDefault.relay_post_crash);
+  saveRelayStateAfterPowerRestored(sonoffDefault.relay_state_after_power_restored);
+  saveRelayStateAfterConnectionRestored(sonoffDefault.relay_state_after_connection_restored);
   saveLanguage(sonoffDefault.language); 
 }
 

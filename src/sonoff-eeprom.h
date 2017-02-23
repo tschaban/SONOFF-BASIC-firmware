@@ -28,10 +28,12 @@ class SonoffEEPROM
     SONOFFCONFIG getConfiguration();
    
     uint8_t getRelayState();
-    uint8_t getRelayStartState();
+    uint8_t getRelayStateAfterPowerRestored();
+    uint8_t getRelayStateAfterConnectionRestored();
     boolean isDS18B20Present();
     float   DS18B20Correction();
     unsigned int DS18B20ReadInterval();
+    void saveDeviceName(String in);
     void saveVersion(String in);
     void saveLanguage(String in);
     void saveWiFiSSID(String in);
@@ -46,7 +48,8 @@ class SonoffEEPROM
     void saveTemperatureInterval(unsigned int in);
     void saveTemperatureSensorPresent(unsigned int in);
     void saveRelayState(unsigned int in);
-    void saveRelayDefaultState(unsigned int in);
+    void saveRelayStateAfterPowerRestored(unsigned int in);
+    void saveRelayStateAfterConnectionRestored(unsigned int in);
     void erase();
 };
 #endif

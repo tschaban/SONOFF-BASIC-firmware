@@ -32,7 +32,7 @@ void handleRoot() {
     "</tr>"
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Name":"Nazwa";page+="</td>"
-    "<td>: ";page+=Configuration.host_name;page+="</td>"
+    "<td>: ";page+=Configuration.device_name;page+="</td>"
     "</tr>"
     "</table>"
     "</div>"
@@ -93,23 +93,35 @@ void handleRoot() {
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored set relay to":"Zachowanie przełącznika po utracie zasilania";page+=":</td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored relay is to":"Po przywróceniu zasilania przełącznik jest ustawiony na";page+=":</td>"
     "<td>"; 
 
-    if (Eeprom.getRelayStartState()==DEFAULT_RELAY_ON) {
+    if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON) {
         page += Configuration.language[0]==101?"ON":"Właczony";
-    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF) {
+    } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF) {
         page += Configuration.language[0]==101?"OFF":"Wyłaczony";
-    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN) {
-        page += Configuration.language[0]==101?"Last known":"Ostatnia zapamiętana wartość";
-    } else if (Eeprom.getRelayStartState()==DEFAULT_RELAY_SERVER) {
-        page += Configuration.language[0]==101?"Server value":"Wartość z serwera";
-    } else {
-        page += Configuration.language[0]==101?"Not configured yet":"Nie skonfigurowane";
+    } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN) {
+        page += Configuration.language[0]==101?"Last known":"Ostatnią zapamiętana wartość";
     }
     
     page += "</td>"
     "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT Server is restored relay is set to":"Po przywróceniu połączenia do serwera MQTT przełącznik jest ustawiony na";page+=":</td>"
+    "<td>"; 
+
+    if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON) {
+        page += Configuration.language[0]==101?"ON":"Właczony";
+    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_OFF) {
+        page += Configuration.language[0]==101?"OFF":"Wyłaczony";
+    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_LAST_KNOWN) {
+        page += Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";
+    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER) {
+        page += Configuration.language[0]==101?"Server value":"Wartość z serwera";
+    }
+    
+    page += "</td>"
+    "</tr>"    
     "</table>"
     "</div>";
 
@@ -132,8 +144,17 @@ void handleConfiguration() {
     "<option value=\"pl\"";page+=Configuration.language[0]!=101?" selected=\"selected\"":"";page+=">Polski</option>"
     "</select></td>"
     "</tr>"
-    "</table>"
-    "</div>"    
+    "</table>"   
+    "</div>"  
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Device name":"Nazwa przełącznika";page+=":</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">Nazwa<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"text\" name=\"device_name\" length=32 value=\"";page+=Configuration.device_name;page+="\" /></td>"
+    "</tr>"
+    "</table>"      
+    "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"WiFi configuration":"Konfiguracja WiFi";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -199,12 +220,20 @@ void handleConfiguration() {
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored set relay to":"Po utracie zasilania ustawić przełącznik na";page+=":<sup class=\"red\">*</sup></td>"
-    "<td>: <select name=\"relay_restore\" length=1>"
-    "<option value=\"1\""; page+=Eeprom.getRelayStartState()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
-    "<option value=\"2\""; page+=Eeprom.getRelayStartState()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Off":"Wyłączony";page+="</option>"
-    "<option value=\"3\""; page+=Eeprom.getRelayStartState()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";page+="</option>"
-    "<option value=\"4\""; page+=Eeprom.getRelayStartState()==DEFAULT_RELAY_SERVER ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Server value":"Wartość z serwera";page+="</option>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored set relay to":"Po przywróceniu zasilania przełącznik ustawić na";page+=":<sup class=\"red\">*</sup></td>"
+    "<td>: <select name=\"relay_power_restored\" length=1>"
+    "<option value=\"1\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
+    "<option value=\"2\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Off":"Wyłączony";page+="</option>"
+    "<option value=\"3\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";page+="</option>"
+    "</select></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT server is restored set relay to":"Po przywróceniu połaczenia do servera MQTT przełącznik ustawić na";page+=":<sup class=\"red\">*</sup></td>"
+    "<td>: <select name=\"relay_connection_restored\" length=1>"
+    "<option value=\"1\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
+    "<option value=\"2\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Off":"Wyłączony";page+="</option>"
+    "<option value=\"3\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";page+="</option>"
+    "<option value=\"4\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Server value":"Wartość z serwera";page+="</option>"
     "</select></td>"
     "</tr>"
     "</table>"
@@ -224,50 +253,39 @@ void handleSave() {
 
   Serial << "Server: saving data" << endl;
 
-  String _wifi_ssid = server.arg("wifi_ssid");
-  String _wifi_password = server.arg("wifi_password");
-  String _mqtt_host = server.arg("mqtt_host");
-  String _mqtt_port = server.arg("mqtt_port");
-  String _mqtt_user = server.arg("mqtt_user");
-  String _mqtt_password = server.arg("mqtt_password");
-  String _mqtt_topic = server.arg("mqtt_topic");
-
-  String _temp_correction = server.arg("temp_correction");
-  String _temp_interval = server.arg("temp_interval");
-
-  String _temp_present = server.arg("temp_present");
-  String _relay_restore = server.arg("relay_restore");
-  String _language = server.arg("language");
-
-  if (_wifi_ssid.length() > 0) {
-    Eeprom.saveWiFiSSID(_wifi_ssid);
+  if (server.arg("device_name").length() > 0) {
+    Eeprom.saveDeviceName(server.arg("device_name"));
   }
 
-  if (_wifi_password.length() > 0) {
-    Eeprom.saveWiFiPassword(_wifi_password);
+  if (server.arg("wifi_ssid").length() > 0) {
+    Eeprom.saveWiFiSSID(server.arg("wifi_ssid"));
   }
 
-  if (_mqtt_host.length() > 0) {
-    Eeprom.saveMQTTHost(_mqtt_host);
+  if (server.arg("wifi_password").length() > 0) {
+    Eeprom.saveWiFiPassword(server.arg("wifi_password"));
   }
 
-  if (_mqtt_port.length() > 0) {
-    Eeprom.saveMQTTPort(_mqtt_port.toInt());
+  if (server.arg("mqtt_host").length() > 0) {
+    Eeprom.saveMQTTHost(server.arg("mqtt_host"));
   }
 
-  if (_mqtt_user.length() > 0) {
-    Eeprom.saveMQTTUser(_mqtt_user);
+  if (server.arg("mqtt_port").length() > 0) {
+    Eeprom.saveMQTTPort(server.arg("mqtt_port").toInt());
   }
 
-  if (_mqtt_password.length() > 0) {
-    Eeprom.saveMQTTPassword(_mqtt_password);
+  if (server.arg("mqtt_user").length() > 0) {
+    Eeprom.saveMQTTUser(server.arg("mqtt_user"));
   }
 
-  if (_mqtt_topic.length() > 0) {
-    Eeprom.saveMQTTTopic(_mqtt_topic);
+  if (server.arg("mqtt_password").length() > 0) {
+    Eeprom.saveMQTTPassword(server.arg("mqtt_password"));
   }
 
-  if (_temp_present.length() > 0 ) {
+  if (server.arg("mqtt_topic").length() > 0) {
+    Eeprom.saveMQTTTopic(server.arg("mqtt_topic"));
+  }
+
+  if (server.arg("temp_present").length() > 0 ) {
     Eeprom.saveTemperatureSensorPresent(1);
   } else {
     if (Eeprom.isDS18B20Present()) {
@@ -275,20 +293,24 @@ void handleSave() {
     }
   }
 
-  if (_temp_correction.length() > 0 ) {
-    Eeprom.saveTemperatureCorrection(_temp_correction.toFloat());
+  if (server.arg("temp_correction").length() > 0 ) {
+    Eeprom.saveTemperatureCorrection(server.arg("temp_correction").toFloat());
   }
 
-  if (_temp_interval.length() > 0) {
-    Eeprom.saveTemperatureInterval(_temp_interval.toInt());
+  if (server.arg("temp_interval").length() > 0) {
+    Eeprom.saveTemperatureInterval(server.arg("temp_interval").toInt());
   }
 
-  if (_relay_restore.length() > 0) {
-    Eeprom.saveRelayDefaultState(_relay_restore.toInt());
+  if (server.arg("relay_power_restored").length() > 0) {
+    Eeprom.saveRelayStateAfterPowerRestored(server.arg("relay_power_restored").toInt());
   }
 
-  if (_language.length() > 0) {
-    Eeprom.saveLanguage(_language);
+  if (server.arg("relay_connection_restored").length() > 0) {
+    Eeprom.saveRelayStateAfterConnectionRestored(server.arg("relay_connection_restored").toInt());
+  }
+
+  if (server.arg("language").length() > 0) {
+    Eeprom.saveLanguage(server.arg("language"));
   }
 
   Configuration = Eeprom.getConfiguration();
@@ -371,7 +393,7 @@ void handleReset() {
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przełącznika";page+="</div>"
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 40px 0 10px 0;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"Ważne";page+=": </span> ";page+=Configuration.language[0]==101?"Sonoff will be to its default values. You will loose connecton with Sonoff":"Sonoff zostanie zresetowany do wartości początkowych. Utracisz z nim połączenie.";page+=".</h4>"
-    "<p>";page+=Configuration.language[0]==101?"Connect to WiFi":"Podłacz się do WiFi o nazwie ";page+=": <strong>";page+=Configuration.host_name;page+="</strong> ";page+=Configuration.language[0]==101?"from your computer or smartphone then open":"ze swojego komputera lub smartfonu, a następnie otwórz ";page+=" "
+    "<p>";page+=Configuration.language[0]==101?"Connect to WiFi":"Podłacz się do WiFi o nazwie ";page+=": <strong>";page+=Configuration.device_name;page+="</strong> ";page+=Configuration.language[0]==101?"from your computer or smartphone then open":"ze swojego komputera lub smartfonu, a następnie otwórz ";page+=" "
     "<a href=\"http://192.168.5.1\">http://192.168.5.1</a>"
     " ";page+=Configuration.language[0]==101?"and finish configuration":"i dokończ konfigurację";page+=".</p><br /><br /><br /><br />"
     "</div>";
@@ -410,7 +432,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   "<body>"
   "<div class=\"container\">"
   "<div class=\"header\">"
-  "<a href=\"/\"><img src=\"data:image/png;base64,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\"></a> firmware by tschaban"
+  "<a href=\"/\"><img src=\"data:image/png;base64,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\"></a> BASIC"
   "</div>";
 
   if (navigation) {
@@ -437,12 +459,11 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
 
   _page+="<li><a href=\"http://smart-house.adrian.czabanowski.com/forum/firmware-do-przelacznika-sonoff/\" target=\"_blank\">"; 
   _page+=Configuration.language[0]==101?"Support":"Wsparcie";_page+="</a></li>";
-  
-      
+        
   _page+="<li><a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></li>"
-  "<li><a href=\"https://www.patreon.com/bePatron?u=4806223&rid=1260905\" target=\"_blank\">"; 
   
-  _page+=Configuration.language[0]==101?"Donate: 1$ ":"Przekaż 1$ wsparcia";page+="</a></li>"
+  "<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware/blob/master/LICENSE\" target=\"_blank\">";   
+  _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkowania";page+="</a></li>"
   "</ul>"
   "</div>"
   "</div>"

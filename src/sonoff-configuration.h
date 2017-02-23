@@ -20,15 +20,19 @@
 #define   DEFAULT_RELAY_LAST_KNOWN 3
 #define   DEFAULT_RELAY_SERVER 4
 
+#define   RELAY_OFF 0
+#define   RELAY_ON 1
+
 
 struct DEFAULTS {
-  char          version[8] = "0.5.2";
+  char          version[8] = "0.6.0";
+  float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
-  float         temp_correction = 0;
   unsigned int  temp_interval = 600;
   boolean       temp_present = false; 
-  uint8_t       relay_post_crash = 3;     
+  uint8_t       relay_state_after_power_restored = 3;
+  uint8_t       relay_state_after_connection_restored = 4;        
  };
 
 
@@ -36,7 +40,7 @@ struct SONOFFCONFIG {
   char          version[8];
   char          language[3];
   char          id[6] = {0};
-  char          host_name[13] = {0};
+  char          device_name[32] = {0};
   
   char          update_url[100];
   uint8_t       mode;

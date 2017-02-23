@@ -54,7 +54,7 @@ void setup() {
   Serial << " - Language: " << Configuration.language << endl;
   Serial << " - Switch mode: " << Configuration.mode << endl;
   Serial << " - Device ID: " << Configuration.id << endl;
-  Serial << " - Host name: " << Configuration.host_name << endl;
+  Serial << " - Host name: " << Configuration.device_name << endl;
   Serial << " - WiFi SSID: " << Configuration.wifi_ssid << endl;
   Serial << " - WiFi Password: " << Configuration.wifi_password << endl;
   Serial << " - MQTT Host: " << Configuration.mqtt_host << endl;
@@ -66,7 +66,8 @@ void setup() {
   Serial << " - Temp correctin: " << Configuration.ds18b20_correction << endl;
   Serial << " - Temp interval: " << Configuration.ds18b20_interval << endl;
   Serial << " - Relay state: " << Eeprom.getRelayState() << endl;
-  Serial << " - Post crash relay state: " << Eeprom.getRelayStartState() << endl;
+  Serial << " - Relay: post power restore : " << Eeprom.getRelayStateAfterPowerRestored() << endl;
+  Serial << " - Relay: post reconnection to MQTT : " << Eeprom.getRelayStateAfterConnectionRestored() << endl;
 
   Sonoff.run(); 
   

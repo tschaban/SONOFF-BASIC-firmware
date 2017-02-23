@@ -44,8 +44,7 @@ void Sonoff::toggle() {
   ESP.restart();
 }
 
-void Sonoff::connectWiFi() {
-  WiFi.hostname(Configuration.host_name);
+void Sonoff::connectWiFi() {  
   WiFi.begin(Configuration.wifi_ssid, Configuration.wifi_password);
   Serial << endl << "Connecting to WiFi: " << Configuration.wifi_ssid << endl;
   while (WiFi.status() != WL_CONNECTED) {
@@ -74,13 +73,21 @@ void Sonoff::connectMQTT() {
       Mqtt.subscribe(mqttString);
       Serial << " - Subsribed to : " << Configuration.mqtt_topic << endl;
 
-      /* Updating server with relay state or reading the value from the server */
-      if (Eeprom.getRelayStartState() == DEFAULT_RELAY_SERVER) {
+      /* Post connection relay set up */
+      if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_ON && Relay.get()==RELAY_OFF) {
+        Relay.on();
+      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_OFF && Relay.get()==RELAY_ON) {
+        Relay.off();
+      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_LAST_KNOWN) {
+          if (Eeprom.getRelayState()==0 && Relay.get()==RELAY_ON) {
+            Relay.on();
+          } else if (Eeprom.getRelayState()==1 && Relay.get()==RELAY_OFF) {
+            Relay.off();
+          }
+      } else  {
         getRelayServerValue();
-      } else {
-        Relay.publish();
       }
-
+      
       Led.off();
     } else {
       delay(CONNECTION_WAIT_TIME);
@@ -164,14 +171,15 @@ void Sonoff::runConfigurationAP() {
   Serial << endl << "Device mode: Access Point Configuration" << endl;
   Serial << " - launching access point" << endl;
   IPAddress apIP(192, 168, 5, 1);
+  WiFi.hostname(Configuration.device_name);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(Configuration.host_name);
+  WiFi.softAP(Configuration.device_name);
   dnsServer.setTTL(300);
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
   dnsServer.start(53, "www.example.com", apIP);
   startHttpServer();
-  Serial << " - After conecting to WiFi: " << Configuration.host_name << " open: http://192.168.5.1/  " << endl << endl;
+  Serial << " - After conecting to WiFi: " << Configuration.device_name << " open: http://192.168.5.1/  " << endl << endl;
   Led.startBlinking(0.1);
 }
 
@@ -189,10 +197,32 @@ void Sonoff::postUpgradeCheck() {
     Eeprom.saveVersion(sonoffDefault.version);
 
     if (String(Configuration.version) == "0.3.2") {
-      Eeprom.saveRelayDefaultState(sonoffDefault.relay_post_crash);      
+      Eeprom.saveRelayStateAfterPowerRestored(sonoffDefault.relay_state_after_power_restored);
+      Eeprom.saveLanguage(sonoffDefault.language);        
     }    
-    Eeprom.saveLanguage(sonoffDefault.language);   
-    
+
+    if (String(Configuration.version) == "0.4.0") {
+      Eeprom.saveLanguage(sonoffDefault.language);      
+    }    
+
+    /* Below code is excuted while upgrading from each version to this one */
+    char _id[6] = {0};
+    char _device_name[32] = {0};
+
+    sprintf(_id, "%06X", ESP.getChipId());
+    sprintf(_device_name, "SONOFF_%s", _id);
+    Eeprom.saveDeviceName(_device_name);
+
+    /* After Connecton is restored parameter is set to saved After Power is restored value */
+    Eeprom.saveRelayStateAfterConnectionRestored(Eeprom.getRelayStateAfterPowerRestored());
+
+    /* Value "Server value" [4] is not longer needed for parameter  After Power Restored.
+     *  If it was set like that  by a user it's upgraded to value 2 which is relay state OFF
+     */
+    if (Eeprom.getRelayStateAfterPowerRestored()==4) {
+        Eeprom.saveRelayStateAfterPowerRestored(2);
+    }
+       
     Configuration = Eeprom.getConfiguration();
   }
 }
