@@ -45,6 +45,7 @@ void Sonoff::toggle() {
 }
 
 void Sonoff::connectWiFi() {  
+  WiFi.hostname(Configuration.device_name);
   WiFi.begin(Configuration.wifi_ssid, Configuration.wifi_password);
   Serial << endl << "Connecting to WiFi: " << Configuration.wifi_ssid << endl;
   while (WiFi.status() != WL_CONNECTED) {
@@ -170,8 +171,7 @@ void Sonoff::runConfigurationAP() {
   Led.on();
   Serial << endl << "Device mode: Access Point Configuration" << endl;
   Serial << " - launching access point" << endl;
-  IPAddress apIP(192, 168, 5, 1);
-  WiFi.hostname(Configuration.device_name);
+  IPAddress apIP(192, 168, 5, 1);  
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
   WiFi.softAP(Configuration.device_name);
