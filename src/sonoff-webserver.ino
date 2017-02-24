@@ -150,7 +150,7 @@ void handleConfiguration() {
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">Nazwa<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Name":"Nazwa";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"device_name\" length=32 value=\"";page+=Configuration.device_name;page+="\" /></td>"
     "</tr>"
     "</table>"      
