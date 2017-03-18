@@ -10,6 +10,11 @@
 
 # Change log
 
+**0.7.0 (2017-03-18)**
+* Added possibility to control sonoff with external switch
+* Added option tu turn on/off serial debugger
+* Fix defect related to host name broadcasting as an access point in local network
+
 **0.6.1 (2017-02-25)**
 * Device name is also set as host name in local network. (keep in mind not to use space while naming it)
 
