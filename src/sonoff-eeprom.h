@@ -17,9 +17,9 @@ class SonoffEEPROM
 {
   private:
     int EEPROM_size = 512;
-    void write(int address, int size, String in);
-    String read(int address, int size);
-    void clear(int start, int size);
+    void write(unsigned int address, unsigned int size, String in);
+    String read(unsigned int address, unsigned int size);
+    void clear(unsigned int start, unsigned int size);
     void setDefaults();
 
   public:
@@ -30,9 +30,17 @@ class SonoffEEPROM
     uint8_t getRelayState();
     uint8_t getRelayStateAfterPowerRestored();
     uint8_t getRelayStateAfterConnectionRestored();
+    
     boolean isDS18B20Present();
     float   DS18B20Correction();
     unsigned int DS18B20ReadInterval();
+
+    boolean isSwitchPresent();
+    uint8_t getSwitchGPIO();
+    uint8_t getSwitchSensitiveness();
+
+    boolean debuggable();
+    
     void saveDeviceName(String in);
     void saveVersion(String in);
     void saveLanguage(String in);
@@ -43,15 +51,24 @@ class SonoffEEPROM
     void saveMQTTUser(String in);
     void saveMQTTPassword(String in);
     void saveMQTTTopic(String in);
-    void saveMode(int in); /* Look at MODE_... defined */
+    void saveMode(uint8_t in); /* Look at MODE_... defined */
     void saveTemperatureCorrection(float in);
     void saveTemperatureInterval(unsigned int in);
-    void saveTemperatureSensorPresent(unsigned int in);
-    void saveRelayState(unsigned int in);
-    void saveRelayStateAfterPowerRestored(unsigned int in);
-    void saveRelayStateAfterConnectionRestored(unsigned int in);
+    void saveTemperatureSensorPresent(uint8_t in);
+    void saveRelayState(uint8_t in);
+    void saveRelayStateAfterPowerRestored(uint8_t in);
+    void saveRelayStateAfterConnectionRestored(uint8_t in);
+
+    void saveSwitchPresent(uint8_t in);
+    void saveSwitchGPIO(uint8_t in);
+    void saveSwitchSensitiveness(uint8_t in);
+
+    void saveDebuggable(byte in);
+    
+    
     void erase();
 };
 #endif
+
 
 

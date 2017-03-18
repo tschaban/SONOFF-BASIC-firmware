@@ -6,7 +6,7 @@
 */
 
 void startHttpServer() {
-  Serial << endl << " - Starting web server" << endl;
+  if (Configuration.debugger) Serial << endl << " - Starting web server" << endl;
   server.on("/", handleRoot);
   server.on("/configure", handleConfiguration);
   server.on("/reboot", handleReboot);
@@ -16,12 +16,12 @@ void startHttpServer() {
   server.onNotFound(handleNotFound);
   httpUpdater.setup(&server);
   server.begin();
-  Serial << " - Web server is working" << endl;
+  if (Configuration.debugger) Serial << " - Web server is working" << endl;
 }
 
 void handleRoot() {
-  Serial << "Server: root requested" << endl;
-  Serial << Configuration.language[0];
+  if (Configuration.debugger) Serial << "Server: root requested" << endl;
+  if (Configuration.debugger) Serial << Configuration.language[0];
   String page = 
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device information":"Informacje o urządzeniu";page+="</div>"
     "<div class=\"section-content\">"
@@ -67,7 +67,7 @@ void handleRoot() {
     "</tr>"
     "</table>"
     "</div>"
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Temperature sensor":"Czujnik temperatury";page+=":</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Temperature sensor":"Czujnik temperatury";page+="</div>"
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
@@ -89,31 +89,51 @@ void handleRoot() {
     }
     page += "</table>"
     "</div>"
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Advanced":"Zaawansowane ustawienia";page+=":</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"External switch":"Zewnętrzny przełącznik";page+="</div>"
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored relay is to":"Po przywróceniu zasilania przełącznik jest ustawiony na";page+=":</td>"
-    "<td>"; 
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Connected?":"Podłączony?";page+="</td>"
+    "<td>: "; 
+    page += Configuration.switch_present?Configuration.language[0]==101?"Yes":"Tak":Configuration.language[0]==101?"No":"Nie";
+    page += "</td>"
+    "</tr>";
+    if (Configuration.switch_present) {
+      page += 
+      "<tr>"
+      "<td class=\"label\">GPIO</td>"
+      "<td>: ";page+=Configuration.switch_gpio;page+="</td>"
+      "</tr>";
+    }
+    page += "</table>"
+    "</div>"
+
+    
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Relay":"Przekaźnik";page+="</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored relay is to":"Po przywróceniu zasilania przekaźnik jest ustawiony na";page+="</td>"
+    "<td>:  "; 
 
     if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON) {
-        page += Configuration.language[0]==101?"ON":"Właczony";
+        page += Configuration.language[0]==101?"ON":"Włączony";
     } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF) {
-        page += Configuration.language[0]==101?"OFF":"Wyłaczony";
+        page += Configuration.language[0]==101?"OFF":"Wyłączony";
     } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN) {
-        page += Configuration.language[0]==101?"Last known":"Ostatnią zapamiętana wartość";
+        page += Configuration.language[0]==101?"Last known":"Ostatnia zapamiętana wartość";
     }
     
     page += "</td>"
     "</tr>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT Server is restored relay is set to":"Po przywróceniu połączenia do serwera MQTT przełącznik jest ustawiony na";page+=":</td>"
-    "<td>"; 
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT Broker is restored relay is set to":"Po przywróceniu połączenia do brokera MQTT, przekaźnik jest ustawiony na";page+="</td>"
+    "<td>: "; 
 
     if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON) {
-        page += Configuration.language[0]==101?"ON":"Właczony";
+        page += Configuration.language[0]==101?"ON":"Włączony";
     } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_OFF) {
-        page += Configuration.language[0]==101?"OFF":"Wyłaczony";
+        page += Configuration.language[0]==101?"OFF":"Wyłączony";
     } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_LAST_KNOWN) {
         page += Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";
     } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER) {
@@ -130,7 +150,7 @@ void handleRoot() {
 
 void handleConfiguration() {
 
-  Serial << "Server: configuration" << endl;
+  if (Configuration.debugger) Serial << "Server: configuration" << endl;
   
   String page =
     "<form action=\"/save\"  method=\"post\">"
@@ -197,7 +217,7 @@ void handleConfiguration() {
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"Present":"Podłączony";page+="?<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Connected":"Podłączony";page+="?<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"checkbox\" name=\"temp_present\" length=1 value=\"1\"";
   if (Eeprom.isDS18B20Present()) {
     page += " checked ";
@@ -210,25 +230,59 @@ void handleConfiguration() {
           "<td>: <input type=\"text\" name=\"temp_correction\" length=5 value=\"";page+=Configuration.ds18b20_correction;page+="\" /></td>"
           "</tr>"
           "<tr>"
-          "<td class=\"label\">";page+=Configuration.language[0]==101?"Interval (in sec)":"Częstotliwości odczytu (w sek)";page+="</td>"
+          "<td class=\"label\">";page+=Configuration.language[0]==101?"Interval (in sec)":"Częstotliwość odczytu (w sek)";page+="</td>"
           "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\"";page+=Configuration.ds18b20_interval;page+="\" /></td>"
           "</tr>"
           "</table>";
           
    page += "</div>"
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Advanced":"Zaawansowane";page+=":</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"External switch configuration":"Konfiguracja zewnętrznego przełącznika";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored set relay to":"Po przywróceniu zasilania przełącznik ustawić na";page+=":<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Connected":"Podłączony";page+="?<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"checkbox\" name=\"switch_present\" length=1 value=\"1\"";
+  if (Eeprom.isSwitchPresent()) {
+    page += " checked ";
+  }
+
+  page += "\" /></td>"
+          "</tr>"
+          "<tr>"
+          "<td class=\"label\">GPIO</td>"
+          
+          "<td>: <select name=\"switch_gpio\" length=2>"
+          "<option value=\"1\""; page+=Eeprom.getSwitchGPIO()==GPIO_1 ?" selected=\"selected\"":"";page+=">GPIO 1</option>"
+          "<option value=\"3\""; page+=Eeprom.getSwitchGPIO()==GPIO_3 ?" selected=\"selected\"":"";page+=">GPIO 3</option>"
+          "<option value=\"14\""; page+=Eeprom.getSwitchGPIO()==GPIO_14 ?" selected=\"selected\"":"";page+=">GPIO 14</option>"
+          "</select></td>"
+          
+          "</tr>"
+          "<tr>"
+          "<td class=\"label\">";page+=Configuration.language[0]==101?"Sensitiveness":"Czułość";page+="</td>"
+          "<td>: <select name=\"switch_sensitiveness\" length=1>"
+          "<option value=\"0\""; page+=Eeprom.getSwitchSensitiveness()==SWITCH_SENSITIVENESS_HIGH ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"High":"Wysoka";page+="</option>"
+          "<option value=\"1\""; page+=Eeprom.getSwitchSensitiveness()==SWITCH_SENSITIVENESS_NORMAL ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Suggested":"Zalecana";page+="</option>"
+          "<option value=\"2\""; page+=Eeprom.getSwitchSensitiveness()==SWITCH_SENSITIVENESS_LOW ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Low":"Niska";page+="</option>"
+          "</select></td>"
+          "</tr>"
+          "</table>";
+          
+   page += "</div>"
+   
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Relay configuration":"Konfiguracja przekaźnika";page+=":</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored set it to":"Po przywróceniu zasilania ustawić go na";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <select name=\"relay_power_restored\" length=1>"
     "<option value=\"1\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
     "<option value=\"2\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Off":"Wyłączony";page+="</option>"
-    "<option value=\"3\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";page+="</option>"
+    "<option value=\"3\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnia zapamiętana wartość";page+="</option>"
     "</select></td>"
     "</tr>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT server is restored set relay to":"Po przywróceniu połaczenia do servera MQTT przełącznik ustawić na";page+=":<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT server is restored set it to":"Po przwróceniu połączenia do brokera MQTT ustawić go na";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <select name=\"relay_connection_restored\" length=1>"
     "<option value=\"1\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
     "<option value=\"2\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_OFF ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Off":"Wyłączony";page+="</option>"
@@ -238,11 +292,27 @@ void handleConfiguration() {
     "</tr>"
     "</table>"
     "</div>"
+    "<div class=\"section\">Debugger:</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Debugger on":"Debugger włączony";page+="?<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"checkbox\" name=\"debugger\" length=1 value=\"1\"";
+  if (Eeprom.debuggable()) {
+    page += " checked ";
+  }
+
+  page += "\" /></td>"    
+    "</tr>"
+    "</table>"
+    "</div>"  
+
+
+    
     "<div class=\"section\"></div>"
     "<div class=\"section-content\">";
   page += "<input class=\"submit\" type=\"submit\" value=\"";page+=Configuration.language[0]==101?"Save":"Zapisz";page+="\" />"
-      "</div>"
-      "</form>";
+      "</div>";
 
   generatePage(page,true,0);
 }
@@ -251,7 +321,7 @@ void handleSave() {
   Led.stopBlinking();
   Led.on();
 
-  Serial << "Server: saving data" << endl;
+  if (Configuration.debugger) Serial << "Server: saving data" << endl;
 
   if (server.arg("device_name").length() > 0) {
     Eeprom.saveDeviceName(server.arg("device_name"));
@@ -313,12 +383,37 @@ void handleSave() {
     Eeprom.saveLanguage(server.arg("language"));
   }
 
+  if (server.arg("switch_present").length() > 0 ) {
+    Eeprom.saveSwitchPresent(1);
+  } else {
+    if (Eeprom.isSwitchPresent()) {
+      Eeprom.saveSwitchPresent(0);
+    }
+  }
+
+  if (server.arg("switch_gpio").length() > 0 ) {
+    Eeprom.saveSwitchGPIO(server.arg("switch_gpio").toInt());
+  }
+
+  if (server.arg("switch_sensitiveness").length() > 0 ) {
+    Eeprom.saveSwitchSensitiveness(server.arg("switch_sensitiveness").toInt());
+  }
+
+  if (server.arg("debugger").length() > 0 ) {
+    Eeprom.saveDebuggable(1);
+  } else {
+    if (Eeprom.debuggable()) {
+      Eeprom.saveDebuggable(0);
+    }
+  }
+  
+
   Configuration = Eeprom.getConfiguration();
 
   String page =
     "<div class=\"section-content\">"  
     "<h3 style=\"margin: 60px 0px;\">";page+=Configuration.language[0]==101?"Configuration has been successfully saved":"Konfiguracja została zapisana";page+="</h3>"
-    "<p style='margin-bottom:70px;'><a href=\"/reboot\">";page+=Configuration.language[0]==101?"Exit":"Wyjdź";page+="</a> ";page+=Configuration.language[0]==101?"configuration to apply all changes":"z konfiguracji, aby zastosować dokonane zmiany";page+="</p>"
+    "<p style='margin-bottom:70px;'><a href=\"/reboot\">";page+=Configuration.language[0]==101?"Exit":"Wyjdź";page+="</a> ";page+=Configuration.language[0]==101?"configuration to apply all changes":"z konfiguracji, aby zastosować wykonane zmiany";page+="</p>"
     "</div>";
 
 
@@ -329,12 +424,12 @@ void handleSave() {
 }
 
 void handleUpgrade() {
-    Serial << "Server: upgrade" << endl;
+    if (Configuration.debugger) Serial << "Server: upgrade" << endl;
     String page =
       "<div class=\"section\">";page+=Configuration.language[0]==101?"Firmware upgrade":"Aktualizacja oprogramowania";page+="</div>"
       "<div class=\"section-content\">"
       "<p style='margin-top:40px;'><strong><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"Ważne";page+=":</span> ";page+=Configuration.language[0]==101?"Do not disconnect Sonoff from power source during upgrade":"Nie odłączaj przełącznika od zasialania podczas aktualizacji oprogramowania";page+=".</strong></p>"
-      "<p style='margin-bottom:40px;'>";page+=Configuration.language[0]==101?"After upgrade Sonoff will be automatically restarted":"Po aktualizacji, przełacznik zostanie automatycznie zresetowany";page+=". </p>"
+      "<p style='margin-bottom:40px;'>";page+=Configuration.language[0]==101?"After upgrade Sonoff will be automatically restarted":"Po aktualizacji, przełącznik zostanie automatycznie zresetowany";page+=". </p>"
       "<form style='margin-bottom: 100px;' method='POST' action='' enctype='multipart/form-data'>"
       "<input class='file' type='file' name='update' value='";page+=Configuration.language[0]==101?"Select firmware file":"Wybierz firmware";page+="'><br>"
       "<input class='submit' type='submit' value='";page+=Configuration.language[0]==101?"Upgrade":"Wgraj";page+="'>"
@@ -355,7 +450,7 @@ void handleUpgradeCompleted(boolean status) {
       
       page += status ? (Configuration.language[0]==101?"<h3 class=\"red\">Upgrade failed</h3>":"h3 class=\"red\">Aktualizacja nie powiodła się</h3>") : 
                        (Configuration.language[0]==101?"<h3>Upgrade was successful!</h3><p>After 10 seconds switch will be autmatically reloaded. Please wait.</p>"
-                                                      :"<h3>Aktualizacja zakończona pomyślnie!</h3><p>Po 10 sekundach przełącznik zostanie przełądowany z wgranym oprogramowaniem. Proszę czekać</p>");
+                                                      :"<h3>Aktualizacja zakończona pomyślnie!</h3><p>Po 10 sekundach przełącznik zostanie przeładowany z wgranym oprogramowaniem. Proszę czekać.</p>");
 
       page += "</div></div>";
       
@@ -363,23 +458,23 @@ void handleUpgradeCompleted(boolean status) {
 }
 
 void handleNotFound() {
-  Serial << "Server: page not found" << endl;
+  if (Configuration.debugger) Serial << "Server: page not found" << endl;
 
   String page = 
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 60px 0px;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Error":"Błąd";page+=" 404:</span> ";page+=Configuration.language[0]==101?"Page Not Found":"Strona nie została odnaleziona";page+=".</h4>"
     "</div>";
 
-  Serial << server.uri() << " " << server.args() << endl;
+  if (Configuration.debugger) Serial << server.uri() << " " << server.args() << endl;
   
   for (uint8_t i = 0; i < server.args(); i++) {
-   Serial <<  server.argName(i) << ": " << server.arg(i) << endl;
+   if (Configuration.debugger) Serial <<  server.argName(i) << ": " << server.arg(i) << endl;
   }
   generatePage(page,true,0);
 }
 
 void handleReboot() {
-  Serial << "Server: rebooting device" << endl;
+  if (Configuration.debugger) Serial << "Server: rebooting device" << endl;
   String page =
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 60px 0px;\">";page+=Configuration.language[0]==101?"Rebooting is in progress":"Trwa restart";page+="</h4>"
@@ -390,9 +485,9 @@ void handleReboot() {
 
 void handleReset() {
   String page =
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przełącznika";page+="</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przeĹ‚Ä…cznika";page+="</div>"
     "<div class=\"section-content\">"  
-    "<h4 style=\"margin: 40px 0 10px 0;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"Ważne";page+=": </span> ";page+=Configuration.language[0]==101?"Sonoff will be to its default values. You will loose connecton with Sonoff":"Sonoff zostanie zresetowany do wartości początkowych. Utracisz z nim połączenie.";page+=".</h4>"
+    "<h4 style=\"margin: 40px 0 10px 0;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"WaĹĽne";page+=": </span> ";page+=Configuration.language[0]==101?"Sonoff will be to its default values. You will loose connecton with Sonoff":"Sonoff zostanie zresetowany do wartości początkowych. Utracisz z nim połączenie.";page+=".</h4>"
     "<p>";page+=Configuration.language[0]==101?"Connect to WiFi":"Podłacz się do WiFi o nazwie ";page+=": <strong>";page+=Configuration.device_name;page+="</strong> ";page+=Configuration.language[0]==101?"from your computer or smartphone then open":"ze swojego komputera lub smartfonu, a następnie otwórz ";page+=" "
     "<a href=\"http://192.168.5.1\">http://192.168.5.1</a>"
     " ";page+=Configuration.language[0]==101?"and finish configuration":"i dokończ konfigurację";page+=".</p><br /><br /><br /><br />"
@@ -463,7 +558,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   _page+="<li><a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></li>"
   
   "<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware/blob/master/LICENSE\" target=\"_blank\">";   
-  _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkowania";page+="</a></li>"
+  _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkownika";page+="</a></li>"
   "</ul>"
   "</div>"
   "</div>"
@@ -471,6 +566,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   "</html>";
   server.send(200, "text/html", _page);
 }
+
 
 
 
