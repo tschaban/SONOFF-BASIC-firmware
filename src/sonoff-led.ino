@@ -25,7 +25,7 @@ void SonoffLED::off() {
 }
 
 /* Blink GPIO_LED, t defines for how long GPIO_LED should be ON */
-void SonoffLED::blink(int t) {
+void SonoffLED::blink(unsigned int t) {
   on();
   delay(t);
   off();
@@ -47,3 +47,4 @@ void callbackLED() {
     digitalWrite(GPIO_LED, HIGH);
   }
 }
+

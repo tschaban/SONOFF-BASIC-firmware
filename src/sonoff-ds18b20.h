@@ -24,3 +24,4 @@ class SonoffDS18B20 {
     float get(); 
 };
 #endif
+

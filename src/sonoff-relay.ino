@@ -33,7 +33,7 @@ uint8_t SonoffRelay::get() {
 void SonoffRelay::on() {
   digitalWrite(RELAY, HIGH);
   publish();
-  Serial << "Relay set to ON" << endl;
+  if (Configuration.debugger) Serial << "Relay set to ON" << endl;
   Eeprom.saveRelayState(RELAY_ON);
   Led.blink();
 }
@@ -42,7 +42,7 @@ void SonoffRelay::on() {
 void SonoffRelay::off() {
   digitalWrite(RELAY, LOW);
   publish();
-  Serial << "Relay set to OFF" << endl;
+  if (Configuration.debugger) Serial << "Relay set to OFF" << endl;
   Eeprom.saveRelayState(RELAY_OFF);
   Led.blink();
 }
@@ -65,4 +65,5 @@ void SonoffRelay::publish() {
     Mqtt.publish(mqttString, "ON");
   }
 }
+
 

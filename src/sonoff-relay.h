@@ -29,3 +29,4 @@ class SonoffRelay
     void publish();
 };
 #endif
+

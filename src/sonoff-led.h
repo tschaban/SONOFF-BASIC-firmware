@@ -19,7 +19,7 @@ class SonoffLED
     SonoffLED();
     void on();
     void off();
-    void blink(int t = 100);
+    void blink(unsigned int t = 100);
     void startBlinking(float t);
     void stopBlinking();
 
@@ -28,3 +28,4 @@ class SonoffLED
 
 };
 #endif
+
