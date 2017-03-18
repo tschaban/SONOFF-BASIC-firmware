@@ -15,7 +15,7 @@
 #include "sonoff-led.h"
 #include "sonoff-eeprom.h"
 #include "sonoff-relay.h"
-
+#include "sonoff-switch.h"
 
 class Sonoff
 {
@@ -38,10 +38,11 @@ class Sonoff
     void reset();
     void toggle();
     void listener();
-    void setDS18B20Interval(int interval);
+    void setDS18B20Interval(unsigned int interval);
     void publishTemperature(float temperatur);
     void getRelayServerValue();
 
 
 };
 #endif
+
