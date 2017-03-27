@@ -31,7 +31,7 @@ uint8_t SonoffRelay::get() {
 
 /* Set relay to ON */
 void SonoffRelay::on() {
-  digitalWrite(RELAY, HIGH);
+  if (get()==RELAY_OFF) digitalWrite(RELAY, HIGH);
   publish();
   if (Configuration.debugger) Serial << "Relay set to ON" << endl;
   Eeprom.saveRelayState(RELAY_ON);
@@ -40,7 +40,7 @@ void SonoffRelay::on() {
 
 /* Set relay to OFF */
 void SonoffRelay::off() {
-  digitalWrite(RELAY, LOW);
+  if (get()==RELAY_ON) digitalWrite(RELAY, LOW);
   publish();
   if (Configuration.debugger) Serial << "Relay set to OFF" << endl;
   Eeprom.saveRelayState(RELAY_OFF);
