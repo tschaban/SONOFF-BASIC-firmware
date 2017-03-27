@@ -448,7 +448,7 @@ void handleUpgradeCompleted(boolean status) {
   
       
       
-      page += status ? (Configuration.language[0]==101?"<h3 class=\"red\">Upgrade failed</h3>":"h3 class=\"red\">Aktualizacja nie powiodła się</h3>") : 
+      page += status ? (Configuration.language[0]==101?"<h3 class=\"red\">Upgrade failed</h3>":"<h3 class=\"red\">Aktualizacja nie powiodła się</h3>") : 
                        (Configuration.language[0]==101?"<h3>Upgrade was successful!</h3><p>After 10 seconds switch will be autmatically reloaded. Please wait.</p>"
                                                       :"<h3>Aktualizacja zakończona pomyślnie!</h3><p>Po 10 sekundach przełącznik zostanie przeładowany z wgranym oprogramowaniem. Proszę czekać.</p>");
 
@@ -537,7 +537,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
     "<li class=\"horizontal\"><a href=\"/configure\">";_page+=Configuration.language[0]==101?"Configuration":"Konfiguracja";_page+="</a> |</li>"
     "<li class=\"horizontal\"><a href=\"/update\">";_page+=Configuration.language[0]==101?"Upgrade":"Aktualizacja";_page+="</a> |</li>"
     "<li class=\"horizontal\"><a href=\"/reset\">";_page+=Configuration.language[0]==101?"Reset to factory settings":"Ustawienia fabryczne";_page+="</a> |</li>"
-    "<li class=\"horizontal\"><a href=\"/reboot\">";_page+=Configuration.language[0]==101?"Exit":"Zamknij";_page+="</a></li>"
+    "<li class=\"horizontal\"><a href=\"/reboot\">";_page+=Configuration.language[0]==101?"End configuration":"Zakończ konfigurację";_page+="</a></li>"
     "</ul>"
     "</div>";
   }
