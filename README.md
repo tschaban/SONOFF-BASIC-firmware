@@ -1,7 +1,7 @@
 # Firmware for [Sonoff Basic switch](http://sonoff.itead.cc/en/products/sonoff/sonoff-basic)
 
 **Resources**
-* **EN** Documentation in english: [here] (http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
+* **EN** Documentation in english: [here](http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/)
 * **PL** Dokumentacja w języku polskim: [tutaj](http://smart-house.adrian.czabanowski.com/firmware-sonoff/)
 
 **Binaries**
