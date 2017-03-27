@@ -75,14 +75,14 @@ void Sonoff::connectMQTT() {
       if (Configuration.debugger) Serial << " - Subsribed to : " << Configuration.mqtt_topic << endl;
 
       /* Post connection relay set up */
-      if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_ON && Relay.get() == RELAY_OFF) {
+      if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_ON) {
         Relay.on();
-      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_OFF && Relay.get() == RELAY_ON) {
+      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_OFF) {
         Relay.off();
       } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_LAST_KNOWN) {
-        if (Eeprom.getRelayState() == 0 && Relay.get() == RELAY_ON) {
+        if (Eeprom.getRelayState() == 0) {
           Relay.on();
-        } else if (Eeprom.getRelayState() == 1 && Relay.get() == RELAY_OFF) {
+        } else if (Eeprom.getRelayState() == 1) {
           Relay.off();
         }
       } else  {
