@@ -19,13 +19,13 @@ void Sonoff::run() {
     runSwitch();
   } else if (Configuration.mode == MODE_CONFIGURATION) {
     runConfigurationLAN();
-  } else if (Configuration.mode == MODE_ACCESSPOINT) {
+  } else { /* Configuration: Access point */
     runConfigurationAP();
-  } else {
-    if (Configuration.debugger) Serial << "Internal Application error" << endl;
-  }
+  } 
 }
 
+
+/* It removed configuration */
 void Sonoff::reset() {
   if (Configuration.debugger) Serial << "- ereasing EEPROM" << endl;
   Eeprom.erase();
@@ -99,10 +99,14 @@ void Sonoff::connectMQTT() {
 
 void Sonoff::listener() {
   if (Configuration.mode == MODE_SWITCH) {
-    if (!Mqtt.connected()) {
-      connectMQTT();
+    if (Configuration.interface == INTERFACE_MQTT) {
+      if (!Mqtt.connected()) {
+        connectMQTT();
+      }
+      Mqtt.loop();
+    } else if (Configuration.interface == INTERFACE_HTTP) {
+      /* HTTP */
     }
-    Mqtt.loop();
   } else if (Configuration.mode == MODE_CONFIGURATION) {
     server.handleClient();
   } else if (Configuration.mode == MODE_ACCESSPOINT) {
@@ -141,30 +145,37 @@ void Sonoff::getRelayServerValue() {
 
 /* Private methods */
 
+
+
+/* Method: launch into swich mode */
 void Sonoff::runSwitch() {
   Led.on();
   if (Configuration.debugger) Serial << endl << "Device mode: SWITCH" << endl;
   if (Configuration.debugger) Serial << endl << "Configuring MQTT" << endl;
-  WiFi.mode(WIFI_STA);
-  connectWiFi();
-  WiFi.mode(WIFI_STA);
-  if (Configuration.ds18b20_present) {
-    if (Configuration.debugger) Serial << endl << "Starting DS18B20" << endl;
-    setDS18B20Interval(Configuration.ds18b20_interval);
-  } else {
-    if (Configuration.debugger) Serial << endl << "DS18B20 not present" << endl;
+  if (Configuration.interface != INTERFACE_NONE) { /* If not standalone mode connect to WiFi and run DS18B20 sensor if configured */
+    WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
+    connectWiFi();
+    WiFi.mode(WIFI_STA);
+    if (Configuration.ds18b20_present) {
+      if (Configuration.debugger) Serial << endl << "Starting DS18B20" << endl;
+      setDS18B20Interval(Configuration.ds18b20_interval);
+    } else {
+
+      if (Configuration.debugger) Serial << endl << "DS18B20 not present" << endl;
+    }
   }
-  if (Configuration.switch_present) {
+
+  if (Configuration.switch_present) { /* Run external switch if configured */
     if (Configuration.debugger) Serial << endl << "Initiating external switch" << endl;
     Switch.init(Configuration.switch_gpio);
   } else {
-      if (Configuration.debugger) Serial << endl << "External switch present" << endl;
-  }  
+    if (Configuration.debugger) Serial << endl << "External switch present" << endl;
+  }
 }
 
 void Sonoff::runConfigurationLAN() {
   Led.on();
-  if (Configuration.debugger) Serial << endl << "Device mode: LAN Configuration" << endl;  
+  if (Configuration.debugger) Serial << endl << "Device mode: LAN Configuration" << endl;
   WiFi.mode(WIFI_STA);
   connectWiFi();
   WiFi.mode(WIFI_STA);
@@ -244,6 +255,14 @@ void Sonoff::postUpgradeCheck() {
       Eeprom.saveDebuggable(0);
     }
 
+    if (String(Configuration.version) == "0.3.2" ||
+        String(Configuration.version) == "0.4.0" ||
+        String(Configuration.version) == "0.5.0" ||
+        String(Configuration.version) == "0.6.1" || 
+        String(Configuration.version) == "0.7.0")
+        {
+      Eeprom.saveInterface(1);
+    }
 
     Configuration = Eeprom.getConfiguration();
   }
