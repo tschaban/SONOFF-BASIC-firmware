@@ -54,13 +54,14 @@ void setup() {
     Serial << " - Version: " << Configuration.version << endl;
     Serial << " - Language: " << Configuration.language << endl;
     Serial << " - Switch mode: " << Configuration.mode << endl;
+    Serial << " - Interface: " << Configuration.interface << endl;    
+    Serial << "   - Host: " << Configuration.mqtt_host << endl;
     Serial << " - Device ID: " << Configuration.id << endl;
     Serial << " - Host name: " << Configuration.device_name << endl;
     Serial << " - WiFi:" <<  endl;
     Serial << "   - SSID: " << Configuration.wifi_ssid << endl;
     Serial << "   - Password: " << Configuration.wifi_password << endl;
     Serial << " - MQTT: "  << endl;
-    Serial << "   - Host: " << Configuration.mqtt_host << endl;
     Serial << "   - Port: " << Configuration.mqtt_port << endl;
     Serial << "   - User: " << Configuration.mqtt_user << endl;
     Serial << "   - Password: " << Configuration.mqtt_password << endl;
