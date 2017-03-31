@@ -30,12 +30,16 @@
 #define   SWITCH_SENSITIVENESS_NORMAL_VALUE 3
 #define   SWITCH_SENSITIVENESS_LOW_VALUE 10 
 
+#define   INTERFACE_NONE 0
+#define   INTERFACE_MQTT 1
+#define   INTERFACE_HTTP 2
+
 #define   GPIO_1 1
 #define   GPIO_3 3
 #define   GPIO_14 14
 
 struct DEFAULTS {
-  char          version[8] = "0.7.0";
+  char          version[8] = "0.8.0";
   float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
@@ -58,9 +62,10 @@ struct SONOFFCONFIG {
   
   char          update_url[100];
   uint8_t       mode;
+  uint8_t       interface;
+  
   char          wifi_ssid[32];
   char          wifi_password[32];
-
 
   char          mqtt_host[32];
   unsigned int  mqtt_port;
