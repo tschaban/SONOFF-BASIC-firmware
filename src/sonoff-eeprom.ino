@@ -41,6 +41,8 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   read(365, 32).toCharArray(_temp.mqtt_password, sizeof(_temp.mqtt_password));
   read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));
 
+  _temp.interface = read(131, 1).toInt(); 
+
   _temp.ds18b20_present = (read(138, 1).toInt() == 1 ? true : false);  
   _temp.ds18b20_correction = read(105, 5).toFloat();  
   _temp.ds18b20_interval = read(110, 8).toInt();
@@ -102,6 +104,10 @@ void SonoffEEPROM::saveDeviceName(String in) {
 
 void SonoffEEPROM::saveVersion(String in) {
   write(0, 8, in);
+}
+
+void SonoffEEPROM::saveInterface(uint8_t in) {
+  write(131, 1, String(in));
 }
 
 void SonoffEEPROM::saveLanguage(String in) {
@@ -219,6 +225,8 @@ void SonoffEEPROM::setDefaults() {
   saveSwitchPresent(sonoffDefault.switch_present);
   saveSwitchGPIO(sonoffDefault.switch_gpio);
   saveSwitchSensitiveness(sonoffDefault.switch_sensitiveness); 
+
+  saveInterface(1);
 
   saveDebuggable(0); 
   

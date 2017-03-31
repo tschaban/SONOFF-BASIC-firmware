@@ -44,6 +44,7 @@ class SonoffEEPROM
     void saveDeviceName(String in);
     void saveVersion(String in);
     void saveLanguage(String in);
+    void saveInterface(uint8_t in);
     void saveWiFiSSID(String in);
     void saveWiFiPassword(String in);
     void saveMQTTHost(String in);
