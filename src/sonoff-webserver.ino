@@ -188,6 +188,19 @@ void handleConfiguration() {
     "</tr>"
     "</table>"
     "</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Controlling interface":"Interface sterowania";page+=":</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">Interface<sup class=\"red\">*</sup></td>"
+    "<td>: <select name=\"interface\" length=1>"
+    "<option value=\"0\"";page+=Configuration.interface==0?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"None / Manual":"Brak / Ręczny";page+="</option>"
+    "<option value=\"1\"";page+=Configuration.interface==1?" selected=\"selected\"":"";page+=">MQTT</option>"
+    "<option value=\"2\"";page+=Configuration.interface==2?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Domoticz":"Domoticz";page+="</option>"
+    "</select></td>"
+    "</tr>"
+    "</table>"   
+    "</div>"      
     "<div class=\"section\">";page+=Configuration.language[0]==101?"MQTT Broker configuration":"Konfiguracja MQTT Brokera";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -377,6 +390,10 @@ void handleSave() {
 
   if (server.arg("relay_connection_restored").length() > 0) {
     Eeprom.saveRelayStateAfterConnectionRestored(server.arg("relay_connection_restored").toInt());
+  }
+
+  if (server.arg("interface").length() > 0) {
+    Eeprom.saveInterface(server.arg("interface").toInt());
   }
 
   if (server.arg("language").length() > 0) {
