@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable = yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonoff Configuration</title>
+    <style>body {
+        font-family: Helvetica;
+        font-size: 14px;
+        margin: 0;
+        background-color: #292929
+    }
+
+    a {
+        color: #aaaaaf;
+        text-decoration: none
+    }
+
+    a:hover {
+        color: #fafaff
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none
+    }
+
+    li.horizontal {
+        display: inline;
+        padding-right: 5px;
+        color: #aaaaaf
+    }
+
+    .container {
+        margin: 0 auto;
+        height: auto
+    }
+
+    .header, .navigation, .section, .section-content {
+        width: 100%;
+        padding: 10px
+    }
+
+    .header {
+        color: #eaeaef
+    }
+
+    .navigation {
+        background-color: #676767;
+        color: #fafaff
+    }
+
+    .section {
+        background-color: #f0f0f0;
+        color: #292929;
+        font-weight: bold
+    }
+
+    .section-content {
+        background-color: #fffff0;
+        padding: 8px 0 8px 20px
+    }
+
+    .label {
+        font-weight: bold
+    }
+
+    .submit {
+        margin: 5px 0;
+        padding: 5px 50px;
+        background-color: #060;
+        border: 1px solid #060;
+        color: #fff
+    }
+
+    .red {
+        color: red
+    }</style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><a href="/"><img
+            src="data:image/png;base64,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"></a>
+        firmware by tschaban
+    </div>
+    <div class="navigation">
+        <ul>
+            <li class="horizontal"><a href="/configure">Configuration</a> |</li>
+            <li class="horizontal"><a href="/update">Upgrade</a> |</li>
+            <li class="horizontal"><a href="/reset">Reset to factory settings</a> |</li>
+            <li class="horizontal"><a href="/reboot">Exit</a></li>
+        </ul>
+    </div>
+    <div class="section">Firmware upgrade:</div>
+    <div class="section-content">
+
+        <p style='margin-top:40px;'><strong><span class="red">Important:</span> Do not disconnect Sonoff from power source during upgrade.</strong></p>
+
+        <p style='margin-bottom:40px;'>After upgrade Sonoff will be automatically restarted. </p>
+
+        <form style='margin-bottom: 100px;' method='POST' action='' enctype='multipart/form-data'><input type='file'
+                                                                                                         name='update'><input
+                type='submit' value='Upgrade'></form>
+    </div>
+    <div class="header"><p>Firmware version: 0.4.1</p>
+        <ul>
+            <li><a href="http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/"
+                   target="_blank">Documentation</a></li>
+            <li><a href="https://github.com/tschaban/SONOFF-firmware" target="_blank">GitHub</a></li>
+            <li><a href="https://www.patreon.com/tschaban" target="_blank">Donate</a></li>
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>
