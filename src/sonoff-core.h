@@ -16,6 +16,7 @@
 #include "sonoff-eeprom.h"
 #include "sonoff-relay.h"
 #include "sonoff-switch.h"
+#include "sonoff-button.h"
 
 class Sonoff
 {

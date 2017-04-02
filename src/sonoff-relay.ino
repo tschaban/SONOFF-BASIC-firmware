@@ -60,9 +60,9 @@ void SonoffRelay::publish() {
   char  mqttString[50];
   sprintf(mqttString, "%sstate", Configuration.mqtt_topic);
   if (digitalRead(RELAY) == LOW) {
-    Mqtt.publish(mqttString, "OFF");
+    if (Mqtt.state() == MQTT_CONNECTED) Mqtt.publish(mqttString, "OFF");
   } else {
-    Mqtt.publish(mqttString, "ON");
+    if (Mqtt.state() == MQTT_CONNECTED) Mqtt.publish(mqttString, "ON");
   }
 }
 

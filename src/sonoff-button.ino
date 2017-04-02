@@ -10,12 +10,17 @@
 
 SonoffButton::SonoffButton() {
   pinMode(BUTTON, INPUT_PULLUP);
-  buttonTimer.attach(0.05, callbackButton);
+  start(); 
+}
+
+void SonoffButton::start() {
+   buttonTimer.attach(0.05, callbackButton);
 }
 
 void SonoffButton::stop() {
   buttonTimer.detach();
 }
+
 
 boolean SonoffButton::isPressed() {
   return !digitalRead(BUTTON);
@@ -56,9 +61,9 @@ void callbackButton() {
        ESP.restart();
     }
   } else {
-    if (Configuration.mode==MODE_SWITCH && Button.relayTrigger()) {
+    if (Configuration.mode==MODE_SWITCH && Button.relayTrigger()) { // short press
       Relay.toggle();
-    } else if (Button.configurationTrigger()) {
+    } else if (Button.configurationTrigger()) { // 4-6 sec
       Sonoff.toggle();
     }
     Button.reset();

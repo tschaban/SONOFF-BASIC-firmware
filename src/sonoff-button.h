@@ -22,6 +22,7 @@ class SonoffButton
     
   public:
     SonoffButton(); 
+    void start();    
     void stop();
     void pressed();
     void reset();

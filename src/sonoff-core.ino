@@ -21,9 +21,8 @@ void Sonoff::run() {
     runConfigurationLAN();
   } else { /* Configuration: Access point */
     runConfigurationAP();
-  } 
+  }
 }
-
 
 /* It removed configuration */
 void Sonoff::reset() {
@@ -32,6 +31,7 @@ void Sonoff::reset() {
   ESP.restart();
 }
 
+/* Toggle Sonoff between switch and configuration mode */
 void Sonoff::toggle() {
   if (Configuration.mode == MODE_SWITCH) {
     Eeprom.saveMode(MODE_CONFIGURATION);
@@ -44,14 +44,17 @@ void Sonoff::toggle() {
   ESP.restart();
 }
 
+/* Connecting to WiFi */
 void Sonoff::connectWiFi() {
   WiFi.hostname(Configuration.device_name);
   WiFi.begin(Configuration.wifi_ssid, Configuration.wifi_password);
   if (Configuration.debugger) Serial << endl << "Connecting to WiFi: " << Configuration.wifi_ssid << endl;
+ Button.stop(); // Turning off button while connecting to WiFi
   while (WiFi.status() != WL_CONNECTED) {
     if (Configuration.debugger) Serial << ".";
     delay(CONNECTION_WAIT_TIME);
   }
+  Button.start();  // Turning on button while connecting to WiFi
   if (Configuration.debugger) Serial << endl << " - Connected" << endl;
   if (Configuration.debugger) Serial << " - IP: " << WiFi.localIP() << endl;
 }
@@ -66,12 +69,13 @@ void Sonoff::connectMQTT() {
   if (Configuration.debugger) Serial << "Connecting to MQTT : " << Configuration.mqtt_host << ":" << Configuration.mqtt_port << endl;
   if (Configuration.debugger) Serial << " - user : " << Configuration.mqtt_user << endl;
   if (Configuration.debugger) Serial << " - password : " << Configuration.mqtt_password << endl;
-
+  Button.stop(); // If not connected to Mqtt, turn off button
   while (!Mqtt.connected()) {
     if (Mqtt.connect(mqttString, Configuration.mqtt_user, Configuration.mqtt_password)) {
       if (Configuration.debugger) Serial << endl << "Connected" << endl;
       sprintf(mqttString, "%scmd", Configuration.mqtt_topic);
       Mqtt.subscribe(mqttString);
+      Button.start(); // Turn on button
       if (Configuration.debugger) Serial << " - Subsribed to : " << Configuration.mqtt_topic << endl;
 
       /* Post connection relay set up */
@@ -92,7 +96,7 @@ void Sonoff::connectMQTT() {
       Led.off();
     } else {
       delay(CONNECTION_WAIT_TIME);
-      if (Configuration.debugger) Serial << " - mqtt connection status: " << Mqtt.state();
+      if (Configuration.debugger) Serial << " - mqtt connection status: " << Mqtt.state() << endl;
     }
   }
 }
@@ -100,10 +104,12 @@ void Sonoff::connectMQTT() {
 void Sonoff::listener() {
   if (Configuration.mode == MODE_SWITCH) {
     if (Configuration.interface == INTERFACE_MQTT) {
-      if (!Mqtt.connected()) {
-        connectMQTT();
+      if (WiFi.status() == WL_CONNECTED) {
+        if (!Mqtt.connected()) {
+          connectMQTT();
+        }
+        Mqtt.loop();
       }
-      Mqtt.loop();
     } else if (Configuration.interface == INTERFACE_HTTP) {
       /* HTTP */
     }
@@ -125,14 +131,14 @@ void Sonoff::setDS18B20Interval( unsigned int interval) {
 void Sonoff::publishTemperature(float temperature) {
   char  temperatureString[6];
   char  mqttString[50];
-
   dtostrf(temperature, 2, 2, temperatureString);
   if (previousTemperature != temperature) {
     if (Configuration.debugger) Serial << " - publishing: " << temperatureString << endl;
     sprintf(mqttString, "%stemperature", Configuration.mqtt_topic);
-    Mqtt.publish(mqttString, temperatureString);
+    if (Mqtt.state() == MQTT_CONNECTED) Mqtt.publish(mqttString, temperatureString);
     previousTemperature = temperature;
   }
+  
 }
 
 void Sonoff::getRelayServerValue() {
@@ -258,9 +264,9 @@ void Sonoff::postUpgradeCheck() {
     if (String(Configuration.version) == "0.3.2" ||
         String(Configuration.version) == "0.4.0" ||
         String(Configuration.version) == "0.5.0" ||
-        String(Configuration.version) == "0.6.1" || 
+        String(Configuration.version) == "0.6.1" ||
         String(Configuration.version) == "0.7.0")
-        {
+    {
       Eeprom.saveInterface(1);
     }
 

@@ -79,6 +79,7 @@ void setup() {
     Serial << "   - Post power restore : " << Eeprom.getRelayStateAfterPowerRestored() << endl;
     Serial << "   - Post reconnection to MQTT : " << Eeprom.getRelayStateAfterConnectionRestored() << endl;
   }
+
   Sonoff.run();
 
 }
