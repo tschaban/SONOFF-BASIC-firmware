@@ -111,7 +111,7 @@ void Sonoff::listener() {
         Mqtt.loop();
       }
     } else if (Configuration.interface == INTERFACE_HTTP) {
-      /* HTTP */
+      server.handleClient();
     }
   } else if (Configuration.mode == MODE_CONFIGURATION) {
     server.handleClient();
@@ -160,7 +160,11 @@ void Sonoff::runSwitch() {
   if (Configuration.debugger) Serial << endl << "Configuring MQTT" << endl;
   if (Configuration.interface != INTERFACE_NONE) { /* If not standalone mode connect to WiFi and run DS18B20 sensor if configured */
     WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
-    connectWiFi();
+    connectWiFi();    
+    if (Configuration.interface==INTERFACE_HTTP) {
+      startHTTPInterface();
+      Led.off();
+    }
     WiFi.mode(WIFI_STA);
     if (Configuration.ds18b20_present) {
       if (Configuration.debugger) Serial << endl << "Starting DS18B20" << endl;
@@ -169,7 +173,7 @@ void Sonoff::runSwitch() {
 
       if (Configuration.debugger) Serial << endl << "DS18B20 not present" << endl;
     }
-  }
+  } 
 
   if (Configuration.switch_present) { /* Run external switch if configured */
     if (Configuration.debugger) Serial << endl << "Initiating external switch" << endl;
@@ -184,8 +188,8 @@ void Sonoff::runConfigurationLAN() {
   if (Configuration.debugger) Serial << endl << "Device mode: LAN Configuration" << endl;
   WiFi.mode(WIFI_STA);
   connectWiFi();
-  WiFi.mode(WIFI_STA);
   startHttpServer();
+  WiFi.mode(WIFI_STA);  
   if (Configuration.debugger) Serial << endl << " - Ready for configuration. Open http://" << WiFi.localIP() << endl << endl;
   Led.startBlinking(0.1);
 }
@@ -295,7 +299,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
     } else if ((char)payload[2] == 'p') { // reportState
       if (Configuration.debugger) Serial << " reportState" << endl;
       Relay.publish();
-    } else if ((char)payload[2] == 's') { // reset
+    } else if ((char)payload[2] == 'b') { // reboot
       if (Configuration.debugger) Serial << " reset" << endl;
       ESP.restart();
     } else if ((char)payload[2] == 'n') { // configurationMode
