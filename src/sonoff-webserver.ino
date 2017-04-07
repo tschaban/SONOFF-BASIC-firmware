@@ -196,7 +196,7 @@ void handleConfiguration() {
     "<td>: <select name=\"interface\" length=1>"
     "<option value=\"0\"";page+=Configuration.interface==0?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"None / Manual":"Brak / Ręczny";page+="</option>"
     "<option value=\"1\"";page+=Configuration.interface==1?" selected=\"selected\"":"";page+=">MQTT</option>"
-    "<option value=\"2\"";page+=Configuration.interface==2?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Domoticz":"Domoticz";page+="</option>"
+    "<option value=\"2\"";page+=Configuration.interface==2?" selected=\"selected\"":"";page+=">HTTP</option>"
     "</select></td>"
     "</tr>"
     "</table>"   
