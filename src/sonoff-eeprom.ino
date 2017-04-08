@@ -187,14 +187,14 @@ void SonoffEEPROM::saveDebuggable(byte in) {
 }
 
 void SonoffEEPROM::erase() {
-  if (Configuration.debugger) Serial << "Erasing EEPROM" << endl;
+  if (Configuration.debugger) Serial << endl << "WARN: Erasing EEPROM";
   clear(0, EEPROM_size);
   setDefaults();
 }
 
 void SonoffEEPROM::setDefaults() {
 
-  if (Configuration.debugger) Serial << "Setting default values" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Setting default values";
 
   char _id[6] = {0};
   char _device_name[13] = {0};

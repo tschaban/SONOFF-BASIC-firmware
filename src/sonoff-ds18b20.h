@@ -8,11 +8,6 @@
 #ifndef _sonoff_ds18b20_h
 #define _sonoff_ds18b20_h
 
-
-#include <DallasTemperature.h>
-#include <OneWire.h>
-#include "sonoff-configuration.h"
-
 #define SENSOR_DS18B20 14
 
 class SonoffDS18B20 {

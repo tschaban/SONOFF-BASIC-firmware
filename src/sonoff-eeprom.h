@@ -9,7 +9,6 @@
 #define _sonoff_EEPROM_h
 
 #include <EEPROM.h>
-#include "sonoff-configuration.h"
 
 #define EEPROM_SIZE 512
 
