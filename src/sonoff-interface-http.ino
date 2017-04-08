@@ -5,20 +5,24 @@
  2016-10-27 tschaban https://github.com/tschaban
 */
 
+#include "sonoff-interface-http.h"
 
-void startHTTPInterface() {
-  if (Configuration.debugger) Serial << endl << " - Starting web server" << endl;
-  server.on("/", handleHTTPInterfaceCommand);
+SonoffHTTPInterface::SonoffHTTPInterface() {}
+
+void SonoffHTTPInterface::begin() {
+  if (Configuration.debugger) Serial << endl << "INFO: Starting web server";
+  server.on("/", handeHTTPInterfaceRequests);
   server.on("/favicon.ico",handleFavicon);
   server.onNotFound(handleNotFound);
   server.begin();
-  if (Configuration.debugger) Serial << " - Web server is working" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Web server ready";
 }
 
-void handleHTTPInterfaceCommand() {
+void handeHTTPInterfaceRequests() {
   String _status = "{'status':'success'}";
   
   if (server.args()==1) {
+      ESP.restart();
     if (server.arg(0)=="on") {
       Relay.on();
     } else if (server.arg(0)=="off") {
@@ -26,7 +30,6 @@ void handleHTTPInterfaceCommand() {
     } else if (server.arg(0)=="configurationMode") {
       Sonoff.toggle();
     } else if (server.arg(0)=="reboot") {
-      ESP.restart();
     } else {
       _status = "{'status':'not implemented'}";
     }   

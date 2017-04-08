@@ -5,7 +5,7 @@
   2016-10-27 tschaban https://github.com/tschaban
 */
 
-#include <PubSubClient.h>
+
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
@@ -22,12 +22,15 @@
 #include "sonoff-button.h"
 #include "sonoff-switch.h"
 #include "sonoff-ota.h"
+#include "sonoff-interface-mqtt.h"
+#include "sonoff-interface-http.h"
+
 
 DEFAULTS sonoffDefault;
 SONOFFCONFIG Configuration;
 
 WiFiClient esp;
-PubSubClient Mqtt(esp);
+
 
 ESP8266WebServer server(80);
 DNSServer dnsServer;
@@ -35,12 +38,14 @@ ESP8266HTTPUpdateServer httpUpdater;
 OneWire wireProtocol(SENSOR_DS18B20);
 DallasTemperature DS18B20(&wireProtocol);
 
-SonoffEEPROM    Eeprom;
-SonoffRelay     Relay;
-SonoffButton    Button;
-SonoffSwitch    Switch;
-SonoffLED       Led;
-Sonoff          Sonoff;
+SonoffEEPROM          Eeprom;
+SonoffRelay           Relay;
+SonoffButton          Button;
+SonoffSwitch          Switch;
+SonoffLED             Led;
+SonoffMQTTInterface   Mqtt;
+SonoffHTTPInterface   HttpInterface;
+Sonoff                Sonoff;
 
 void setup() {
 
@@ -50,7 +55,7 @@ void setup() {
     Serial.begin(115200);
     delay(10);
     Serial.println();
-    Serial << endl << "Configuration: " << endl;
+    Serial << endl << "INFO: Configuration: " << endl;
     Serial << " - Version: " << Configuration.version << endl;
     Serial << " - Language: " << Configuration.language << endl;
     Serial << " - Switch mode: " << Configuration.mode << endl;

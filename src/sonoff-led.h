@@ -9,7 +9,6 @@
 #define _sonoff_led_h
 
 #include <Ticker.h>
-#include "sonoff-configuration.h"
 
 #define GPIO_LED 13
 
