@@ -13,7 +13,13 @@ Sonoff::Sonoff() {
 void Sonoff::run() {
 
   isConfigured();
-  postUpgradeCheck();
+  
+  SonoffFirmware Firmware;
+  if (Firmware.upgraded()) {
+    Firmware.update();
+  }
+  
+  Firmware = {};
 
   if (Configuration.mode == MODE_SWITCH) {
     runSwitch();
@@ -26,7 +32,6 @@ void Sonoff::run() {
 
 /* It removed configuration */
 void Sonoff::reset() {
-  if (Configuration.debugger) Serial << "- ereasing EEPROM" << endl;
   Eeprom.erase();
   ESP.restart();
 }
@@ -38,7 +43,7 @@ void Sonoff::toggle() {
   } else {
     Eeprom.saveMode(MODE_SWITCH);
   }
-  if (Configuration.debugger) Serial << "Rebooting device" << endl;
+  if (Configuration.debugger) Serial <<  endl << "WARN: Rebooting device";
   Led.blink();
   delay(10);
   ESP.restart();
@@ -48,65 +53,30 @@ void Sonoff::toggle() {
 void Sonoff::connectWiFi() {
   WiFi.hostname(Configuration.device_name);
   WiFi.begin(Configuration.wifi_ssid, Configuration.wifi_password);
-  if (Configuration.debugger) Serial << endl << "Connecting to WiFi: " << Configuration.wifi_ssid << endl;
- Button.stop(); // Turning off button while connecting to WiFi
+  if (Configuration.debugger) Serial << endl << "INFO: Connecting to WiFi: " << Configuration.wifi_ssid;
+  Button.stop(); // Turning off button while connecting to WiFi
+  if (Configuration.debugger) Serial << endl;
   while (WiFi.status() != WL_CONNECTED) {
     if (Configuration.debugger) Serial << ".";
     delay(CONNECTION_WAIT_TIME);
   }
   Button.start();  // Turning on button while connecting to WiFi
-  if (Configuration.debugger) Serial << endl << " - Connected" << endl;
-  if (Configuration.debugger) Serial << " - IP: " << WiFi.localIP() << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Connected";
+  if (Configuration.debugger) Serial << endl << "INFO: IP: " << WiFi.localIP();
 }
 
-void Sonoff::connectMQTT() {
-  char  mqttString[50];
-
-  Mqtt.setServer(Configuration.mqtt_host, Configuration.mqtt_port);
-  Mqtt.setCallback(callbackMQTT);
-
-  sprintf(mqttString, "Sonoff (ID: %s)", Configuration.id);
-  if (Configuration.debugger) Serial << "Connecting to MQTT : " << Configuration.mqtt_host << ":" << Configuration.mqtt_port << endl;
-  if (Configuration.debugger) Serial << " - user : " << Configuration.mqtt_user << endl;
-  if (Configuration.debugger) Serial << " - password : " << Configuration.mqtt_password << endl;
-  Button.stop(); // If not connected to Mqtt, turn off button
-  while (!Mqtt.connected()) {
-    if (Mqtt.connect(mqttString, Configuration.mqtt_user, Configuration.mqtt_password)) {
-      if (Configuration.debugger) Serial << endl << "Connected" << endl;
-      sprintf(mqttString, "%scmd", Configuration.mqtt_topic);
-      Mqtt.subscribe(mqttString);
-      Button.start(); // Turn on button
-      if (Configuration.debugger) Serial << " - Subsribed to : " << Configuration.mqtt_topic << endl;
-
-      /* Post connection relay set up */
-      if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_ON) {
-        Relay.on();
-      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_OFF) {
-        Relay.off();
-      } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_LAST_KNOWN) {
-        if (Eeprom.getRelayState() == 0) {
-          Relay.on();
-        } else if (Eeprom.getRelayState() == 1) {
-          Relay.off();
-        }
-      } else  {
-        getRelayServerValue();
-      }
-
-      Led.off();
-    } else {
-      delay(CONNECTION_WAIT_TIME);
-      if (Configuration.debugger) Serial << " - mqtt connection status: " << Mqtt.state() << endl;
-    }
-  }
-}
 
 void Sonoff::listener() {
   if (Configuration.mode == MODE_SWITCH) {
     if (Configuration.interface == INTERFACE_MQTT) {
       if (WiFi.status() == WL_CONNECTED) {
         if (!Mqtt.connected()) {
-          connectMQTT();
+          Led.on();
+          Button.stop(); // If not connected to Mqtt, turn off button
+          Mqtt.connect();
+          Button.start(); // If not connected to Mqtt, turn off button
+          setRelayAfterConnectingToMQTT();
+          Led.off();
         }
         Mqtt.loop();
       }
@@ -119,7 +89,7 @@ void Sonoff::listener() {
     dnsServer.processNextRequest();
     server.handleClient();
   } else {
-    if (Configuration.debugger) Serial << "Internal Application Error" << endl;
+    if (Configuration.debugger) Serial << endl << "ERROR: Internal Application Error";
   }
 }
 
@@ -129,25 +99,15 @@ void Sonoff::setDS18B20Interval( unsigned int interval) {
 }
 
 void Sonoff::publishTemperature(float temperature) {
-  char  temperatureString[6];
-  char  mqttString[50];
-  dtostrf(temperature, 2, 2, temperatureString);
   if (previousTemperature != temperature) {
-    if (Configuration.debugger) Serial << " - publishing: " << temperatureString << endl;
-    sprintf(mqttString, "%stemperature", Configuration.mqtt_topic);
-    if (Mqtt.state() == MQTT_CONNECTED) Mqtt.publish(mqttString, temperatureString);
+    char  temperatureString[6];
+    dtostrf(temperature, 2, 2, temperatureString);
+    Mqtt.publish((char*)"temperature", temperatureString);
     previousTemperature = temperature;
   }
-  
+
 }
 
-void Sonoff::getRelayServerValue() {
-  char  mqttString[50];
-  sprintf(mqttString, "%sget", Configuration.mqtt_topic);
-  if (Configuration.debugger) Serial << endl << " Requesting default relay value";
-  Mqtt.publish(mqttString, "defaultState");
-  if (Configuration.debugger) Serial << ", completed" << endl;
-}
 
 /* Private methods */
 
@@ -156,48 +116,49 @@ void Sonoff::getRelayServerValue() {
 /* Method: launch into swich mode */
 void Sonoff::runSwitch() {
   Led.on();
-  if (Configuration.debugger) Serial << endl << "Device mode: SWITCH" << endl;
-  if (Configuration.debugger) Serial << endl << "Configuring MQTT" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Device mode: SWITCH";
   if (Configuration.interface != INTERFACE_NONE) { /* If not standalone mode connect to WiFi and run DS18B20 sensor if configured */
     WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
-    connectWiFi();    
-    if (Configuration.interface==INTERFACE_HTTP) {
-      startHTTPInterface();
+    connectWiFi();
+    if (Configuration.interface == INTERFACE_HTTP) {
+      HttpInterface.begin();
       Led.off();
+    } else if (Configuration.interface == INTERFACE_MQTT) {
+      Mqtt.begin();
     }
     WiFi.mode(WIFI_STA);
     if (Configuration.ds18b20_present) {
-      if (Configuration.debugger) Serial << endl << "Starting DS18B20" << endl;
+      if (Configuration.debugger) Serial << endl << "INFO: Starting DS18B20";
       setDS18B20Interval(Configuration.ds18b20_interval);
     } else {
 
-      if (Configuration.debugger) Serial << endl << "DS18B20 not present" << endl;
+      if (Configuration.debugger) Serial << endl << "INFO: DS18B20 not present";
     }
-  } 
+  }
 
   if (Configuration.switch_present) { /* Run external switch if configured */
-    if (Configuration.debugger) Serial << endl << "Initiating external switch" << endl;
+    if (Configuration.debugger) Serial << endl << "INFO: Initiating external switch";
     Switch.init(Configuration.switch_gpio);
   } else {
-    if (Configuration.debugger) Serial << endl << "External switch present" << endl;
+    if (Configuration.debugger) Serial << endl << "INFO: External switch not present";
   }
 }
 
 void Sonoff::runConfigurationLAN() {
   Led.on();
-  if (Configuration.debugger) Serial << endl << "Device mode: LAN Configuration" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Device mode: LAN Configuration";
   WiFi.mode(WIFI_STA);
   connectWiFi();
   startHttpServer();
-  WiFi.mode(WIFI_STA);  
-  if (Configuration.debugger) Serial << endl << " - Ready for configuration. Open http://" << WiFi.localIP() << endl << endl;
+  WiFi.mode(WIFI_STA);
+  if (Configuration.debugger) Serial << endl << "INFO: Ready for configuration. Open http://" << WiFi.localIP();
   Led.startBlinking(0.1);
 }
 
 void Sonoff::runConfigurationAP() {
   Led.on();
-  if (Configuration.debugger) Serial << endl << "Device mode: Access Point Configuration" << endl;
-  if (Configuration.debugger) Serial << " - launching access point" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Device mode: Access Point Configuration";
+  if (Configuration.debugger) Serial << endl << "INFO: launching access point";
   IPAddress apIP(192, 168, 5, 1);
   WiFi.mode(WIFI_AP);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
@@ -206,108 +167,43 @@ void Sonoff::runConfigurationAP() {
   dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
   dnsServer.start(53, "www.example.com", apIP);
   startHttpServer();
-  if (Configuration.debugger) Serial << " - After conecting to WiFi: " << Configuration.device_name << " open: http://192.168.5.1/  " << endl << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Open: http://192.168.5.1/  ";
   Led.startBlinking(0.1);
+}
+
+
+void Sonoff::setRelayAfterConnectingToMQTT() {
+  if (Configuration.debugger) Serial << endl << "INFO: Setting relay post MQTT connection";
+  if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_ON) {
+    Relay.on();
+  } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_OFF) {
+    Relay.off();
+  } else if (Eeprom.getRelayStateAfterConnectionRestored() == DEFAULT_RELAY_LAST_KNOWN) {
+    if (Eeprom.getRelayState() == 0) {
+      Relay.on();
+    } else if (Eeprom.getRelayState() == 1) {
+      Relay.off();
+    }
+  } else  {
+    Mqtt.publish((char*)"state", (char*)"defaultState");
+  }
 }
 
 boolean Sonoff::isConfigured() {
   if (Configuration.wifi_ssid[0] == (char) 0 || Configuration.wifi_password[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 ) {
-    if (Configuration.debugger) Serial << endl << "Missing configuration. Going to configuration mode." << endl;
+    if (Configuration.debugger) Serial << endl << "WARN: Missing configuration. Going to configuration mode.";
     Eeprom.saveMode(MODE_ACCESSPOINT);
     Configuration = Eeprom.getConfiguration();
   }
 }
 
-void Sonoff::postUpgradeCheck() {
-  if (String(sonoffDefault.version) != String(Configuration.version)) {
-    if (Configuration.debugger) Serial << endl << "SOFTWARE WAS UPGRADED from version : " << Configuration.version << " to " << sonoffDefault.version << endl;
-    Eeprom.saveVersion(sonoffDefault.version);
 
-
-    if (String(Configuration.version) == "0.3.2") {
-      Eeprom.saveRelayStateAfterPowerRestored(sonoffDefault.relay_state_after_power_restored);
-    }
-
-    if (String(Configuration.version) == "0.3.2" ||
-        String(Configuration.version) == "0.4.0") {
-      Eeprom.saveLanguage(sonoffDefault.language);
-    }
-
-    if (String(Configuration.version) == "0.3.2" ||
-        String(Configuration.version) == "0.4.0" ||
-        String(Configuration.version) == "0.5.0") {
-
-      char _id[6] = {0};
-      char _device_name[32] = {0};
-
-      sprintf(_id, "%06X", ESP.getChipId());
-      sprintf(_device_name, "SONOFF_%s", _id);
-      Eeprom.saveDeviceName(_device_name);
-
-      /* After Connecton is restored parameter is set to saved After Power is restored value */
-      Eeprom.saveRelayStateAfterConnectionRestored(Eeprom.getRelayStateAfterPowerRestored());
-
-      /* Value "Server value" [4] is not longer needed for parameter  After Power Restored.
-          If it was set like that  by a user it's upgraded to value 2 which is relay state OFF
-      */
-      if (Eeprom.getRelayStateAfterPowerRestored() == 4) {
-        Eeprom.saveRelayStateAfterPowerRestored(2);
-      }
-    }
-
-    if (String(Configuration.version) == "0.3.2" ||
-        String(Configuration.version) == "0.4.0" ||
-        String(Configuration.version) == "0.5.0" ||
-        String(Configuration.version) == "0.6.1") {
-      Eeprom.saveSwitchPresent(sonoffDefault.switch_present);
-      Eeprom.saveSwitchGPIO(sonoffDefault.switch_gpio);
-      Eeprom.saveSwitchSensitiveness(sonoffDefault.switch_sensitiveness);
-      Eeprom.saveDebuggable(0);
-    }
-
-    if (String(Configuration.version) == "0.3.2" ||
-        String(Configuration.version) == "0.4.0" ||
-        String(Configuration.version) == "0.5.0" ||
-        String(Configuration.version) == "0.6.1" ||
-        String(Configuration.version) == "0.7.0")
-    {
-      Eeprom.saveInterface(1);
-    }
-
-    Configuration = Eeprom.getConfiguration();
-  }
-}
 
 void callbackDS18B20() {
   SonoffDS18B20 Temperature;
   float temperature = Temperature.get();
 
   Sonoff.publishTemperature(temperature);
-}
-
-/* Callback of MQTT Broker, it listens for messages */
-void callbackMQTT(char* topic, byte* payload, unsigned int length) {
-  Led.blink();
-  if (Configuration.debugger) Serial << "Got MQTT Topic : " << topic << ", length=" << length;
-  if (length >= 1) { // command arrived
-    if ((char)payload[1] == 'N') { // ON
-      if (Configuration.debugger) Serial << " ON" << endl;
-      Relay.on();
-    } else if ((char)payload[1] == 'F') { // OFF
-      if (Configuration.debugger) Serial << " OFF" << endl;
-      Relay.off();
-    } else if ((char)payload[2] == 'p') { // reportState
-      if (Configuration.debugger) Serial << " reportState" << endl;
-      Relay.publish();
-    } else if ((char)payload[2] == 'b') { // reboot
-      if (Configuration.debugger) Serial << " reset" << endl;
-      ESP.restart();
-    } else if ((char)payload[2] == 'n') { // configurationMode
-      if (Configuration.debugger) Serial << " configuration Mode" << endl;
-      Sonoff.toggle();
-    }
-  }
-  if (Configuration.debugger) Serial << endl;
 }
 
 

@@ -10,24 +10,23 @@
 
 
 #include <Ticker.h>
-#include "sonoff-configuration.h"
 #include "sonoff-ds18b20.h"
-#include "sonoff-led.h"
-#include "sonoff-eeprom.h"
-#include "sonoff-relay.h"
-#include "sonoff-switch.h"
-#include "sonoff-button.h"
+#include "sonoff-upgrade.h"
 
 class Sonoff
 {
    private:  
     Ticker temperatureTimer;
-    
+        
     void runSwitch();
     void runConfigurationLAN();
     void runConfigurationAP();
+ 
     boolean isConfigured();
     void postUpgradeCheck();
+
+    void setRelayAfterConnectingToMQTT();
+    
     float previousTemperature = 0;
     
    
@@ -41,7 +40,6 @@ class Sonoff
     void listener();
     void setDS18B20Interval(unsigned int interval);
     void publishTemperature(float temperatur);
-    void getRelayServerValue();
 
 
 };
