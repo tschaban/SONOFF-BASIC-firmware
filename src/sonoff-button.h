@@ -9,10 +9,8 @@
 #define _sonoff_button_h
 
 #include <Ticker.h>
-#include "sonoff-configuration.h"
 
 #define BUTTON 0
-
 
 class SonoffButton
 {

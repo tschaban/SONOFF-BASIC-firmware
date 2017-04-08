@@ -15,10 +15,12 @@ SonoffButton::SonoffButton() {
 
 void SonoffButton::start() {
    buttonTimer.attach(0.05, callbackButton);
+   if (Configuration.debugger) Serial << endl << "INFO: Button has been turned on";
 }
 
 void SonoffButton::stop() {
   buttonTimer.detach();
+  if (Configuration.debugger) Serial <<  endl << "WARN: Button has been turned off";
 }
 
 
