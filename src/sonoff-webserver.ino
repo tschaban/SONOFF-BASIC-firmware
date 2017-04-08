@@ -6,7 +6,7 @@
 */
 
 void startHttpServer() {
-  if (Configuration.debugger) Serial << endl << " - Starting web server" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Starting web server";
   server.on("/", handleRoot);
   server.on("/configure", handleConfiguration);
   server.on("/reboot", handleReboot);
@@ -16,12 +16,11 @@ void startHttpServer() {
   server.onNotFound(handleNotFound);
   httpUpdater.setup(&server);
   server.begin();
-  if (Configuration.debugger) Serial << " - Web server is working" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: Web server is working";
 }
 
 void handleRoot() {
-  if (Configuration.debugger) Serial << "Server: root requested" << endl;
-  if (Configuration.debugger) Serial << Configuration.language[0];
+  if (Configuration.debugger) Serial << endl << "INFO: HTTPD Main page requested";
   String page = 
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device information":"Informacje o urządzeniu";page+="</div>"
     "<div class=\"section-content\">"
@@ -150,7 +149,7 @@ void handleRoot() {
 
 void handleConfiguration() {
 
-  if (Configuration.debugger) Serial << "Server: configuration" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: HTTPD Configuration requested";
   
   String page =
     "<form action=\"/save\"  method=\"post\">"
@@ -334,7 +333,7 @@ void handleSave() {
   Led.stopBlinking();
   Led.on();
 
-  if (Configuration.debugger) Serial << "Server: saving data" << endl;
+  if (Configuration.debugger) Serial << endl << "INFO: HTTPD Data saving";
 
   if (server.arg("device_name").length() > 0) {
     Eeprom.saveDeviceName(server.arg("device_name"));
@@ -441,7 +440,7 @@ void handleSave() {
 }
 
 void handleUpgrade() {
-    if (Configuration.debugger) Serial << "Server: upgrade" << endl;
+    if (Configuration.debugger) Serial << endl << "INFO: HTTPD Firmware upgrade" ;
     String page =
       "<div class=\"section\">";page+=Configuration.language[0]==101?"Firmware upgrade":"Aktualizacja oprogramowania";page+="</div>"
       "<div class=\"section-content\">"
@@ -475,23 +474,23 @@ void handleUpgradeCompleted(boolean status) {
 }
 
 void handleNotFound() {
-  if (Configuration.debugger) Serial << "Server: page not found" << endl;
+  if (Configuration.debugger) Serial <<  endl << "WARN: HTTPD Page not found";
 
   String page = 
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 60px 0px;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Error":"Błąd";page+=" 404:</span> ";page+=Configuration.language[0]==101?"Page Not Found":"Strona nie została odnaleziona";page+=".</h4>"
     "</div>";
 
-  if (Configuration.debugger) Serial << server.uri() << " " << server.args() << endl;
+  if (Configuration.debugger) Serial <<  endl << "INFO: HTTPD " << server.uri() << " " << server.args();
   
   for (uint8_t i = 0; i < server.args(); i++) {
-   if (Configuration.debugger) Serial <<  server.argName(i) << ": " << server.arg(i) << endl;
+   if (Configuration.debugger) Serial << endl << "INFO: HTTPD " << server.argName(i) << ": " << server.arg(i);
   }
   generatePage(page,true,0);
 }
 
 void handleReboot() {
-  if (Configuration.debugger) Serial << "Server: rebooting device" << endl;
+  if (Configuration.debugger) Serial << endl << "WARN: HTTPD Rebooting device";
   String page =
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 60px 0px;\">";page+=Configuration.language[0]==101?"Rebooting is in progress":"Trwa restart";page+="</h4>"
