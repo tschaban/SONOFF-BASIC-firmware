@@ -13,12 +13,12 @@ Sonoff::Sonoff() {
 void Sonoff::run() {
 
   isConfigured();
-  
+
   SonoffFirmware Firmware;
   if (Firmware.upgraded()) {
     Firmware.update();
   }
-  
+
   Firmware = {};
 
   if (Configuration.mode == MODE_SWITCH) {
@@ -30,7 +30,7 @@ void Sonoff::run() {
   }
 }
 
-/* It removed configuration */
+/* It resets configuration */
 void Sonoff::reset() {
   Eeprom.erase();
   ESP.restart();
@@ -51,45 +51,72 @@ void Sonoff::toggle() {
 
 /* Connecting to WiFi */
 void Sonoff::connectWiFi() {
+  uint8_t connection_try = 0;
+
   WiFi.hostname(Configuration.device_name);
   WiFi.begin(Configuration.wifi_ssid, Configuration.wifi_password);
+  if (Configuration.debugger) Serial << endl << "INFO: WiFi connection status: " << WiFi.status();
   if (Configuration.debugger) Serial << endl << "INFO: Connecting to WiFi: " << Configuration.wifi_ssid;
+
   Button.stop(); // Turning off button while connecting to WiFi
-  if (Configuration.debugger) Serial << endl;
   while (WiFi.status() != WL_CONNECTED) {
-    if (Configuration.debugger) Serial << ".";
+    connection_try++;
+    if (Configuration.debugger) Serial << endl << "INFO: Connection attempt: " << connection_try << " from " << CONNECTION_TRY;
     delay(CONNECTION_WAIT_TIME);
+
+    if (connection_try == CONNECTION_TRY) {
+      runSleepMode();
+      break;
+    }
   }
   Button.start();  // Turning on button while connecting to WiFi
-  if (Configuration.debugger) Serial << endl << "INFO: Connected";
-  if (Configuration.debugger) Serial << endl << "INFO: IP: " << WiFi.localIP();
+  if (Configuration.debugger) {
+    if (!Configuration.sleep_mode) {
+      Serial << endl << "INFO: Connected";
+      Serial << endl << "INFO: IP: " << WiFi.localIP();
+    } else {
+      Serial << endl << "WARN: Not Connected";
+    }
+  }
 }
 
 
 void Sonoff::listener() {
-  if (Configuration.mode == MODE_SWITCH) {
-    if (Configuration.interface == INTERFACE_MQTT) {
-      if (WiFi.status() == WL_CONNECTED) {
-        if (!Mqtt.connected()) {
-          Led.on();
-          Button.stop(); // If not connected to Mqtt, turn off button
-          Mqtt.connect();
-          Button.start(); // If not connected to Mqtt, turn off button
-          setRelayAfterConnectingToMQTT();
-          Led.off();
+  if (!Configuration.sleep_mode) {
+    if (Configuration.mode == MODE_SWITCH) {
+      if (Configuration.interface == INTERFACE_MQTT) {
+        if (WiFi.status() == WL_CONNECTED) {
+          if (!Mqtt.connected()) {
+            Led.on();
+            Button.stop(); // If not connected to Mqtt, turn off button
+            Mqtt.connect();
+            Button.start(); // If not connected to Mqtt, turn off button
+            setRelayAfterConnectingToMQTT();
+            Led.off();
+          }
+          Mqtt.loop();
+        } else {
+          runSleepMode(); // Not connected to WiFi
         }
-        Mqtt.loop();
+      } else if (Configuration.interface == INTERFACE_HTTP) {
+        if (WiFi.status() == WL_CONNECTED) {
+          server.handleClient();
+        } else {
+          runSleepMode(); // Not connected to WiFi
+        }
       }
-    } else if (Configuration.interface == INTERFACE_HTTP) {
+    } else if (Configuration.mode == MODE_CONFIGURATION) {
+      if (WiFi.status() == WL_CONNECTED) {
+        server.handleClient();
+      } else {
+        runSleepMode(); // Not connected to WiFi
+      }
+    } else if (Configuration.mode == MODE_ACCESSPOINT) {
+      dnsServer.processNextRequest();
       server.handleClient();
+    } else {
+      if (Configuration.debugger) Serial << endl << "ERROR: Internal Application Error";
     }
-  } else if (Configuration.mode == MODE_CONFIGURATION) {
-    server.handleClient();
-  } else if (Configuration.mode == MODE_ACCESSPOINT) {
-    dnsServer.processNextRequest();
-    server.handleClient();
-  } else {
-    if (Configuration.debugger) Serial << endl << "ERROR: Internal Application Error";
   }
 }
 
@@ -105,15 +132,26 @@ void Sonoff::publishTemperature(float temperature) {
     Mqtt.publish((char*)"temperature", temperatureString);
     previousTemperature = temperature;
   }
-
 }
 
+void Sonoff::stopSleepMode() {
+  sleepModeTimer.detach();
+  if (Configuration.debugger) Serial <<  endl << "INFO: Sleep mode turned off";
+}
 
 /* Private methods */
 
 
 
 /* Method: launch into swich mode */
+void Sonoff::runSleepMode() {
+  if (Configuration.debugger) Serial << endl << "WARN: Going to sleep mode";
+  Configuration.sleep_mode = true;
+  Led.startBlinking(1);
+  sleepModeTimer.attach(10, callbackSleepMode);
+}
+
+
 void Sonoff::runSwitch() {
   Led.on();
   if (Configuration.debugger) Serial << endl << "INFO: Device mode: SWITCH";
@@ -198,12 +236,17 @@ boolean Sonoff::isConfigured() {
 }
 
 
-
 void callbackDS18B20() {
   SonoffDS18B20 Temperature;
   float temperature = Temperature.get();
-
   Sonoff.publishTemperature(temperature);
 }
 
-
+void callbackSleepMode() {
+  if (Configuration.debugger) Serial << endl << "INFO: Checking if connected to WiFi.";
+  if (WiFi.status() == WL_CONNECTED) {
+    Configuration.sleep_mode = false;
+    Led.stopBlinking();
+    Sonoff.stopSleepMode();
+  }
+}

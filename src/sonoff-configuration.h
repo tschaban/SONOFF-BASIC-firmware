@@ -9,7 +9,10 @@
 #define _sonoff_configuration_h
 
 /* Configuration parameters */
-#define   CONNECTION_WAIT_TIME 500
+#define   CONNECTION_WAIT_TIME 1000
+#define   CONNECTION_TRY     10
+
+
 #define   MODE_SWITCH 0
 #define   MODE_CONFIGURATION 1
 #define   MODE_ACCESSPOINT 2
@@ -37,6 +40,7 @@
 #define   GPIO_1 1
 #define   GPIO_3 3
 #define   GPIO_14 14
+
 
 struct DEFAULTS {
   char          version[8] = "0.8.0";
@@ -79,6 +83,8 @@ struct SONOFFCONFIG {
   boolean       switch_present;
   uint8_t       switch_sensitiveness;
   uint8_t       switch_gpio;
+
+  boolean       sleep_mode = false;
 
   boolean       debugger;
 };
