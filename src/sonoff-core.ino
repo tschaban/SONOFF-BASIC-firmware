@@ -61,10 +61,9 @@ void Sonoff::connectWiFi() {
   Button.stop(); // Turning off button while connecting to WiFi
   while (WiFi.status() != WL_CONNECTED) {
     connection_try++;
-    if (Configuration.debugger) Serial << endl << "INFO: Connection attempt: " << connection_try << " from " << CONNECTION_TRY;
-    delay(CONNECTION_WAIT_TIME);
-
-    if (connection_try == CONNECTION_TRY) {
+    if (Configuration.debugger) Serial << endl << "INFO: WiFi connection attempt: " << connection_try << " from " << Configuration.number_connection_attempts;
+    delay(Configuration.duration_between_connection_attempts*1000);
+    if (connection_try == Configuration.number_connection_attempts) {
       runSleepMode();
       break;
     }
@@ -91,7 +90,7 @@ void Sonoff::listener() {
             Button.stop(); // If not connected to Mqtt, turn off button
             Mqtt.connect();
             Button.start(); // If not connected to Mqtt, turn off button
-            setRelayAfterConnectingToMQTT();
+            if (Mqtt.connected()) setRelayAfterConnectingToMQTT();
             Led.off();
           }
           Mqtt.loop();
@@ -148,7 +147,7 @@ void Sonoff::runSleepMode() {
   if (Configuration.debugger) Serial << endl << "WARN: Going to sleep mode";
   Configuration.sleep_mode = true;
   Led.startBlinking(1);
-  sleepModeTimer.attach(10, callbackSleepMode);
+  sleepModeTimer.attach(Configuration.duration_between_next_connection_attempts_series*60, callbackSleepMode);
 }
 
 

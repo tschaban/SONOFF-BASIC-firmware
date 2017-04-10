@@ -22,7 +22,7 @@ class Sonoff
     void runSwitch();
     void runConfigurationLAN();
     void runConfigurationAP();
-    void runSleepMode();
+
     boolean isConfigured();
     void postUpgradeCheck();
 
@@ -41,6 +41,7 @@ class Sonoff
     void listener();
     void setDS18B20Interval(unsigned int interval);
     void publishTemperature(float temperatur);
+    void runSleepMode();
     void stopSleepMode();
    
 

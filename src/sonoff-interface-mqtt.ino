@@ -19,22 +19,30 @@ void SonoffMQTTInterface::begin() {
 
 void SonoffMQTTInterface::connect() {
   char  mqttString[60];
+  uint8_t connection_try = 0;
 
   sprintf(mqttString, "Sonoff (Device name: %s)", Configuration.device_name);
   if (Configuration.debugger) Serial << endl << "INFO: Connecting to MQTT : " << Configuration.mqtt_host << ":" << Configuration.mqtt_port;
-  
-  while (!Broker.connected()) {    
+
+  while (!Broker.connected()) {
     if (Broker.connect(mqttString, Configuration.mqtt_user, Configuration.mqtt_password)) {
       if (Configuration.debugger) Serial << endl << "INFO: Connected";
       sprintf(mqttString, "%scmd", Configuration.mqtt_topic);
       Broker.subscribe(mqttString);
-      if (Configuration.debugger) Serial << endl << "INFO: Subsribed to : " << Configuration.mqtt_topic;      
+      if (Configuration.debugger) Serial << endl << "INFO: Subsribed to : " << Configuration.mqtt_topic;
     } else {
-      delay(CONNECTION_WAIT_TIME);
-      if (Configuration.debugger) Serial << endl << "INFO: MQTT connection status: " << Broker.state();
+      connection_try++;
+      if (Configuration.debugger) Serial << endl << "INFO: MQTT Connection attempt: " << connection_try << " from " << Configuration.number_connection_attempts;
+      if (connection_try == Configuration.number_connection_attempts) {
+        Sonoff.runSleepMode();
+        break;
+      }
+      delay(Configuration.duration_between_connection_attempts*1000);      
     }
   }
+  if (Configuration.debugger) Serial << endl << "INFO: MQTT connection status: " << Broker.state();
 }
+
 
 boolean SonoffMQTTInterface::connected() {
   return Broker.connected();
@@ -42,12 +50,12 @@ boolean SonoffMQTTInterface::connected() {
 
 void SonoffMQTTInterface::publish(char* type, char* message) {
   if (Broker.state() == MQTT_CONNECTED) {
-      char  mqttTopic[50];
-      sprintf(mqttTopic, "%s%s", Configuration.mqtt_topic,type);
-      Broker.publish(mqttTopic, message);
-      if (Configuration.debugger) Serial << endl << "INFO: MQTT publising to:  " << mqttTopic << "  \\ " << message;
+    char  mqttTopic[50];
+    sprintf(mqttTopic, "%s%s", Configuration.mqtt_topic, type);
+    Broker.publish(mqttTopic, message);
+    if (Configuration.debugger) Serial << endl << "INFO: MQTT publising to:  " << mqttTopic << "  \\ " << message;
   } else {
-      if (Configuration.debugger) Serial << endl << "WARN: MQTT not connected. State:  " << Broker.state();
+    if (Configuration.debugger) Serial << endl << "WARN: MQTT not connected. State:  " << Broker.state();
   }
 }
 
