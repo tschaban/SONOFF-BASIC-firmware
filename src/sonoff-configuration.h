@@ -9,10 +9,6 @@
 #define _sonoff_configuration_h
 
 /* Configuration parameters */
-#define   CONNECTION_WAIT_TIME 1000
-#define   CONNECTION_TRY     10
-
-
 #define   MODE_SWITCH 0
 #define   MODE_CONFIGURATION 1
 #define   MODE_ACCESSPOINT 2
@@ -54,6 +50,9 @@ struct DEFAULTS {
   boolean       switch_present = false;
   uint8_t       switch_sensitiveness = SWITCH_SENSITIVENESS_NORMAL;
   uint8_t       switch_gpio = GPIO_14;
+  uint8_t       number_connection_attempts = 20;
+  uint8_t       duration_between_connection_attempts = 1; // seconds
+  uint8_t       duration_between_next_connection_attempts_series = 1; // minutes
           
  };
 
@@ -83,6 +82,10 @@ struct SONOFFCONFIG {
   boolean       switch_present;
   uint8_t       switch_sensitiveness;
   uint8_t       switch_gpio;
+
+  uint8_t       number_connection_attempts;
+  uint8_t       duration_between_connection_attempts;
+  uint8_t       duration_between_next_connection_attempts_series;
 
   boolean       sleep_mode = false;
 

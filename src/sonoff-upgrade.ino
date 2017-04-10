@@ -91,6 +91,9 @@ void SonoffFirmware::v070() {
       String(Configuration.version) == "0.7.0")
   {
     Eeprom.saveInterface(1);
+    Eeprom.saveNumberConnectionAttempts(sonoffDefault.number_connection_attempts);
+    Eeprom.saveDurationBetweenConnectionAttempts(sonoffDefault.duration_between_connection_attempts);
+    Eeprom.saveDurationBetweenNextConnectionAttemptsSeries(sonoffDefault.duration_between_next_connection_attempts_series);
   }
 
 }

@@ -34,24 +34,28 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   read(142, 32).toCharArray(_temp.device_name, sizeof(_temp.device_name));
   read(232, 32).toCharArray(_temp.wifi_ssid, sizeof(_temp.wifi_ssid));
   read(264, 32).toCharArray(_temp.wifi_password, sizeof(_temp.wifi_password));
-  
+
   read(296, 32).toCharArray(_temp.mqtt_host, sizeof(_temp.mqtt_host));
   _temp.mqtt_port = read(328, 5).toInt();
   read(333, 32).toCharArray(_temp.mqtt_user, sizeof(_temp.mqtt_user));
   read(365, 32).toCharArray(_temp.mqtt_password, sizeof(_temp.mqtt_password));
   read(397, 32).toCharArray(_temp.mqtt_topic, sizeof(_temp.mqtt_topic));
 
-  _temp.interface = read(131, 1).toInt(); 
+  _temp.interface = read(131, 1).toInt();
 
-  _temp.ds18b20_present = (read(138, 1).toInt() == 1 ? true : false);  
-  _temp.ds18b20_correction = read(105, 5).toFloat();  
+  _temp.ds18b20_present = (read(138, 1).toInt() == 1 ? true : false);
+  _temp.ds18b20_correction = read(105, 5).toFloat();
   _temp.ds18b20_interval = read(110, 8).toInt();
 
-  _temp.switch_present = (read(126, 1).toInt() == 1 ? true : false);  
-  _temp.switch_sensitiveness = read(129, 1).toInt(); 
+  _temp.switch_present = (read(126, 1).toInt() == 1 ? true : false);
+  _temp.switch_sensitiveness = read(129, 1).toInt();
   _temp.switch_gpio = read(127, 2).toInt();
 
-  _temp.debugger = (read(130, 1).toInt() == 1 ? true : false); 
+  _temp.number_connection_attempts = read(132, 2).toInt();
+  _temp.duration_between_connection_attempts = read(134, 2).toInt();
+  _temp.duration_between_next_connection_attempts_series = read(136, 2).toInt();
+  
+  _temp.debugger = (read(130, 1).toInt() == 1 ? true : false);
 
   return _temp;
 }
@@ -182,6 +186,19 @@ void SonoffEEPROM::saveSwitchSensitiveness(uint8_t in) {
   write(129, 1, String(in));
 }
 
+
+
+void SonoffEEPROM::saveNumberConnectionAttempts(uint8_t in) {
+  write(132, 2, String(in));
+}
+void SonoffEEPROM::saveDurationBetweenConnectionAttempts(uint8_t in) {
+  write(134, 2, String(in));
+}
+void SonoffEEPROM::saveDurationBetweenNextConnectionAttemptsSeries(uint8_t in) {
+  write(136, 2, String(in));
+}
+
+
 void SonoffEEPROM::saveDebuggable(byte in) {
   write(130, 1, String(in));
 }
@@ -224,12 +241,16 @@ void SonoffEEPROM::setDefaults() {
 
   saveSwitchPresent(sonoffDefault.switch_present);
   saveSwitchGPIO(sonoffDefault.switch_gpio);
-  saveSwitchSensitiveness(sonoffDefault.switch_sensitiveness); 
+  saveSwitchSensitiveness(sonoffDefault.switch_sensitiveness);
+
+  saveNumberConnectionAttempts(sonoffDefault.number_connection_attempts);
+  saveDurationBetweenConnectionAttempts(sonoffDefault.duration_between_connection_attempts);
+  saveDurationBetweenNextConnectionAttemptsSeries(sonoffDefault.duration_between_next_connection_attempts_series);
 
   saveInterface(1);
 
-  saveDebuggable(0); 
-  
+  saveDebuggable(0);
+
 }
 
 

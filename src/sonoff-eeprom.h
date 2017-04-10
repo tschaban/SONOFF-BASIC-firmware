@@ -63,6 +63,10 @@ class SonoffEEPROM
     void saveSwitchGPIO(uint8_t in);
     void saveSwitchSensitiveness(uint8_t in);
 
+    void saveNumberConnectionAttempts(uint8_t in);
+    void saveDurationBetweenConnectionAttempts(uint8_t in);
+    void saveDurationBetweenNextConnectionAttemptsSeries(uint8_t in);
+
     void saveDebuggable(byte in);
     
     
