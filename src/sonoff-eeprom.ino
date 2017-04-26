@@ -247,7 +247,8 @@ void SonoffEEPROM::setDefaults() {
   saveDurationBetweenConnectionAttempts(sonoffDefault.duration_between_connection_attempts);
   saveDurationBetweenNextConnectionAttemptsSeries(sonoffDefault.duration_between_next_connection_attempts_series);
 
-  saveInterface(1);
+  /* Default interface to control swich is set to manual */
+  saveInterface(INTERFACE_NONE);
 
   saveDebuggable(0);
 
