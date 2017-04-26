@@ -26,10 +26,6 @@ void handleRoot() {
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">ID</td>"
-    "<td>: ";page+=Configuration.id;page+="</td>"
-    "</tr>"
-    "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Name":"Nazwa";page+="</td>"
     "<td>: ";page+=Configuration.device_name;page+="</td>"
     "</tr>"
@@ -53,16 +49,19 @@ void handleRoot() {
     "</tr>"
     "</table>"
     "</div>"
-    "<div class=\"section\">MQTT Broker</div>"
+    "<div class=\"section\">Interface</div>"
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
-    "<td class=\"label\">Host</td>"
-    "<td>: ";page+=Configuration.mqtt_host;page+=":";  page += Configuration.mqtt_port;page+="</td>"
-    "</tr>"
-    "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"MQTT Topic":"Temat";page+="</td>"
-    "<td>: ";page+=Configuration.mqtt_topic;page+="</td>"
+    "<td>";
+    if (Configuration.interface==INTERFACE_NONE) {
+        page+=Configuration.language[0]==101?"Manual control":"Sterowanie ręczne";
+    } else if (Configuration.interface==INTERFACE_MQTT) {
+      page+=Configuration.language[0]==101?"MQTT Protocol":"Protokół MQTT";
+    } else if (Configuration.interface==INTERFACE_HTTP) {
+      page+=Configuration.language[0]==101?"HTTP Protocol":"Protokół HTTP";
+    }
+    page+="</td>"
     "</tr>"
     "</table>"
     "</div>"
@@ -74,19 +73,8 @@ void handleRoot() {
     "<td>: "; 
     page += Configuration.ds18b20_present?Configuration.language[0]==101?"Yes":"Tak":Configuration.language[0]==101?"No":"Nie";
     page += "</td>"
-    "</tr>";
-    if (Configuration.ds18b20_present) {
-      page += 
-      "<tr>"
-      "<td class=\"label\">";page+=Configuration.language[0]==101?"Correction":"Korekta";page+="</td>"
-      "<td>: ";page+=Configuration.ds18b20_correction;page+="</td>"
-      "</tr>"
-      "<tr>"
-      "<td class=\"label\">";page+=Configuration.language[0]==101?"Interval":"Częstotliwość odczytu";page+="</td>"
-      "<td>: ";page+=Configuration.ds18b20_interval;page+="s.</td>"
-      "</tr>";
-    }
-    page += "</table>"
+    "</tr>"
+    "</table>"
     "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"External switch":"Zewnętrzny przełącznik";page+="</div>"
     "<div class=\"section-content\">"
@@ -96,53 +84,10 @@ void handleRoot() {
     "<td>: "; 
     page += Configuration.switch_present?Configuration.language[0]==101?"Yes":"Tak":Configuration.language[0]==101?"No":"Nie";
     page += "</td>"
-    "</tr>";
-    if (Configuration.switch_present) {
-      page += 
-      "<tr>"
-      "<td class=\"label\">GPIO</td>"
-      "<td>: ";page+=Configuration.switch_gpio;page+="</td>"
-      "</tr>";
-    }
-    page += "</table>"
-    "</div>"
-
-    
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Relay":"Przekaźnik";page+="</div>"
-    "<div class=\"section-content\">"
-    "<table>"
-    "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After power is restored relay is to":"Po przywróceniu zasilania przekaźnik jest ustawiony na";page+="</td>"
-    "<td>:  "; 
-
-    if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_ON) {
-        page += Configuration.language[0]==101?"ON":"Włączony";
-    } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_OFF) {
-        page += Configuration.language[0]==101?"OFF":"Wyłączony";
-    } else if (Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN) {
-        page += Configuration.language[0]==101?"Last known":"Ostatnia zapamiętana wartość";
-    }
-    
-    page += "</td>"
     "</tr>"
-    "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT Broker is restored relay is set to":"Po przywróceniu połączenia do brokera MQTT, przekaźnik jest ustawiony na";page+="</td>"
-    "<td>: "; 
-
-    if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON) {
-        page += Configuration.language[0]==101?"ON":"Włączony";
-    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_OFF) {
-        page += Configuration.language[0]==101?"OFF":"Wyłączony";
-    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_LAST_KNOWN) {
-        page += Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";
-    } else if (Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER) {
-        page += Configuration.language[0]==101?"Server value":"Wartość z serwera";
-    }
-    
-    page += "</td>"
-    "</tr>"    
     "</table>"
-    "</div>";
+    "</div>";    
+
 
   generatePage(page,true,0);
 }
@@ -222,6 +167,23 @@ void handleConfiguration() {
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Topic":"Temat";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\"";page+=Configuration.mqtt_topic;page+="\" /></td>"
+    "</tr>"
+    "</table>"
+    "</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Network connection's configuraton":"Konfiguracja połączeń sieciowych";page+=":</div>"
+    "<div class=\"section-content\">"
+    "<table>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"How many times try to connect to WiFI / MQTT Broker":"Liczba prób łączenia się z WiFi / MQTT Brokerem";page+="</td>"
+    "<td>: <input type=\"number\" name=\"no_of_connection_attempts\" length=2 value=\"";page+=Configuration.number_connection_attempts;page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Duration between connection attempts [sec]":"Przerwa miedzy próbami łączenia się [sek]";page+="</td>"
+    "<td>: <input type=\"number\" name=\"duration_between_connection_attempts\" length=2 value=\"";page+=Configuration.duration_between_connection_attempts;page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Duraton between next series of connections' attempts [min]":"Przerwa miedzy kolejna serią prób łączenia się [min]";page+="</td>"
+    "<td>: <input type=\"number\" name=\"duration_between_next_series_of_connection_attempts\" length=2 value=\"";page+=Configuration.duration_between_next_connection_attempts_series;page+="\" /></td>"
     "</tr>"
     "</table>"
     "</div>"
@@ -412,18 +374,29 @@ void handleSave() {
   }
 
   if (server.arg("switch_sensitiveness").length() > 0 ) {
+  if (server.arg("debugger").length() > 0 ) {
     Eeprom.saveSwitchSensitiveness(server.arg("switch_sensitiveness").toInt());
   }
 
-  if (server.arg("debugger").length() > 0 ) {
     Eeprom.saveDebuggable(1);
   } else {
     if (Eeprom.debuggable()) {
       Eeprom.saveDebuggable(0);
     }
   }
-  
 
+  if (server.arg("no_of_connection_attempts").length() > 0 ) {
+    Eeprom.saveNumberConnectionAttempts(server.arg("no_of_connection_attempts").toInt());
+  }
+
+  if (server.arg("duration_between_connection_attempts").length() > 0 ) {
+    Eeprom.saveDurationBetweenConnectionAttempts(server.arg("duration_between_connection_attempts").toInt());
+  }
+
+  if (server.arg("duration_between_next_series_of_connection_attempts").length() > 0 ) {
+    Eeprom.saveDurationBetweenNextConnectionAttemptsSeries(server.arg("duration_between_next_series_of_connection_attempts").toInt());
+  }
+  
   Configuration = Eeprom.getConfiguration();
 
   String page =
@@ -501,7 +474,7 @@ void handleReboot() {
 
 void handleReset() {
   String page =
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przeĹ‚Ä…cznika";page+="</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przelacznika";page+="</div>"
     "<div class=\"section-content\">"  
     "<h4 style=\"margin: 40px 0 10px 0;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"WaĹĽne";page+=": </span> ";page+=Configuration.language[0]==101?"Sonoff will be to its default values. You will loose connecton with Sonoff":"Sonoff zostanie zresetowany do wartości początkowych. Utracisz z nim połączenie.";page+=".</h4>"
     "<p>";page+=Configuration.language[0]==101?"Connect to WiFi":"Podłacz się do WiFi o nazwie ";page+=": <strong>";page+=Configuration.device_name;page+="</strong> ";page+=Configuration.language[0]==101?"from your computer or smartphone then open":"ze swojego komputera lub smartfonu, a następnie otwórz ";page+=" "
@@ -543,7 +516,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   "<body>"
   "<div class=\"container\">"
   "<div class=\"header\">"
-  "<a href=\"/\"><img src=\"data:image/png;base64,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\"></a> BASIC"
+  "<a href=\"/\"><img src=\"data:image/png;base64,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\"></a> AFE Firmware"
   "</div>";
 
   if (navigation) {
@@ -561,7 +534,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   _page+=page;
   
   _page+="<div class=\"header\"><p>"; 
-  _page+=Configuration.language[0]==101?"Firmware version":"Wersja firmware"; 
+  _page+=Configuration.language[0]==101?"AFE Firmware version":"Wersja firmware AFE"; 
   _page+=": " + String(Configuration.version) + "</p>"
   "<ul>";
   _page+=Configuration.language[0]==101 ? 
@@ -571,10 +544,10 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   _page+="<li><a href=\"http://smart-house.adrian.czabanowski.com/forum/firmware-do-przelacznika-sonoff/\" target=\"_blank\">"; 
   _page+=Configuration.language[0]==101?"Support":"Wsparcie";_page+="</a></li>";
         
-  _page+="<li><a href=\"https://github.com/tschaban/SONOFF-firmware\" target=\"_blank\">GitHub</a></li>"
-  
+  _page+="<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware\" target=\"_blank\">GitHub</a></li>"  
   "<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware/blob/master/LICENSE\" target=\"_blank\">";   
-  _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkownika";page+="</a></li>"
+  
+  _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkownika";_page+="</a></li>"
   "</ul>"
   "</div>"
   "</div>"
