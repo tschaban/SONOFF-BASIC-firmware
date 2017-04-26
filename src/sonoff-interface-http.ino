@@ -22,7 +22,6 @@ void handeHTTPInterfaceRequests() {
   String _status = "{'status':'success'}";
   
   if (server.args()==1) {
-      ESP.restart();
     if (server.arg(0)=="on") {
       Relay.on();
     } else if (server.arg(0)=="off") {
@@ -30,6 +29,7 @@ void handeHTTPInterfaceRequests() {
     } else if (server.arg(0)=="configurationMode") {
       Sonoff.toggle();
     } else if (server.arg(0)=="reboot") {
+       ESP.restart();
     } else {
       _status = "{'status':'not implemented'}";
     }   
