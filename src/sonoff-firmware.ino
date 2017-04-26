@@ -71,6 +71,10 @@ void setup() {
     Serial << "   - User: " << Configuration.mqtt_user << endl;
     Serial << "   - Password: " << Configuration.mqtt_password << endl;
     Serial << "   - Topic: " << Configuration.mqtt_topic <<  endl;
+    Serial << " - Connections: "  << endl;
+    Serial << "   - Number connection attempts: " << Configuration.number_connection_attempts << endl;
+    Serial << "   - Duration between connection attempts [sec]: " << Configuration.duration_between_connection_attempts << endl;    
+    Serial << "   - Duration between next connection series [min]: " << Configuration.duration_between_next_connection_attempts_series << endl;   
     Serial << " - DS18B20 Sensor: " << endl;
     Serial << "   - Present: " << Configuration.ds18b20_present << endl;
     Serial << "   - Temp correctin: " << Configuration.ds18b20_correction << endl;
@@ -86,7 +90,6 @@ void setup() {
   }
 
   Sonoff.run();
-
 }
 
 void loop() {
