@@ -14,13 +14,14 @@ void Sonoff::run() {
 
   isConfigured();
 
+  /* Code checing if firmware has been upgraded */
   SonoffFirmware Firmware;
   if (Firmware.upgraded()) {
     Firmware.update();
   }
-
   Firmware = {};
 
+  /* Launch one of the 3 switch modes */
   if (Configuration.mode == MODE_SWITCH) {
     runSwitch();
   } else if (Configuration.mode == MODE_CONFIGURATION) {
@@ -79,7 +80,7 @@ void Sonoff::connectWiFi() {
   }
 }
 
-
+/* Main loop method */
 void Sonoff::listener() {
   if (!Configuration.sleep_mode) {
     if (Configuration.mode == MODE_SWITCH) {
@@ -186,10 +187,15 @@ void Sonoff::runConfigurationLAN() {
   if (Configuration.debugger) Serial << endl << "INFO: Device mode: LAN Configuration";
   WiFi.mode(WIFI_STA);
   connectWiFi();
-  startHttpServer();
+  if (!Configuration.sleep_mode) {
+    startHttpServer();    
+    Led.startBlinking(0.1);
+    if (Configuration.debugger) Serial << endl << "INFO: Ready for configuration. Open http://" << WiFi.localIP();
+  } else {     
+     if (Configuration.debugger) Serial << endl << "WARN: Not connected to WiFi - configuration is not possible. Try Access Point mode - press button for 12s";
+     toggle();
+  } 
   WiFi.mode(WIFI_STA);
-  if (Configuration.debugger) Serial << endl << "INFO: Ready for configuration. Open http://" << WiFi.localIP();
-  Led.startBlinking(0.1);
 }
 
 void Sonoff::runConfigurationAP() {
@@ -227,7 +233,7 @@ void Sonoff::setRelayAfterConnectingToMQTT() {
 }
 
 boolean Sonoff::isConfigured() {
-  if (Configuration.wifi_ssid[0] == (char) 0 || Configuration.wifi_password[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 || Configuration.mqtt_host[0] == (char) 0 ) {
+  if (Configuration.wifi_ssid[0] == (char) 0 || Configuration.wifi_password[0] == (char) 0) {
     if (Configuration.debugger) Serial << endl << "WARN: Missing configuration. Going to configuration mode.";
     Eeprom.saveMode(MODE_ACCESSPOINT);
     Configuration = Eeprom.getConfiguration();
