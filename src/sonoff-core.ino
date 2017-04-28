@@ -159,8 +159,7 @@ void Sonoff::runSwitch() {
     WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
     connectWiFi();
     if (Configuration.interface == INTERFACE_HTTP) {
-      HttpInterface.begin();
-      Led.off();
+      HttpInterface.begin();      
     } else if (Configuration.interface == INTERFACE_MQTT) {
       Mqtt.begin();
     }
@@ -169,7 +168,6 @@ void Sonoff::runSwitch() {
       if (Configuration.debugger) Serial << endl << "INFO: Starting DS18B20";
       setDS18B20Interval(Configuration.ds18b20_interval);
     } else {
-
       if (Configuration.debugger) Serial << endl << "INFO: DS18B20 not present";
     }
   }
@@ -180,6 +178,8 @@ void Sonoff::runSwitch() {
   } else {
     if (Configuration.debugger) Serial << endl << "INFO: External switch not present";
   }
+
+  Led.off();
 }
 
 void Sonoff::runConfigurationLAN() {
@@ -243,8 +243,8 @@ boolean Sonoff::isConfigured() {
 
 void callbackDS18B20() {
   SonoffDS18B20 Temperature;
-  float temperature = Temperature.get();
-  Sonoff.publishTemperature(temperature);
+//  float temperature = Temperature.get();
+//  Sonoff.publishTemperature(temperature);
 }
 
 void callbackSleepMode() {
