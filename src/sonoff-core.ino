@@ -243,8 +243,8 @@ boolean Sonoff::isConfigured() {
 
 void callbackDS18B20() {
   SonoffDS18B20 Temperature;
-//  float temperature = Temperature.get();
-//  Sonoff.publishTemperature(temperature);
+  float temperature = Temperature.get();
+  Sonoff.publishTemperature(temperature);
 }
 
 void callbackSleepMode() {
