@@ -373,11 +373,11 @@ void handleSave() {
     Eeprom.saveSwitchGPIO(server.arg("switch_gpio").toInt());
   }
 
-  if (server.arg("switch_sensitiveness").length() > 0 ) {
-  if (server.arg("debugger").length() > 0 ) {
+  if (server.arg("switch_sensitiveness").length() > 0 ) {  
     Eeprom.saveSwitchSensitiveness(server.arg("switch_sensitiveness").toInt());
   }
-
+  
+  if (server.arg("debugger").length() > 0 ) {
     Eeprom.saveDebuggable(1);
   } else {
     if (Eeprom.debuggable()) {
