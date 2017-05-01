@@ -9,6 +9,20 @@
 
 
 # Change log
+**0.8.1 (2017-04-29)**
+* Defect fix: DS18B20 not launching
+* Defect fix: Debugger flag was not saved
+
+**0.8.0 (2017-04-28)**
+* Added possibility to control Sonoff with HTTP protocol
+* Added possibility to turn off Sonoff control by MQTT or HTTP protocol. Manual control is possible
+* Changed the name of Exit link to Exit configuration
+* MQTT comment to reboot Sonoff changed from reset to reboot
+* Defect fix: Wrong error formating while upgrading sonoff with failure
+* Defect fix: relay value not request each time when connection established to MQTT Broker
+* Changed mechanism for WiFi and MQTT connection establishing. It increases Sonoff stability
+* Couple of small UI changes 
+
 
 **0.7.0 (2017-03-18)**
 * Added possibility to control sonoff with external switch
