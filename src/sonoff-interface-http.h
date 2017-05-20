@@ -10,7 +10,6 @@
 
 class SonoffHTTPInterface {
   private:  
-    
       
   public:
     SonoffHTTPInterface();

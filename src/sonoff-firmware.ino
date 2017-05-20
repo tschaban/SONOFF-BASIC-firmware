@@ -12,7 +12,6 @@
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-
 #include "Streaming.h"
 #include "sonoff-configuration.h"
 #include "sonoff-core.h"
@@ -24,6 +23,7 @@
 #include "sonoff-ota.h"
 #include "sonoff-interface-mqtt.h"
 #include "sonoff-interface-http.h"
+#include "sonoff-interface-domoticz.h"
 
 
 DEFAULTS sonoffDefault;
@@ -38,14 +38,15 @@ ESP8266HTTPUpdateServer httpUpdater;
 OneWire wireProtocol(SENSOR_DS18B20);
 DallasTemperature DS18B20(&wireProtocol);
 
-SonoffEEPROM          Eeprom;
-SonoffRelay           Relay;
-SonoffButton          Button;
-SonoffSwitch          Switch;
-SonoffLED             Led;
-SonoffMQTTInterface   Mqtt;
-SonoffHTTPInterface   HttpInterface;
-Sonoff                Sonoff;
+SonoffEEPROM            Eeprom;
+SonoffRelay             Relay;
+SonoffButton            Button;
+SonoffSwitch            Switch;
+SonoffLED               Led;
+SonoffMQTTInterface     MqttInterface;
+SonoffHTTPInterface     HttpInterface;
+SonoffDomoticzInterface DomoticzInterface;
+Sonoff                  Sonoff;
 
 void setup() {
 
@@ -66,11 +67,12 @@ void setup() {
     Serial << " - WiFi:" <<  endl;
     Serial << "   - SSID: " << Configuration.wifi_ssid << endl;
     Serial << "   - Password: " << Configuration.wifi_password << endl;
-    Serial << " - MQTT: "  << endl;
+    Serial << " - MQTT or Domoticz: "  << endl;
     Serial << "   - Port: " << Configuration.mqtt_port << endl;
     Serial << "   - User: " << Configuration.mqtt_user << endl;
     Serial << "   - Password: " << Configuration.mqtt_password << endl;
-    Serial << "   - Topic: " << Configuration.mqtt_topic <<  endl;
+    Serial << "   - MQTT Topic: " << Configuration.mqtt_topic <<  endl; 
+    Serial << "   - DomoticzIDX:  " << Configuration.domoticz_idx <<  endl; 
     Serial << " - Connections: "  << endl;
     Serial << "   - Number connection attempts: " << Configuration.number_connection_attempts << endl;
     Serial << "   - Duration between connection attempts [sec]: " << Configuration.duration_between_connection_attempts << endl;    
@@ -87,6 +89,8 @@ void setup() {
     Serial << "   - State: " << Eeprom.getRelayState() << endl;
     Serial << "   - Post power restore : " << Eeprom.getRelayStateAfterPowerRestored() << endl;
     Serial << "   - Post reconnection to MQTT : " << Eeprom.getRelayStateAfterConnectionRestored() << endl;
+    Serial << "   - Publish state to Domoticz : " << Configuration.domoticz_publish_relay_state << endl;    
+    
   }
 
   Sonoff.run();

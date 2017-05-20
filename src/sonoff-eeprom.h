@@ -50,7 +50,7 @@ class SonoffEEPROM
     void saveMQTTPort(unsigned int in);
     void saveMQTTUser(String in);
     void saveMQTTPassword(String in);
-    void saveMQTTTopic(String in);
+    void saveMQTTTopic(String in);    
     void saveMode(uint8_t in); /* Look at MODE_... defined */
     void saveTemperatureCorrection(float in);
     void saveTemperatureInterval(unsigned int in);
@@ -58,6 +58,9 @@ class SonoffEEPROM
     void saveRelayState(uint8_t in);
     void saveRelayStateAfterPowerRestored(uint8_t in);
     void saveRelayStateAfterConnectionRestored(uint8_t in);
+ 
+    void saveDomoticzIDX(unsigned int in);
+    void saveDomoticzRelayStatePublish(uint8_t in);
 
     void saveSwitchPresent(uint8_t in);
     void saveSwitchGPIO(uint8_t in);

@@ -57,6 +57,9 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   
   _temp.debugger = (read(130, 1).toInt() == 1 ? true : false);
 
+  _temp.domoticz_publish_relay_state = (read(432, 1).toInt() == 1 ? true : false);
+  _temp.domoticz_idx = read(429, 3).toInt();
+
   return _temp;
 }
 
@@ -202,6 +205,16 @@ void SonoffEEPROM::saveDurationBetweenNextConnectionAttemptsSeries(uint8_t in) {
 void SonoffEEPROM::saveDebuggable(byte in) {
   write(130, 1, String(in));
 }
+
+void SonoffEEPROM::saveDomoticzIDX(unsigned int in) {
+  write(429, 3, String(in));
+}
+
+void SonoffEEPROM::saveDomoticzRelayStatePublish(uint8_t in) {
+    write(432, 1, String(in));
+}
+
+
 
 void SonoffEEPROM::erase() {
   if (Configuration.debugger) Serial << endl << "WARN: Erasing EEPROM";

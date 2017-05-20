@@ -145,7 +145,7 @@ void handleConfiguration() {
     "</tr>"
     "</table>"   
     "</div>"      
-    "<div class=\"section\">";page+=Configuration.language[0]==101?"MQTT Broker configuration":"Konfiguracja MQTT Brokera";page+=":</div>"
+    "<div class=\"section\">";page+=Configuration.language[0]==101?"MQTT Broker or <span style='color: blue'>Domoticz server</span> configuration":"Konfiguracja MQTT Brokera lub <span style='color: blue'>serwera Domoticz</span>";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
     "<tr>"
@@ -165,8 +165,12 @@ void handleConfiguration() {
     "<td>: <input type=\"text\" name=\"mqtt_password\" length=32 value=\"";page+=Configuration.mqtt_password;page+="\" /></td>"
     "</tr>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"Topic":"Temat";page+="<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Topic (only for MQTT)":"Temat (tylko dla MQTT)";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\"";page+=Configuration.mqtt_topic;page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"IDX (only for Domoticz)":"IDX (tylko dla Domoticz)";page+="<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"number\" name=\"domoticz_idx\" length=3 value=\"";page+=Configuration.domoticz_idx;page+="\" /></td>"
     "</tr>"
     "</table>"
     "</div>"
@@ -264,6 +268,14 @@ void handleConfiguration() {
     "<option value=\"4\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Server value":"Wartość z serwera";page+="</option>"
     "</select></td>"
     "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Send state to Domoticz":"Wysyłaj stan do Domoticz";page+="?<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"checkbox\" name=\"sent_relay_state_domoticz\" length=1 value=\"1\"";
+  if (Configuration.domoticz_publish_relay_state) {
+    page += " checked ";
+  }
+  page += "\" /></td>"
+    "</tr>"    
     "</table>"
     "</div>"
     "<div class=\"section\">Debugger:</div>"
@@ -396,6 +408,15 @@ void handleSave() {
   if (server.arg("duration_between_next_series_of_connection_attempts").length() > 0 ) {
     Eeprom.saveDurationBetweenNextConnectionAttemptsSeries(server.arg("duration_between_next_series_of_connection_attempts").toInt());
   }
+
+  if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
+    Eeprom.saveDomoticzRelayStatePublish(server.arg("sent_relay_state_domoticz").toInt());
+  }
+
+  if (server.arg("domoticz_idx").length() > 0 ) {
+    Eeprom.saveDomoticzIDX(server.arg("domoticz_idx").toInt());
+  }
+
   
   Configuration = Eeprom.getConfiguration();
 

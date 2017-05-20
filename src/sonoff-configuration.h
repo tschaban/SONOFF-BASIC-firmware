@@ -39,7 +39,7 @@
 
 
 struct DEFAULTS {
-  char          version[8] = "0.8.1";
+  char          version[8] = "0.8.7";
   float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
@@ -88,6 +88,9 @@ struct SONOFFCONFIG {
   uint8_t       duration_between_next_connection_attempts_series;
 
   boolean       sleep_mode = false;
+
+  unsigned int  domoticz_idx;
+  boolean       domoticz_publish_relay_state;
 
   boolean       debugger;
 };

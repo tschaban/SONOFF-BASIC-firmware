@@ -63,7 +63,7 @@ void Sonoff::connectWiFi() {
   while (WiFi.status() != WL_CONNECTED) {
     connection_try++;
     if (Configuration.debugger) Serial << endl << "INFO: WiFi connection attempt: " << connection_try << " from " << Configuration.number_connection_attempts;
-    delay(Configuration.duration_between_connection_attempts*1000);
+    delay(Configuration.duration_between_connection_attempts * 1000);
     if (connection_try == Configuration.number_connection_attempts) {
       runSleepMode();
       break;
@@ -86,21 +86,24 @@ void Sonoff::listener() {
     if (Configuration.mode == MODE_SWITCH) {
       if (Configuration.interface == INTERFACE_MQTT) {
         if (WiFi.status() == WL_CONNECTED) {
-          if (!Mqtt.connected()) {
+          if (!MqttInterface.connected()) {
             Led.on();
             Button.stop(); // If not connected to Mqtt, turn off button
-            Mqtt.connect();
+            MqttInterface.connect();
             Button.start(); // If not connected to Mqtt, turn off button
-            if (Mqtt.connected()) setRelayAfterConnectingToMQTT();
+            if (MqttInterface.connected()) setRelayAfterConnectingToMQTT();
             Led.off();
           }
-          Mqtt.loop();
+          MqttInterface.loop();
         } else {
           runSleepMode(); // Not connected to WiFi
         }
       } else if (Configuration.interface == INTERFACE_HTTP) {
         if (WiFi.status() == WL_CONNECTED) {
           server.handleClient();
+          if (Configuration.domoticz_publish_relay_state) {
+            DomoticzInterface.pushRequest(); // If calls URL to Domotoczu with eg status of switch
+          }
         } else {
           runSleepMode(); // Not connected to WiFi
         }
@@ -129,7 +132,7 @@ void Sonoff::publishTemperature(float temperature) {
   if (previousTemperature != temperature) {
     char  temperatureString[6];
     dtostrf(temperature, 2, 2, temperatureString);
-    Mqtt.publish((char*)"temperature", temperatureString);
+    MqttInterface.publish((char*)"temperature", temperatureString);
     previousTemperature = temperature;
   }
 }
@@ -148,7 +151,7 @@ void Sonoff::runSleepMode() {
   if (Configuration.debugger) Serial << endl << "WARN: Going to sleep mode";
   Configuration.sleep_mode = true;
   Led.startBlinking(1);
-  sleepModeTimer.attach(Configuration.duration_between_next_connection_attempts_series*60, callbackSleepMode);
+  sleepModeTimer.attach(Configuration.duration_between_next_connection_attempts_series * 60, callbackSleepMode);
 }
 
 
@@ -159,9 +162,12 @@ void Sonoff::runSwitch() {
     WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
     connectWiFi();
     if (Configuration.interface == INTERFACE_HTTP) {
-      HttpInterface.begin();      
+      HttpInterface.begin();
+      if (Configuration.domoticz_publish_relay_state) {
+        DomoticzInterface.begin();
+      }
     } else if (Configuration.interface == INTERFACE_MQTT) {
-      Mqtt.begin();
+      MqttInterface.begin();
     }
     WiFi.mode(WIFI_STA);
     if (Configuration.ds18b20_present) {
@@ -188,13 +194,13 @@ void Sonoff::runConfigurationLAN() {
   WiFi.mode(WIFI_STA);
   connectWiFi();
   if (!Configuration.sleep_mode) {
-    startHttpServer();    
+    startHttpServer();
     Led.startBlinking(0.1);
     if (Configuration.debugger) Serial << endl << "INFO: Ready for configuration. Open http://" << WiFi.localIP();
-  } else {     
-     if (Configuration.debugger) Serial << endl << "WARN: Not connected to WiFi - configuration is not possible. Try Access Point mode - press button for 12s";
-     toggle();
-  } 
+  } else {
+    if (Configuration.debugger) Serial << endl << "WARN: Not connected to WiFi - configuration is not possible. Try Access Point mode - press button for 12s";
+    toggle();
+  }
   WiFi.mode(WIFI_STA);
 }
 
@@ -228,7 +234,7 @@ void Sonoff::setRelayAfterConnectingToMQTT() {
       Relay.off();
     }
   } else  {
-    Mqtt.publish((char*)"state", (char*)"defaultState");
+    MqttInterface.publish((char*)"state", (char*)"defaultState");
   }
 }
 
