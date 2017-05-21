@@ -63,6 +63,16 @@ void  SonoffMQTTInterface::loop() {
   Broker.loop();
 }
 
+
+void SonoffMQTTInterface::publishRelayState() {
+  if (Relay.get() == LOW) {
+    publish((char*)"state", (char*)"OFF");
+  } else {
+    publish((char*)"state", (char*)"ON");
+  }
+}
+
+
 /* Callback of MQTT Broker, it listens for messages */
 void callbackMQTT(char* topic, byte* payload, unsigned int length) {
   Led.blink();
@@ -76,7 +86,7 @@ void callbackMQTT(char* topic, byte* payload, unsigned int length) {
       Relay.off();
     } else if ((char)payload[2] == 'p') { // reportState
       if (Configuration.debugger) Serial << " reportState";
-      Relay.publish();
+      MqttInterface.publishRelayState();
     } else if ((char)payload[2] == 'b') { // reboot
       if (Configuration.debugger) Serial << " reboot";
       ESP.restart();

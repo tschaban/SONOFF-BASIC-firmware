@@ -269,7 +269,7 @@ void handleConfiguration() {
     "</select></td>"
     "</tr>"
     "<tr>"
-    "<td class=\"label\">";page+=Configuration.language[0]==101?"Send state to Domoticz":"Wysyłaj stan do Domoticz";page+="?<sup class=\"red\">*</sup></td>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Send state to Domoticz by HTTP":"Wysyłaj stan do Domoticz przez HTTP";page+="?<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"checkbox\" name=\"sent_relay_state_domoticz\" length=1 value=\"1\"";
   if (Configuration.domoticz_publish_relay_state) {
     page += " checked ";
@@ -410,8 +410,17 @@ void handleSave() {
   }
 
   if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
-    Eeprom.saveDomoticzRelayStatePublish(server.arg("sent_relay_state_domoticz").toInt());
+    
   }
+
+  if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
+    Eeprom.saveDomoticzRelayStatePublish(1);
+  } else {
+    if (Configuration.domoticz_publish_relay_state) {
+      Eeprom.saveDomoticzRelayStatePublish(0);
+    }
+  }
+  
 
   if (server.arg("domoticz_idx").length() > 0 ) {
     Eeprom.saveDomoticzIDX(server.arg("domoticz_idx").toInt());

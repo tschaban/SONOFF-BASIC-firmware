@@ -1,8 +1,8 @@
 /*
- SONOFF BASIC: firmware
- More info: https://github.com/tschaban/SONOFF-BASIC-firmware
- LICENCE: http://opensource.org/licenses/MIT
- 2017-03-18 tschaban https://github.com/tschaban
+  SONOFF BASIC: firmware
+  More info: https://github.com/tschaban/SONOFF-BASIC-firmware
+  LICENCE: http://opensource.org/licenses/MIT
+  2017-03-18 tschaban https://github.com/tschaban
 */
 
 
@@ -45,6 +45,11 @@ boolean SonoffSwitch::delay() {
 void callbackSwitch() {
   if (Switch.stateChange()) {
     Relay.toggle();
+    if (Configuration.interface == INTERFACE_MQTT) {
+      MqttInterface.publishRelayState();
+    } else if (Configuration.interface == INTERFACE_HTTP && Configuration.domoticz_publish_relay_state) { // Publish change to Domoticz if configured
+      DomoticzInterface.publishRelayState(Relay.get());
+    }
   }
 }
 

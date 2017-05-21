@@ -10,19 +10,19 @@
 
 class SonoffDomoticzInterface {
   private:
-    char*         server;
-    unsigned int  port;
-    unsigned int  idx;
-
-    String url;
+    char*         server;   // Domoticz IP
+    unsigned int  port;     // Domoticz port
+    unsigned int  idx;      // Device IDX in Domoticz
+    String url;             // State updatre url       
+    bool doRequest = false; // Turns On/Off URL calling mechanism. It's turned ononly if url should be requested
        
-    bool doRequest = false;
       
   public:
     SonoffDomoticzInterface();
     void begin();
     void publishRelayState(uint8_t in);
-    void pushRequest();
+    void pushRequest();     // Methods calls url from server:port when doRequest is true
+    
 };
 #endif
 

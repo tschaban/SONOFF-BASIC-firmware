@@ -21,6 +21,7 @@ class SonoffMQTTInterface {
     void publish(char* type, char* message);
     boolean connected();
     void loop();
+    void publishRelayState();
 
 };
 #endif

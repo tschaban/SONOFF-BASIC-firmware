@@ -21,7 +21,6 @@ class SonoffRelay
     void on();
     void off();
     void toggle();
-    void publish();
 };
 #endif
 

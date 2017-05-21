@@ -34,12 +34,7 @@ void SonoffRelay::on() {
   if (get() == RELAY_OFF) {
     digitalWrite(RELAY, HIGH);
     Eeprom.saveRelayState(RELAY_ON);
-    if (Configuration.debugger) Serial << endl << "INFO: Relay set to ON";
-
-    if (Configuration.interface == INTERFACE_MQTT) {
-      publish();
-    } 
-    
+    if (Configuration.debugger) Serial << endl << "INFO: Relay set to ON";    
   }
   Led.blink();
 }
@@ -50,9 +45,6 @@ void SonoffRelay::off() {
     digitalWrite(RELAY, LOW);
     Eeprom.saveRelayState(RELAY_OFF);
     if (Configuration.debugger) Serial << endl << "INFO: Relay set to OFF";
-    if (Configuration.interface == INTERFACE_MQTT) {
-      publish();
-    } 
   }
   Led.blink();
 }
@@ -66,11 +58,4 @@ void SonoffRelay::toggle() {
   }
 }
 
-void SonoffRelay::publish() {
-  if (digitalRead(RELAY) == LOW) {
-    MqttInterface.publish((char*)"state", (char*)"OFF");
-  } else {
-    MqttInterface.publish((char*)"state", (char*)"ON");
-  }
-}
 

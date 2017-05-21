@@ -63,12 +63,14 @@ void callbackButton() {
       ESP.restart();
     }
   } else {
-    if (Configuration.mode == MODE_SWITCH && Button.relayTrigger()) { // short press
+    if (Configuration.mode == MODE_SWITCH && Button.relayTrigger()) { // short press. Relay state change
       Relay.toggle();
-      if (Configuration.domoticz_publish_relay_state) {
+      if (Configuration.interface == INTERFACE_MQTT) {
+         MqttInterface.publishRelayState();
+      } else if (Configuration.interface == INTERFACE_HTTP && Configuration.domoticz_publish_relay_state) { // Publish change to Domoticz if configured
         DomoticzInterface.publishRelayState(Relay.get());
       }
-    } else if (Button.configurationTrigger()) { // 4-6 sec
+    } else if (Button.configurationTrigger()) { // 4-6 sec 
       Sonoff.toggle();
     }
     Button.reset();
