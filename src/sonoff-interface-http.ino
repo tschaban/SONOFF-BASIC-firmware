@@ -33,6 +33,12 @@ void handeHTTPInterfaceRequests() {
       Sonoff.toggle();
     } else if (server.arg(0) == "reboot") {
       ESP.restart();
+    } else if (server.arg(0) == "reportStatus") {
+      if (Relay.get()==RELAY_ON) {
+          _status = "{'status','ON'}";
+      } else {
+          _status = "{'status','OFF'}";
+      }    
     } else {
       _status = "{'status':'not implemented'}";
     }
