@@ -228,11 +228,18 @@ void handleConfiguration() {
           "</tr>"
           "<tr>"
           "<td class=\"label\">GPIO</td>"
-          
           "<td>: <select name=\"switch_gpio\" length=2>"
           "<option value=\"1\""; page+=Eeprom.getSwitchGPIO()==GPIO_1 ?" selected=\"selected\"":"";page+=">GPIO 1</option>"
           "<option value=\"3\""; page+=Eeprom.getSwitchGPIO()==GPIO_3 ?" selected=\"selected\"":"";page+=">GPIO 3</option>"
           "<option value=\"14\""; page+=Eeprom.getSwitchGPIO()==GPIO_14 ?" selected=\"selected\"":"";page+=">GPIO 14</option>"
+          "</select></td>"
+          "</tr>"
+          
+          "<tr>"
+          "<td class=\"label\">";page+=Configuration.language[0]==101?"Switch type":"Typ przełącznika";page+="</td>"
+          "<td>: <select name=\"switch_type\" length=2>"
+          "<option value=\"0\""; page+=Eeprom.getSwitchType()==SWITCH_BI ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Bistable":"Bistabilny";page+="</option>"
+          "<option value=\"1\""; page+=Eeprom.getSwitchType()==SWITCH_MONO ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Monostable":"Monostabilny";page+="</option>"
           "</select></td>"
           
           "</tr>"
@@ -385,6 +392,10 @@ void handleSave() {
     Eeprom.saveSwitchGPIO(server.arg("switch_gpio").toInt());
   }
 
+  if (server.arg("switch_type").length() > 0 ) {
+    Eeprom.saveSwitchType(server.arg("switch_type").toInt());
+  }
+  
   if (server.arg("switch_sensitiveness").length() > 0 ) {  
     Eeprom.saveSwitchSensitiveness(server.arg("switch_sensitiveness").toInt());
   }

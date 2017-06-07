@@ -12,8 +12,9 @@
 SonoffSwitch::SonoffSwitch() {
 }
 
-void SonoffSwitch::init(uint8_t gpio) {
+void SonoffSwitch::init(uint8_t gpio, uint8_t type) {
   _gpio = gpio;
+  _type = type;
   if (_gpio != GPIO_14) { /* Turn off Serial */
     Serial.swap();
   }
@@ -28,7 +29,9 @@ boolean SonoffSwitch::stateChange() {
     counter++;
   } else if (state != !digitalRead(_gpio) and delay()) {
     counter = 0;
-    state = !state;
+    if (_type == SWITCH_BI) { /* alter the switch state only for bistable switches */ 
+      state = !state; 
+    }
     _ret = true;
   } else {
     counter = 0;

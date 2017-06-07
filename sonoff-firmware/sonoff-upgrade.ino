@@ -28,6 +28,7 @@ void SonoffFirmware::update() {
   v050();
   v061();
   v070();
+  v089();
 
   Configuration = Eeprom.getConfiguration();
 }
@@ -95,6 +96,16 @@ void SonoffFirmware::v070() {
     Eeprom.saveDurationBetweenConnectionAttempts(sonoffDefault.duration_between_connection_attempts);
     Eeprom.saveDurationBetweenNextConnectionAttemptsSeries(sonoffDefault.duration_between_next_connection_attempts_series);
   }
+}
 
+// version 0.8.9 introduced switch_type
+void SonoffFirmware::v089() {
+  if (String(Configuration.version) == "0.3.2" ||
+      String(Configuration.version) == "0.4.0" ||
+      String(Configuration.version) == "0.5.0" ||
+      String(Configuration.version) == "0.6.1" ||
+      String(Configuration.version) == "0.7.0") {
+    Eeprom.saveSwitchType(sonoffDefault.switch_type);
+  }
 }
 

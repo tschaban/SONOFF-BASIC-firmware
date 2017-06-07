@@ -50,7 +50,7 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   _temp.switch_present = (read(126, 1).toInt() == 1 ? true : false);
   _temp.switch_sensitiveness = read(129, 1).toInt();
   _temp.switch_gpio = read(127, 2).toInt();
-
+  _temp.switch_type = read(174, 2).toInt();
   _temp.number_connection_attempts = read(132, 2).toInt();
   _temp.duration_between_connection_attempts = read(134, 2).toInt();
   _temp.duration_between_next_connection_attempts_series = read(136, 2).toInt();
@@ -98,6 +98,10 @@ boolean SonoffEEPROM::isSwitchPresent() {
 
 uint8_t SonoffEEPROM::getSwitchGPIO() {
   return read(127, 2).toInt();
+}
+
+uint8_t SonoffEEPROM::getSwitchType() {
+  return read(174, 2).toInt();
 }
 
 uint8_t SonoffEEPROM::getSwitchSensitiveness() {
@@ -185,6 +189,10 @@ void SonoffEEPROM::saveSwitchGPIO(uint8_t in) {
   write(127, 2, String(in));
 }
 
+void SonoffEEPROM::saveSwitchType(uint8_t in) {
+  write(174, 2, String(in));
+}
+
 void SonoffEEPROM::saveSwitchSensitiveness(uint8_t in) {
   write(129, 1, String(in));
 }
@@ -254,6 +262,7 @@ void SonoffEEPROM::setDefaults() {
 
   saveSwitchPresent(sonoffDefault.switch_present);
   saveSwitchGPIO(sonoffDefault.switch_gpio);
+  saveSwitchType(sonoffDefault.switch_type);
   saveSwitchSensitiveness(sonoffDefault.switch_sensitiveness);
 
   saveNumberConnectionAttempts(sonoffDefault.number_connection_attempts);

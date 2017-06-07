@@ -84,6 +84,7 @@ void setup() {
     Serial << " - External switch " << endl;
     Serial << "   - Present: " << Configuration.switch_present << endl;
     Serial << "   - GPIO: " << Configuration.switch_gpio << endl;
+    Serial << "   - Type: " << Configuration.switch_type << endl;
     Serial << "   - Sensitivness: " << Configuration.switch_sensitiveness << endl;
     Serial << " - Relay " << endl;    
     Serial << "   - State: " << Eeprom.getRelayState() << endl;

@@ -17,10 +17,11 @@ class SonoffSwitch
     boolean state;
     unsigned long counter = 0;
     uint8_t _gpio;
+    uint8_t _type;
     
   public:
     SonoffSwitch(); 
-    void init(uint8_t gpio);
+    void init(uint8_t gpio, uint8_t type);
     boolean stateChange();
     boolean delay();   
 };

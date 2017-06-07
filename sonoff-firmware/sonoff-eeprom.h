@@ -36,6 +36,7 @@ class SonoffEEPROM
 
     boolean isSwitchPresent();
     uint8_t getSwitchGPIO();
+    uint8_t getSwitchType();
     uint8_t getSwitchSensitiveness();
 
     boolean debuggable();
@@ -64,6 +65,7 @@ class SonoffEEPROM
 
     void saveSwitchPresent(uint8_t in);
     void saveSwitchGPIO(uint8_t in);
+    void saveSwitchType(uint8_t in);    
     void saveSwitchSensitiveness(uint8_t in);
 
     void saveNumberConnectionAttempts(uint8_t in);

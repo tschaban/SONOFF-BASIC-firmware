@@ -180,7 +180,7 @@ void Sonoff::runSwitch() {
 
   if (Configuration.switch_present) { /* Run external switch if configured */
     if (Configuration.debugger) Serial << endl << "INFO: Initiating external switch";
-    Switch.init(Configuration.switch_gpio);
+    Switch.init(Configuration.switch_gpio, Configuration.switch_type);
   } else {
     if (Configuration.debugger) Serial << endl << "INFO: External switch not present";
   }
