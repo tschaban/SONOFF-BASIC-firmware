@@ -16,7 +16,8 @@ class SonoffFirmware {
     void v050();
     void v061();
     void v070();
-      
+    void v089();
+     
   public:
     SonoffFirmware();
     boolean upgraded();

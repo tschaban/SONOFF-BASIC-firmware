@@ -37,9 +37,11 @@
 #define   GPIO_3 3
 #define   GPIO_14 14
 
+#define   SWITCH_BI     0
+#define   SWITCH_MONO   1
 
 struct DEFAULTS {
-  char          version[8] = "0.8.8";
+  char          version[8] = "0.8.9";
   float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
@@ -50,6 +52,7 @@ struct DEFAULTS {
   boolean       switch_present = false;
   uint8_t       switch_sensitiveness = SWITCH_SENSITIVENESS_NORMAL;
   uint8_t       switch_gpio = GPIO_14;
+  uint8_t       switch_type = SWITCH_BI;
   uint8_t       number_connection_attempts = 20;
   uint8_t       duration_between_connection_attempts = 1; // seconds
   uint8_t       duration_between_next_connection_attempts_series = 1; // minutes
@@ -82,6 +85,7 @@ struct SONOFFCONFIG {
   boolean       switch_present;
   uint8_t       switch_sensitiveness;
   uint8_t       switch_gpio;
+  uint8_t       switch_type;
 
   uint8_t       number_connection_attempts;
   uint8_t       duration_between_connection_attempts;
