@@ -11,6 +11,7 @@
 # Change log
 **0.8.9 (2017-06-08)**
 * Added option to select the type of external switch (mono- or bistable) on configuration screen
+* Added option to publish relay status to Domoticz
 
 **0.8.1 (2017-04-29)**
 * Defect fix: DS18B20 not launching
