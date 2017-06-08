@@ -104,7 +104,8 @@ void SonoffFirmware::v089() {
       String(Configuration.version) == "0.4.0" ||
       String(Configuration.version) == "0.5.0" ||
       String(Configuration.version) == "0.6.1" ||
-      String(Configuration.version) == "0.7.0") {
+      String(Configuration.version) == "0.7.0" ||
+      String(Configuration.version) == "0.8.7") {
     Eeprom.saveSwitchType(sonoffDefault.switch_type);
   }
 }
