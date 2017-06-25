@@ -29,6 +29,7 @@ void SonoffFirmware::update() {
   v061();
   v070();
   v089();
+  v090();
 
   Configuration = Eeprom.getConfiguration();
 }
@@ -105,9 +106,26 @@ void SonoffFirmware::v089() {
       String(Configuration.version) == "0.5.0" ||
       String(Configuration.version) == "0.6.1" ||
       String(Configuration.version) == "0.7.0" ||
+      String(Configuration.version) == "0.8.0" ||
+      String(Configuration.version) == "0.8.1" ||
       String(Configuration.version) == "0.8.7" ||
       String(Configuration.version) == "0.8.8") {
     Eeprom.saveSwitchType(sonoffDefault.switch_type);
   }
 }
 
+// version 0.9.0 introduced auto OFF for relay
+void SonoffFirmware::v090() {
+  if (String(Configuration.version) == "0.3.2" ||
+      String(Configuration.version) == "0.4.0" ||
+      String(Configuration.version) == "0.5.0" ||
+      String(Configuration.version) == "0.6.1" ||
+      String(Configuration.version) == "0.7.0" ||
+      String(Configuration.version) == "0.8.0" ||
+      String(Configuration.version) == "0.8.1" ||
+      String(Configuration.version) == "0.8.7" ||
+      String(Configuration.version) == "0.8.8" ||
+      String(Configuration.version) == "0.8.9") {
+    Eeprom.saveRelayAutoOffTime(sonoffDefault.relay_auto_off_time);
+  }
+}

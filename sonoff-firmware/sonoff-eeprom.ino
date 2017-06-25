@@ -59,7 +59,8 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
 
   _temp.domoticz_publish_relay_state = (read(432, 1).toInt() == 1 ? true : false);
   _temp.domoticz_idx = read(429, 3).toInt();
-
+  _temp.relay_auto_off_time = read(176, 5).toInt();
+  
   return _temp;
 }
 
@@ -91,6 +92,9 @@ uint8_t SonoffEEPROM::getRelayStateAfterConnectionRestored() {
   return read(125, 1).toInt();
 }
 
+unsigned int SonoffEEPROM::getRelayAutoOffTime() {
+  return read(176, 5).toInt();
+}
 
 boolean SonoffEEPROM::isSwitchPresent() {
   return (read(126, 1).toInt() == 1 ? true : false);
@@ -151,6 +155,10 @@ void SonoffEEPROM::saveRelayStateAfterPowerRestored(uint8_t in) {
 
 void SonoffEEPROM::saveRelayStateAfterConnectionRestored(uint8_t in) {
   write(125, 1, String(in));
+}
+
+void SonoffEEPROM::saveRelayAutoOffTime(unsigned int in) {
+  write(176, 5, String(in));
 }
 
 void SonoffEEPROM::saveWiFiSSID(String in) {
@@ -258,6 +266,8 @@ void SonoffEEPROM::setDefaults() {
   saveRelayState(0);
   saveRelayStateAfterPowerRestored(sonoffDefault.relay_state_after_power_restored);
   saveRelayStateAfterConnectionRestored(sonoffDefault.relay_state_after_connection_restored);
+  saveRelayAutoOffTime(sonoffDefault.relay_auto_off_time);
+  
   saveLanguage(sonoffDefault.language);
 
   saveSwitchPresent(sonoffDefault.switch_present);

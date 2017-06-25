@@ -26,9 +26,10 @@ class SonoffEEPROM
 
     SONOFFCONFIG getConfiguration();
    
-    uint8_t getRelayState();
-    uint8_t getRelayStateAfterPowerRestored();
-    uint8_t getRelayStateAfterConnectionRestored();
+    uint8_t  getRelayState();
+    uint8_t  getRelayStateAfterPowerRestored();
+    uint8_t  getRelayStateAfterConnectionRestored();
+    unsigned int getRelayAutoOffTime();
     
     boolean isDS18B20Present();
     float   DS18B20Correction();
@@ -59,6 +60,7 @@ class SonoffEEPROM
     void saveRelayState(uint8_t in);
     void saveRelayStateAfterPowerRestored(uint8_t in);
     void saveRelayStateAfterConnectionRestored(uint8_t in);
+    void saveRelayAutoOffTime(unsigned int in);
  
     void saveDomoticzIDX(unsigned int in);
     void saveDomoticzRelayStatePublish(uint8_t in);

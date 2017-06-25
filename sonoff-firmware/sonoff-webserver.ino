@@ -283,6 +283,10 @@ void handleConfiguration() {
   }
   page += "\" /></td>"
     "</tr>"    
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Relay auto power off [sec]":"Automatyczne wyłączanie przekaźnika [sek]";page+="</td>"
+    "<td>: <input type=\"number\" name=\"relay_auto_off_time\" length=5 value=\"";page+=Configuration.relay_auto_off_time;page+="\" /></td>"
+    "</tr>"
     "</table>"
     "</div>"
     "<div class=\"section\">Debugger:</div>"
@@ -421,17 +425,22 @@ void handleSave() {
   }
 
   if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
-    
-  }
-
-  if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
     Eeprom.saveDomoticzRelayStatePublish(1);
   } else {
     if (Configuration.domoticz_publish_relay_state) {
       Eeprom.saveDomoticzRelayStatePublish(0);
     }
   }
-  
+
+  if (server.arg("relay_auto_off_time").length() > 0) {
+    if (server.arg("relay_auto_off_time").toInt() > 99999 ) {
+      Eeprom.saveRelayAutoOffTime(99999);
+    } else if (server.arg("relay_auto_off_time").toInt() < 0 ) {
+      Eeprom.saveRelayAutoOffTime(0);
+    } else {
+      Eeprom.saveRelayAutoOffTime(server.arg("relay_auto_off_time").toInt());
+    }
+  }
 
   if (server.arg("domoticz_idx").length() > 0 ) {
     Eeprom.saveDomoticzIDX(server.arg("domoticz_idx").toInt());

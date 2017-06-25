@@ -14,7 +14,8 @@
 class SonoffRelay
 {
   private:
-   
+    Ticker autoOffTimer;
+    
   public:
     SonoffRelay();
     uint8_t get();

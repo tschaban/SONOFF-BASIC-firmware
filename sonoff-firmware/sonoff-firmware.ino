@@ -88,10 +88,10 @@ void setup() {
     Serial << "   - Sensitivness: " << Configuration.switch_sensitiveness << endl;
     Serial << " - Relay " << endl;    
     Serial << "   - State: " << Eeprom.getRelayState() << endl;
+    Serial << "   - Auto OFF time [s]: " << Eeprom.getRelayAutoOffTime() << endl;
     Serial << "   - Post power restore : " << Eeprom.getRelayStateAfterPowerRestored() << endl;
     Serial << "   - Post reconnection to MQTT : " << Eeprom.getRelayStateAfterConnectionRestored() << endl;
     Serial << "   - Publish state to Domoticz : " << Configuration.domoticz_publish_relay_state << endl;    
-    
   }
 
   Sonoff.run();

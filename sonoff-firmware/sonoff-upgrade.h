@@ -17,6 +17,7 @@ class SonoffFirmware {
     void v061();
     void v070();
     void v089();
+    void v090();
      
   public:
     SonoffFirmware();

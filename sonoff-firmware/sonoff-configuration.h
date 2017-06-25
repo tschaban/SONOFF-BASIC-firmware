@@ -41,22 +41,25 @@
 #define   SWITCH_MONO   1
 
 struct DEFAULTS {
-  char          version[8] = "0.8.9";
+  char          version[8] = "0.9.0";
   float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
   unsigned int  temp_interval = 600;
   boolean       temp_present = false; 
+  
   uint8_t       relay_state_after_power_restored = DEFAULT_RELAY_LAST_KNOWN;
   uint8_t       relay_state_after_connection_restored = DEFAULT_RELAY_SERVER;
+  unsigned int  relay_auto_off_time = 0;  /* '0' means auto-off disabled, max value: 99999 */
+  
   boolean       switch_present = false;
   uint8_t       switch_sensitiveness = SWITCH_SENSITIVENESS_NORMAL;
   uint8_t       switch_gpio = GPIO_14;
   uint8_t       switch_type = SWITCH_BI;
+  
   uint8_t       number_connection_attempts = 20;
   uint8_t       duration_between_connection_attempts = 1; // seconds
   uint8_t       duration_between_next_connection_attempts_series = 1; // minutes
-          
  };
 
 
@@ -82,11 +85,14 @@ struct SONOFFCONFIG {
   float         ds18b20_correction;
   unsigned int  ds18b20_interval;
   boolean       ds18b20_present;
+  
   boolean       switch_present;
   uint8_t       switch_sensitiveness;
   uint8_t       switch_gpio;
   uint8_t       switch_type;
 
+  unsigned int  relay_auto_off_time;
+  
   uint8_t       number_connection_attempts;
   uint8_t       duration_between_connection_attempts;
   uint8_t       duration_between_next_connection_attempts_series;
