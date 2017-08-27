@@ -21,7 +21,7 @@ void startHttpServer() {
 
 void handleRoot() {
   if (Configuration.debugger) Serial << endl << "INFO: HTTPD Main page requested";
-  String page = 
+  String page =
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device information":"Informacje o urządzeniu";page+="</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -70,7 +70,7 @@ void handleRoot() {
     "<table>"
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Present?":"Podłączony?";page+="</td>"
-    "<td>: "; 
+    "<td>: ";
     page += Configuration.ds18b20_present?Configuration.language[0]==101?"Yes":"Tak":Configuration.language[0]==101?"No":"Nie";
     page += "</td>"
     "</tr>"
@@ -81,12 +81,12 @@ void handleRoot() {
     "<table>"
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Connected?":"Podłączony?";page+="</td>"
-    "<td>: "; 
+    "<td>: ";
     page += Configuration.switch_present?Configuration.language[0]==101?"Yes":"Tak":Configuration.language[0]==101?"No":"Nie";
     page += "</td>"
     "</tr>"
     "</table>"
-    "</div>";    
+    "</div>";
 
 
   generatePage(page,true,0);
@@ -95,7 +95,7 @@ void handleRoot() {
 void handleConfiguration() {
 
   if (Configuration.debugger) Serial << endl << "INFO: HTTPD Configuration requested";
-  
+
   String page =
     "<form action=\"/save\"  method=\"post\">"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Language":"Język";page+=":</div>"
@@ -108,8 +108,8 @@ void handleConfiguration() {
     "<option value=\"pl\"";page+=Configuration.language[0]!=101?" selected=\"selected\"":"";page+=">Polski</option>"
     "</select></td>"
     "</tr>"
-    "</table>"   
-    "</div>"  
+    "</table>"
+    "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device name":"Nazwa przełącznika";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -117,7 +117,7 @@ void handleConfiguration() {
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Name":"Nazwa";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"device_name\" length=32 value=\"";page+=Configuration.device_name;page+="\" /></td>"
     "</tr>"
-    "</table>"      
+    "</table>"
     "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"WiFi configuration":"Konfiguracja WiFi";page+=":</div>"
     "<div class=\"section-content\">"
@@ -129,6 +129,27 @@ void handleConfiguration() {
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Password":"Hasło";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"wifi_password\" length=32 value=\"";page+=Configuration.wifi_password;page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"IP":"IP";page+="<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"number\" name=\"ip0\" length=3 value=\"";page+=Configuration.network_ip[0];page+="\" />"
+    "<input type=\"number\" name=\"ip1\" length=3 value=\"";page+=Configuration.network_ip[1];page+="\" />"
+    "<input type=\"number\" name=\"ip2\" length=3 value=\"";page+=Configuration.network_ip[2];page+="\" />"
+    "<input type=\"number\" name=\"ip3\" length=3 value=\"";page+=Configuration.network_ip[3];page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Subnet mask":"Maska sieci";page+="<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"number\" name=\"subnet_ip0\" length=3 value=\"";page+=Configuration.subnet_ip[0];page+="\" />"
+    "<input type=\"number\" name=\"subnet_ip1\" length=3 value=\"";page+=Configuration.subnet_ip[1];page+="\" />"
+    "<input type=\"number\" name=\"subnet_ip2\" length=3 value=\"";page+=Configuration.subnet_ip[2];page+="\" />"
+    "<input type=\"number\" name=\"subnet_ip3\" length=3 value=\"";page+=Configuration.subnet_ip[3];page+="\" /></td>"
+    "</tr>"
+    "<tr>"
+    "<td class=\"label\">";page+=Configuration.language[0]==101?"Gateway":"Brama";page+="<sup class=\"red\">*</sup></td>"
+    "<td>: <input type=\"number\" name=\"gateway_ip0\" length=3 value=\"";page+=Configuration.gateway_ip[0];page+="\" />"
+    "<input type=\"number\" name=\"gateway_ip1\" length=3 value=\"";page+=Configuration.gateway_ip[1];page+="\" />"
+    "<input type=\"number\" name=\"gateway_ip2\" length=3 value=\"";page+=Configuration.gateway_ip[2];page+="\" />"
+    "<input type=\"number\" name=\"gateway_ip3\" length=3 value=\"";page+=Configuration.gateway_ip[3];page+="\" /></td>"
     "</tr>"
     "</table>"
     "</div>"
@@ -143,8 +164,8 @@ void handleConfiguration() {
     "<option value=\"2\"";page+=Configuration.interface==2?" selected=\"selected\"":"";page+=">HTTP</option>"
     "</select></td>"
     "</tr>"
-    "</table>"   
-    "</div>"      
+    "</table>"
+    "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"MQTT Broker or <span style='color: blue'>Domoticz server</span> configuration":"Konfiguracja MQTT Brokera lub <span style='color: blue'>serwera Domoticz</span>";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -212,7 +233,7 @@ void handleConfiguration() {
           "<td>: <input type=\"text\" name=\"temp_interval\" length=8 value=\"";page+=Configuration.ds18b20_interval;page+="\" /></td>"
           "</tr>"
           "</table>";
-          
+
    page += "</div>"
     "<div class=\"section\">";page+=Configuration.language[0]==101?"External switch configuration":"Konfiguracja zewnętrznego przełącznika";page+=":</div>"
     "<div class=\"section-content\">"
@@ -234,14 +255,14 @@ void handleConfiguration() {
           "<option value=\"14\""; page+=Eeprom.getSwitchGPIO()==GPIO_14 ?" selected=\"selected\"":"";page+=">GPIO 14</option>"
           "</select></td>"
           "</tr>"
-          
+
           "<tr>"
           "<td class=\"label\">";page+=Configuration.language[0]==101?"Switch type":"Typ przełącznika";page+="</td>"
           "<td>: <select name=\"switch_type\" length=2>"
           "<option value=\"0\""; page+=Eeprom.getSwitchType()==SWITCH_BI ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Bistable":"Bistabilny";page+="</option>"
           "<option value=\"1\""; page+=Eeprom.getSwitchType()==SWITCH_MONO ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Monostable":"Monostabilny";page+="</option>"
           "</select></td>"
-          
+
           "</tr>"
           "<tr>"
           "<td class=\"label\">";page+=Configuration.language[0]==101?"Sensitiveness":"Czułość";page+="</td>"
@@ -252,9 +273,9 @@ void handleConfiguration() {
           "</select></td>"
           "</tr>"
           "</table>";
-          
+
    page += "</div>"
-   
+
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Relay configuration":"Konfiguracja przekaźnika";page+=":</div>"
     "<div class=\"section-content\">"
     "<table>"
@@ -282,7 +303,7 @@ void handleConfiguration() {
     page += " checked ";
   }
   page += "\" /></td>"
-    "</tr>"    
+    "</tr>"
     "</table>"
     "</div>"
     "<div class=\"section\">Debugger:</div>"
@@ -295,13 +316,13 @@ void handleConfiguration() {
     page += " checked ";
   }
 
-  page += "\" /></td>"    
+  page += "\" /></td>"
     "</tr>"
     "</table>"
-    "</div>"  
+    "</div>"
 
 
-    
+
     "<div class=\"section\"></div>"
     "<div class=\"section-content\">";
   page += "<input class=\"submit\" type=\"submit\" value=\"";page+=Configuration.language[0]==101?"Save":"Zapisz";page+="\" />"
@@ -395,11 +416,11 @@ void handleSave() {
   if (server.arg("switch_type").length() > 0 ) {
     Eeprom.saveSwitchType(server.arg("switch_type").toInt());
   }
-  
-  if (server.arg("switch_sensitiveness").length() > 0 ) {  
+
+  if (server.arg("switch_sensitiveness").length() > 0 ) {
     Eeprom.saveSwitchSensitiveness(server.arg("switch_sensitiveness").toInt());
   }
-  
+
   if (server.arg("debugger").length() > 0 ) {
     Eeprom.saveDebuggable(1);
   } else {
@@ -420,9 +441,18 @@ void handleSave() {
     Eeprom.saveDurationBetweenNextConnectionAttemptsSeries(server.arg("duration_between_next_series_of_connection_attempts").toInt());
   }
 
-  if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
-    
+  if (server.arg("ip0").length() > 0 && server.arg("ip1").length() > 0 && server.arg("ip2").length() > 0 && server.arg("ip3").length() > 0 ) {
+      Eeprom.writeIP(8,IPAddress(server.arg("ip0").toInt(),server.arg("ip1").toInt(),server.arg("ip2").toInt(),server.arg("ip3").toInt()));
   }
+
+  if (server.arg("subnet_ip0").length() > 0 && server.arg("subnet_ip1").length() > 0 && server.arg("subnet_ip2").length() > 0 && server.arg("subnet_ip3").length() > 0 ) {
+      Eeprom.writeIP(12,IPAddress(server.arg("subnet_ip0").toInt(),server.arg("subnet_ip1").toInt(),server.arg("subnet_ip2").toInt(),server.arg("subnet_ip3").toInt()));
+  }
+
+  if (server.arg("gateway_ip0").length() > 0 && server.arg("gateway_ip1").length() > 0 && server.arg("gateway_ip2").length() > 0 && server.arg("gateway_ip3").length() > 0 ) {
+      Eeprom.writeIP(8,IPAddress(server.arg("gateway_ip0").toInt(),server.arg("gateway_ip1").toInt(),server.arg("gateway_ip2").toInt(),server.arg("gateway_ip3").toInt()));
+  }
+
 
   if (server.arg("sent_relay_state_domoticz").length() > 0 ) {
     Eeprom.saveDomoticzRelayStatePublish(1);
@@ -431,17 +461,17 @@ void handleSave() {
       Eeprom.saveDomoticzRelayStatePublish(0);
     }
   }
-  
+
 
   if (server.arg("domoticz_idx").length() > 0 ) {
     Eeprom.saveDomoticzIDX(server.arg("domoticz_idx").toInt());
   }
 
-  
+
   Configuration = Eeprom.getConfiguration();
 
   String page =
-    "<div class=\"section-content\">"  
+    "<div class=\"section-content\">"
     "<h3 style=\"margin: 60px 0px;\">";page+=Configuration.language[0]==101?"Configuration has been successfully saved":"Konfiguracja została zapisana";page+="</h3>"
     "<p style='margin-bottom:70px;'><a href=\"/reboot\">";page+=Configuration.language[0]==101?"Exit":"Wyjdź";page+="</a> ";page+=Configuration.language[0]==101?"configuration to apply all changes":"z konfiguracji, aby zastosować wykonane zmiany";page+="</p>"
     "</div>";
@@ -465,38 +495,38 @@ void handleUpgrade() {
       "<input class='submit' type='submit' value='";page+=Configuration.language[0]==101?"Upgrade":"Wgraj";page+="'>"
       "</div>"
       "</form>";
-      
+
        generatePage(page,true,0);
 }
 
 void handleUpgradeCompleted(boolean status) {
-    
+
     String page =
       "<div class=\"section\">";page+=Configuration.language[0]==101?"Firmware upgrade":"Aktualizacja oprogramowania";page+=":</div>"
       "<div class=\"section-content\">"
       "<div style='margin:60px 0'>";
-  
-      
-      
-      page += status ? (Configuration.language[0]==101?"<h3 class=\"red\">Upgrade failed</h3>":"<h3 class=\"red\">Aktualizacja nie powiodła się</h3>") : 
+
+
+
+      page += status ? (Configuration.language[0]==101?"<h3 class=\"red\">Upgrade failed</h3>":"<h3 class=\"red\">Aktualizacja nie powiodła się</h3>") :
                        (Configuration.language[0]==101?"<h3>Upgrade was successful!</h3><p>After 10 seconds switch will be autmatically reloaded. Please wait.</p>"
                                                       :"<h3>Aktualizacja zakończona pomyślnie!</h3><p>Po 10 sekundach przełącznik zostanie przeładowany z wgranym oprogramowaniem. Proszę czekać.</p>");
 
       page += "</div></div>";
-      
+
     generatePage(page, false, 10);
 }
 
 void handleNotFound() {
   if (Configuration.debugger) Serial <<  endl << "WARN: HTTPD Page not found";
 
-  String page = 
-    "<div class=\"section-content\">"  
+  String page =
+    "<div class=\"section-content\">"
     "<h4 style=\"margin: 60px 0px;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Error":"Błąd";page+=" 404:</span> ";page+=Configuration.language[0]==101?"Page Not Found":"Strona nie została odnaleziona";page+=".</h4>"
     "</div>";
 
   if (Configuration.debugger) Serial <<  endl << "INFO: HTTPD " << server.uri() << " " << server.args();
-  
+
   for (uint8_t i = 0; i < server.args(); i++) {
    if (Configuration.debugger) Serial << endl << "INFO: HTTPD " << server.argName(i) << ": " << server.arg(i);
   }
@@ -506,7 +536,7 @@ void handleNotFound() {
 void handleReboot() {
   if (Configuration.debugger) Serial << endl << "WARN: HTTPD Rebooting device";
   String page =
-    "<div class=\"section-content\">"  
+    "<div class=\"section-content\">"
     "<h4 style=\"margin: 60px 0px;\">";page+=Configuration.language[0]==101?"Rebooting is in progress":"Trwa restart";page+="</h4>"
     "</div>";
   generatePage(page,false,10);
@@ -516,7 +546,7 @@ void handleReboot() {
 void handleReset() {
   String page =
     "<div class=\"section\">";page+=Configuration.language[0]==101?"Device reset":"Restart przelacznika";page+="</div>"
-    "<div class=\"section-content\">"  
+    "<div class=\"section-content\">"
     "<h4 style=\"margin: 40px 0 10px 0;\"><span class=\"red\">";page+=Configuration.language[0]==101?"Important":"WaĹĽne";page+=": </span> ";page+=Configuration.language[0]==101?"Sonoff will be to its default values. You will loose connecton with Sonoff":"Sonoff zostanie zresetowany do wartości początkowych. Utracisz z nim połączenie.";page+=".</h4>"
     "<p>";page+=Configuration.language[0]==101?"Connect to WiFi":"Podłacz się do WiFi o nazwie ";page+=": <strong>";page+=Configuration.device_name;page+="</strong> ";page+=Configuration.language[0]==101?"from your computer or smartphone then open":"ze swojego komputera lub smartfonu, a następnie otwórz ";page+=" "
     "<a href=\"http://192.168.5.1\">http://192.168.5.1</a>"
@@ -535,7 +565,7 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   server.sendHeader("Pragma", "no-cache");
   server.sendHeader("Expires", "-1");
 
-  String _page = 
+  String _page =
   "<!DOCTYPE html>"
   "<html lang=\"en\">"
   "<head>"
@@ -545,10 +575,10 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
 
   if (redirect>0) {
     _page+="<meta http-equiv=\"refresh\" content=\"";
-    _page+=String(redirect); 
+    _page+=String(redirect);
     _page+=";URL=/\">";
   }
-  
+
   _page+="<title>Sonoff Configuration</title>"
   "<style>"
   "body{font-family:Helvetica;font-size:14px;margin:0;background-color:#292929}a{color:#aaaaaf;text-decoration:none}a:hover{color:#fafaff}ul{margin:0;padding:0;list-style-type:none}li.horizontal{display:inline;padding-right:5px;color:#aaaaaf}.container{margin:0 auto;height:auto}.header,.navigation,.section,.section-content{width:100%}.header{color:#eaeaef;padding:10px}.navigation{background-color:#676767;color:#fafaff;padding:10px}.section{background-color:#f0f0f0;color:#292929;font-weight:bold;padding:10px}.section-content{background-color:#fffff0;padding:10px 0 10px 20px}.label{font-weight:bold}.submit,.file{margin:5px 0;padding:5px 50px;background-color:#060;border:1px solid #060;color:#fff}.red{color:red}.file{margin:5px 0;padding:5px;background-color:#008;border:1px solid #008;color:#fff}.submit:hover{background-color:#080}"
@@ -573,21 +603,21 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   }
 
   _page+=page;
-  
-  _page+="<div class=\"header\"><p>"; 
-  _page+=Configuration.language[0]==101?"AFE Firmware version":"Wersja firmware AFE"; 
+
+  _page+="<div class=\"header\"><p>";
+  _page+=Configuration.language[0]==101?"AFE Firmware version":"Wersja firmware AFE";
   _page+=": " + String(Configuration.version) + "</p>"
   "<ul>";
-  _page+=Configuration.language[0]==101 ? 
+  _page+=Configuration.language[0]==101 ?
       "<li><a href=\"http://smart-house.adrian.czabanowski.com/en-sonoff-firmware/\" target=\"_blank\">Documentation</a></li>" :
       "<li><a href=\"http://smart-house.adrian.czabanowski.com/firmware-sonoff/\" target=\"_blank\">Dokumentacja</a></li>";
 
-  _page+="<li><a href=\"http://smart-house.adrian.czabanowski.com/forum/firmware-do-przelacznika-sonoff/\" target=\"_blank\">"; 
+  _page+="<li><a href=\"http://smart-house.adrian.czabanowski.com/forum/firmware-do-przelacznika-sonoff/\" target=\"_blank\">";
   _page+=Configuration.language[0]==101?"Support":"Wsparcie";_page+="</a></li>";
-        
-  _page+="<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware\" target=\"_blank\">GitHub</a></li>"  
-  "<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware/blob/master/LICENSE\" target=\"_blank\">";   
-  
+
+  _page+="<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware\" target=\"_blank\">GitHub</a></li>"
+  "<li><a href=\"https://github.com/tschaban/SONOFF-BASIC-firmware/blob/master/LICENSE\" target=\"_blank\">";
+
   _page+=Configuration.language[0]==101?"MIT License":"Licencja użytkownika";_page+="</a></li>"
   "</ul>"
   "</div>"
@@ -596,8 +626,3 @@ void generatePage(String &page, boolean navigation, uint8_t redirect) {
   "</html>";
   server.send(200, "text/html", _page);
 }
-
-
-
-
-

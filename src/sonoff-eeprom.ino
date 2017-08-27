@@ -54,11 +54,15 @@ SONOFFCONFIG SonoffEEPROM::getConfiguration() {
   _temp.number_connection_attempts = read(132, 2).toInt();
   _temp.duration_between_connection_attempts = read(134, 2).toInt();
   _temp.duration_between_next_connection_attempts_series = read(136, 2).toInt();
-  
+
   _temp.debugger = (read(130, 1).toInt() == 1 ? true : false);
 
   _temp.domoticz_publish_relay_state = (read(432, 1).toInt() == 1 ? true : false);
   _temp.domoticz_idx = read(429, 3).toInt();
+
+  _temp.network_ip = readIP(8);
+  _temp.subnet_ip = readIP(12);
+  _temp.gateway_ip = readIP(16);
 
   return _temp;
 }
@@ -305,3 +309,25 @@ void SonoffEEPROM::clear(unsigned int address, unsigned int size) {
 }
 
 
+void SonoffEEPROM::writeIP(uint16_t address,IPAddress ip) {
+   writeUInt8(address,ip[0]);
+   writeUInt8(address+1,ip[1]);
+   writeUInt8(address+2,ip[2]);
+   writeUInt8(address+3,ip[3]);
+}
+
+IPAddress SonoffEEPROM::readIP(uint16_t address) {
+   IPAddress ip(readUInt8(address),readUInt8(address+1),readUInt8(address+2),readUInt8(address+3));
+   return ip;
+}
+
+void SonoffEEPROM::writeUInt8(uint16_t address, uint8_t in) {
+  /* Method compares what's in EEPROM already to save lifecycle of it */
+  if (EEPROM.read(address)!=in) {
+     EEPROM.write(address, in);
+  }
+}
+
+uint8_t SonoffEEPROM::readUInt8(uint16_t address) {
+    return EEPROM.read(address);
+}

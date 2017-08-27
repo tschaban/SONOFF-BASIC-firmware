@@ -159,6 +159,7 @@ void Sonoff::runSwitch() {
   Led.on();
   if (Configuration.debugger) Serial << endl << "INFO: Device mode: SWITCH";
   if (Configuration.interface != INTERFACE_NONE) { /* If not standalone mode connect to WiFi and run DS18B20 sensor if configured */
+    WiFi.config(Configuration.network_ip, Configuration.gateway_ip, Configuration.subnet_ip);
     WiFi.mode(WIFI_STA); /* @TODO: does it make sense? */
     connectWiFi();
     if (Configuration.interface == INTERFACE_HTTP) {
@@ -191,6 +192,7 @@ void Sonoff::runSwitch() {
 void Sonoff::runConfigurationLAN() {
   Led.on();
   if (Configuration.debugger) Serial << endl << "INFO: Device mode: LAN Configuration";
+  WiFi.config(Configuration.network_ip, Configuration.gateway_ip, Configuration.subnet_ip);
   WiFi.mode(WIFI_STA);
   connectWiFi();
   if (!Configuration.sleep_mode) {

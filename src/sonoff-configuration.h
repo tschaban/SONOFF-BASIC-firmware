@@ -27,7 +27,7 @@
 #define   SWITCH_SENSITIVENESS_LOW 2
 #define   SWITCH_SENSITIVENESS_HIGH_VALUE 0
 #define   SWITCH_SENSITIVENESS_NORMAL_VALUE 3
-#define   SWITCH_SENSITIVENESS_LOW_VALUE 10 
+#define   SWITCH_SENSITIVENESS_LOW_VALUE 10
 
 #define   INTERFACE_NONE 0
 #define   INTERFACE_MQTT 1
@@ -46,7 +46,7 @@ struct DEFAULTS {
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
   unsigned int  temp_interval = 600;
-  boolean       temp_present = false; 
+  boolean       temp_present = false;
   uint8_t       relay_state_after_power_restored = DEFAULT_RELAY_LAST_KNOWN;
   uint8_t       relay_state_after_connection_restored = DEFAULT_RELAY_SERVER;
   boolean       switch_present = false;
@@ -56,7 +56,7 @@ struct DEFAULTS {
   uint8_t       number_connection_attempts = 20;
   uint8_t       duration_between_connection_attempts = 1; // seconds
   uint8_t       duration_between_next_connection_attempts_series = 1; // minutes
-          
+
  };
 
 
@@ -65,13 +65,18 @@ struct SONOFFCONFIG {
   char          language[3];
   char          id[6] = {0};
   char          device_name[32] = {0};
-  
+
   char          update_url[100];
   uint8_t       mode;
   uint8_t       interface;
-  
+
   char          wifi_ssid[32];
   char          wifi_password[32];
+
+  IPAddress     network_ip;
+  IPAddress     subnet_ip;
+  IPAddress     gateway_ip;
+
 
   char          mqtt_host[32];
   unsigned int  mqtt_port;
@@ -101,4 +106,3 @@ struct SONOFFCONFIG {
 
 
 #endif
-

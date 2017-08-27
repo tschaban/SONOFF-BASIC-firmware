@@ -25,11 +25,11 @@ class SonoffEEPROM
     SonoffEEPROM();
 
     SONOFFCONFIG getConfiguration();
-   
+
     uint8_t getRelayState();
     uint8_t getRelayStateAfterPowerRestored();
     uint8_t getRelayStateAfterConnectionRestored();
-    
+
     boolean isDS18B20Present();
     float   DS18B20Correction();
     unsigned int DS18B20ReadInterval();
@@ -40,7 +40,16 @@ class SonoffEEPROM
     uint8_t getSwitchSensitiveness();
 
     boolean debuggable();
-    
+
+    /* Used to read / write IP Address */
+    void writeIP(uint16_t address,IPAddress ip);
+    IPAddress readIP(uint16_t address);
+
+    /* Those two could be used to store 0-255 int under one address */
+    void writeUInt8(uint16_t address, uint8_t in);
+    uint8_t readUInt8(uint16_t address);
+
+
     void saveDeviceName(String in);
     void saveVersion(String in);
     void saveLanguage(String in);
@@ -51,7 +60,7 @@ class SonoffEEPROM
     void saveMQTTPort(unsigned int in);
     void saveMQTTUser(String in);
     void saveMQTTPassword(String in);
-    void saveMQTTTopic(String in);    
+    void saveMQTTTopic(String in);
     void saveMode(uint8_t in); /* Look at MODE_... defined */
     void saveTemperatureCorrection(float in);
     void saveTemperatureInterval(unsigned int in);
@@ -59,13 +68,13 @@ class SonoffEEPROM
     void saveRelayState(uint8_t in);
     void saveRelayStateAfterPowerRestored(uint8_t in);
     void saveRelayStateAfterConnectionRestored(uint8_t in);
- 
+
     void saveDomoticzIDX(unsigned int in);
     void saveDomoticzRelayStatePublish(uint8_t in);
 
     void saveSwitchPresent(uint8_t in);
     void saveSwitchGPIO(uint8_t in);
-    void saveSwitchType(uint8_t in);    
+    void saveSwitchType(uint8_t in);
     void saveSwitchSensitiveness(uint8_t in);
 
     void saveNumberConnectionAttempts(uint8_t in);
@@ -73,11 +82,8 @@ class SonoffEEPROM
     void saveDurationBetweenNextConnectionAttemptsSeries(uint8_t in);
 
     void saveDebuggable(byte in);
-    
-    
+
+
     void erase();
 };
 #endif
-
-
-
