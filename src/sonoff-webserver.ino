@@ -177,7 +177,7 @@ void handleConfiguration() {
     "<td class=\"label\">Port<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"number\" name=\"mqtt_port\" length=5 value=\"";page+=Configuration.mqtt_port;page+="\"/></td>"
     "</tr>"
-    "<tr>"
+/*    "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"User":"Użytkownik";page+="</td>"
     "<td>: <input type=\"text\" name=\"mqtt_user\" length=32 value=\"";page+=Configuration.mqtt_user;page+="\" /></td>"
     "</tr>"
@@ -188,7 +188,7 @@ void handleConfiguration() {
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Topic (only for MQTT)":"Temat (tylko dla MQTT)";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"text\" name=\"mqtt_topic\" length=32 value=\"";page+=Configuration.mqtt_topic;page+="\" /></td>"
-    "</tr>"
+    "</tr>"*/
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"IDX (only for Domoticz)":"IDX (tylko dla Domoticz)";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"number\" name=\"domoticz_idx\" length=3 value=\"";page+=Configuration.domoticz_idx;page+="\" /></td>"
@@ -287,7 +287,7 @@ void handleConfiguration() {
     "<option value=\"3\""; page+=Eeprom.getRelayStateAfterPowerRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnia zapamiętana wartość";page+="</option>"
     "</select></td>"
     "</tr>"
-    "<tr>"
+    /*"<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"After connection to MQTT server is restored set it to":"Po przwróceniu połączenia do brokera MQTT ustawić go na";page+="<sup class=\"red\">*</sup></td>"
     "<td>: <select name=\"relay_connection_restored\" length=1>"
     "<option value=\"1\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_ON ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"On":"Włączony";page+="</option>"
@@ -295,7 +295,7 @@ void handleConfiguration() {
     "<option value=\"3\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_LAST_KNOWN ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Last known":"Ostatnią zapamiętaną wartość";page+="</option>"
     "<option value=\"4\""; page+=Eeprom.getRelayStateAfterConnectionRestored()==DEFAULT_RELAY_SERVER ?" selected=\"selected\"":"";page+=">";page+=Configuration.language[0]==101?"Server value":"Wartość z serwera";page+="</option>"
     "</select></td>"
-    "</tr>"
+    "</tr>"*/
     "<tr>"
     "<td class=\"label\">";page+=Configuration.language[0]==101?"Send state to Domoticz by HTTP":"Wysyłaj stan do Domoticz przez HTTP";page+="?<sup class=\"red\">*</sup></td>"
     "<td>: <input type=\"checkbox\" name=\"sent_relay_state_domoticz\" length=1 value=\"1\"";
@@ -450,7 +450,7 @@ void handleSave() {
   }
 
   if (server.arg("gateway_ip0").length() > 0 && server.arg("gateway_ip1").length() > 0 && server.arg("gateway_ip2").length() > 0 && server.arg("gateway_ip3").length() > 0 ) {
-      Eeprom.writeIP(8,IPAddress(server.arg("gateway_ip0").toInt(),server.arg("gateway_ip1").toInt(),server.arg("gateway_ip2").toInt(),server.arg("gateway_ip3").toInt()));
+      Eeprom.writeIP(16,IPAddress(server.arg("gateway_ip0").toInt(),server.arg("gateway_ip1").toInt(),server.arg("gateway_ip2").toInt(),server.arg("gateway_ip3").toInt()));
   }
 
 

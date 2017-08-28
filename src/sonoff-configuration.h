@@ -41,7 +41,7 @@
 #define   SWITCH_MONO   1
 
 struct DEFAULTS {
-  char          version[8] = "0.8.9";
+  char          version[8] = "0.9.1";
   float         temp_correction = 0;
   char          language[3] = "en";
   unsigned int  mqtt_port = 1883;
