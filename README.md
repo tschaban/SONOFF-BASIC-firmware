@@ -9,6 +9,12 @@
 
 
 # Change log
+**0.10.0 (dh) beta (2017-11-01)**
+*This version supports temperature and humidity sensors DH11, DH21, DH22
+* Support of DS18B20 sensor is removed from this version
+* **IMPORTANT**: if you are not going to use DHxx sensor or you need DS18b20 sensor then install version 0.8.9
+* Info: not included in master branch. Look at 0.10-(DH) branch if you needed the code
+
 **0.8.9 (2017-06-08)**
 * Added option to select the type of external switch (mono- or bistable) on configuration screen
 * Added option to publish relay status to Domoticz (authorization is not implemented yet)
