@@ -5,14 +5,9 @@
   2016-10-27 tschaban https://github.com/tschaban
 */
 
-#include <DHT.h>
-#include <DHT_U.h>
 #include <DNSServer.h>
-#include <DallasTemperature.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266WiFi.h>
-
-#include <OneWire.h>
 
 #include "Streaming.h"
 #include "sonoff-button.h"
@@ -36,10 +31,6 @@ WiFiClient esp;
 ESP8266WebServer server(80);
 DNSServer dnsServer;
 ESP8266HTTPUpdateServer httpUpdater;
-OneWire wireProtocol(SENSOR_DS18B20);
-DallasTemperature DS18B20(&wireProtocol);
-
-DHT_Unified dht(DHTPIN, DHTTYPE);
 
 SonoffEEPROM Eeprom;
 SonoffRelay Relay;
@@ -52,12 +43,11 @@ SonoffDomoticzInterface DomoticzInterface;
 Sonoff Sonoff;
 
 void setup() {
-
+  Serial.begin(115200);
+  delay(10);
   Configuration = Eeprom.getConfiguration();
-
   if (Configuration.debugger) {
-    Serial.begin(115200);
-    delay(10);
+
     Serial.println();
     Serial << endl << "INFO: Configuration: " << endl;
     Serial << " - Version: " << Configuration.version << endl;
@@ -84,11 +74,21 @@ void setup() {
     Serial << "   - Duration between next connection series [min]: "
            << Configuration.duration_between_next_connection_attempts_series
            << endl;
-    Serial << " - DS18B20 Sensor: " << endl;
-    Serial << "   - Present: " << Configuration.ds18b20_present << endl;
-    Serial << "   - Temp correctin: " << Configuration.ds18b20_correction
-           << endl;
-    Serial << "   - Temp interval: " << Configuration.ds18b20_interval << endl;
+    //  Serial << " - DS18B20 Sensor: " << endl;
+    //  Serial << "   - Present: " << Configuration.ds18b20_present << endl;
+    //  Serial << "   - Temp correction: " << Configuration.ds18b20_correction
+    //         << endl;
+    //  Serial << "   - Temp interval: " << Configuration.ds18b20_interval <<
+    //  endl;
+
+    Serial << " - DHT Sensor: " << endl;
+    Serial << "   - Present: " << Configuration.dht_present << endl;
+    Serial << "   - Temp correction: "
+           << Configuration.dht_temperature_correction << endl;
+    Serial << "   - Humidity correction: "
+           << Configuration.dht_humidity_correction << endl;
+    Serial << "   - Temp interval: " << Configuration.dht_interval << endl;
+
     Serial << " - External switch " << endl;
     Serial << "   - Present: " << Configuration.switch_present << endl;
     Serial << "   - GPIO: " << Configuration.switch_gpio << endl;

@@ -7,44 +7,47 @@
 
 #include "sonoff-dht.h"
 
-SonoffDHT::SonoffDHT() { dht.begin(); }
+SonoffDHT::SonoffDHT() {}
 
 float SonoffDHT::getTemperature() {
+
+  DHT dht(14, Configuration.dht_type == 1
+                  ? DHT11
+                  : Configuration.dht_type == 2 ? DHT21 : DHT22);
+  dht.begin();
+
   float temperature;
   if (Configuration.debugger)
     Serial << endl << "INFO: Requesting temperature";
-  do {
-    dht.temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-      Serial.println("Error reading temperature!");
+  temperature = dht.readTemperature();
+  if (Configuration.debugger) {
+    if (isnan(temperature)) {
+      Serial << endl << "WARN: Error reading DHT sensor temperature";
     } else {
-      Serial.print("Temperature: ");
-      Serial.print(event.temperature);
-      Serial.println(" *C");
-      temperature = event.temperature;
+      Serial << endl << "INFO: temperature: " << temperature;
     }
-  } while (temperature == 85.0 || temperature == (-127.0));
-  if (Configuration.debugger)
-    Serial << endl << "INFO: temperature: " << temperature;
-  return temperature; // + Eeprom.DS18B20Correction();
+  }
+  return temperature + Configuration.dht_temperature_correction;
 }
 
 float SonoffDHT::getHumidity() {
+
+  DHT dht(14, Configuration.dht_type == 1
+                  ? DHT11
+                  : Configuration.dht_type == 2 ? DHT21 : DHT22);
+  dht.begin();
+
   float humidity;
   if (Configuration.debugger)
     Serial << endl << "INFO: Requesting Humidity";
-  do {
-    dht.humidity().getEvent(&event);
-    if (isnan(event.relative_humidity)) {
-      Serial.println("Error reading humidity!");
+  humidity = dht.readHumidity();
+  if (Configuration.debugger) {
+    if (isnan(humidity)) {
+      Serial << endl << "WARN: Error reading DHT sensor humidity";
     } else {
-      Serial.print("Humidity: ");
-      Serial.print(event.relative_humidity);
-      Serial.println("%");
-      humidity = event.relative_humidity;
+      Serial << endl << "INFO: humidity: " << humidity;
     }
-  } while (humidity == 85.0 || humidity == (-127.0));
-  if (Configuration.debugger)
-    Serial << endl << "INFO: Humidity: " << humidity;
-  return humidity; // + Eeprom.DS18B20Correction();
+  }
+  return humidity;
+  +Configuration.dht_humidity_correction;
 }
